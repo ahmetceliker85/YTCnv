@@ -4,6 +4,7 @@ using Android.Provider;
 #endif
 using YoutubeExplode;
 using YoutubeExplode.Common;
+using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 using Settings = YTCnv.Screens.Settings;
 using YTCnv.Screens;
@@ -15,11 +16,11 @@ namespace YTCnv
     public partial class MainPage : ContentPage
     {
         CancellationTokenSource _downloadCts;
+        YoutubeClient YouTube = new YoutubeClient();
+        HttpClient http = new HttpClient();
 
         private bool _4KChoice;
         private bool fastDwnld;
-
-        private const string ApiKeyPref = "YoutubeApiKey";
 
         private Dictionary<double, string> audioOptions;
         private Dictionary<int, string> videoOptions;
@@ -33,7 +34,7 @@ namespace YTCnv
             InitializeComponent();
             FormatPicker.SelectedIndex = 0;
             settings.LoadSettings();
-            SetApiKey();
+            InitializeMainPage();
         }
 
         protected override void OnAppearing()
@@ -44,16 +45,19 @@ namespace YTCnv
 
             if (!settings.IsDownloadRunning)
                 ResetMainPageState(fastDwnld);
-        }
 
-        private void SetApiKey()
-        {
-            Task.Run(async () => settings.APIKeyValidity = await settings.TestApiKey(Preferences.Get(ApiKeyPref, null)));
+            if (settings.IHaveId)
+            {
+                settings.IHaveId = false;
+                UrlEntry.Text = settings.ID;
+                settings.UrlEntryText = UrlEntry.Text;
+            }
         }
 
         private void OnLoadClicked(object sender, EventArgs e)
         {
             StatusLabel.IsVisible = false;
+            settings.StatusLabelIsVisible = false;
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
                 Task.Run(async () => await LoadVideoMetadata());
@@ -61,7 +65,9 @@ namespace YTCnv
             else
             {
                 StatusLabel.IsVisible = true;
+                settings.StatusLabelIsVisible = true;
                 StatusLabel.Text = "Please connect to the internet";
+                settings.StatusLabelText = "Please connect to the internet";
             }
         }
 
@@ -69,11 +75,10 @@ namespace YTCnv
         {
             settings.IsDownloadRunning = true;
 
-            YoutubeClient YouTube = new YoutubeClient();
-
             _4KChoice = settings.Use4K;
 
             LoadButton.IsEnabled = false;
+            settings.LoadButtonIsEnabled = false;
             url = UrlEntry.Text;
 
             if (string.IsNullOrWhiteSpace(url))
@@ -90,14 +95,16 @@ namespace YTCnv
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 DownloadIndicator.IsVisible = true;
-                DownloadIndicator.IsRunning = true;
+                settings.DownloadIndicatorIsVisible = true;
                 StatusLabel.IsVisible = true;
+                settings.StatusLabelIsVisible = true;
                 StatusLabel.Text = "Retrieving video metadata";
+                settings.StatusLabelText = "Retrieving video metadata";
             });
 
             try
             {
-                YoutubeExplode.Videos.Video? video = await YouTube.Videos.GetAsync(url);
+                Video? video = await YouTube.Videos.GetAsync(url);
 
                 if (video == null)
                 {
@@ -123,15 +130,32 @@ namespace YTCnv
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     LoadButton.IsVisible = false;
+                    settings.LoadButtonIsVisible = false;
+
                     LoadButton.IsEnabled = true;
+                    settings.LoadButtonIsEnabled = true;
+
                     StatusLabel.IsVisible = false;
+                    settings.StatusLabelIsVisible = false;
+
                     DownloadIndicator.IsVisible = false;
-                    DownloadIndicator.IsRunning = false;
+                    settings.DownloadIndicatorIsVisible = false;
+
                     downloadOptions.IsVisible = true;
+                    settings.DownloadOptionsIsVisible = false;
+
                     qualityPicker.IsVisible = true;
+                    settings.qualityPickerIsVisible = true;
+
+                    FormatPicker.SelectedIndex = 0;
+                    settings.FormatPickerSelectedIndex = 0;
+
                     qualityPicker.ItemsSource = audioOptions.Values.ToList();
                     qualityPicker.SelectedIndex = 0;
+                    settings.qualityPickerSelectedIndex = 0;
+
                     DownloadButton.IsVisible = true;
+                    settings.DownloadButtonIsVisible = true;
                 });
             }
             catch (Exception ex)
@@ -156,22 +180,29 @@ namespace YTCnv
             }
         }
 
-        private void OnDownloadClicked(object sender, EventArgs e)
+        private async void OnDownloadClicked(object sender, EventArgs e)
         {
             FormatPicker.IsEnabled = false;
+            settings.FormatPickerIsEnabled = false;
+
             qualityPicker.IsEnabled = false;
+            settings.qualityPickerIsEnabled = false;
 
             if (_downloadCts != null)
                 _downloadCts.Dispose();
+            _downloadCts = null;
             _downloadCts = new CancellationTokenSource();
+
             StatusLabel.IsVisible = false;
+            settings.StatusLabelIsVisible = false;
+
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
-                Task.Run(async () => await DoTheThing(fastDwnld));
+                await DoTheThing(fastDwnld);
             }
             else
             {
-                Task.Run(async () => await DisplayAlert("Lost connection", "Please connect to the internet", "OK"));
+                await DisplayAlert("Lost connection", "Please connect to the internet", "OK");
                 ResetMainPageState(fastDwnld, false);
             }
         }
@@ -180,17 +211,18 @@ namespace YTCnv
         {
             settings.IsDownloadRunning = true;
 
-            YoutubeClient YouTube = new YoutubeClient();
-
             _4KChoice = settings.Use4K;
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 DownloadButton.IsVisible = false;
+                settings.DownloadButtonIsVisible = false;
+
                 CancelButton.IsVisible = true;
+                settings.CancelButtonIsVisible = true;
             });
 
-            int selectedFormat = FormatPicker.SelectedIndex;
+            int selectedFormat = settings.FormatPickerSelectedIndex;
 
             Progress<double> progress = new Progress<double>(p =>
             {
@@ -220,23 +252,29 @@ namespace YTCnv
             string semiOutputAudio = Path.Combine(FileSystem.AppDataDirectory, "semi-outputAudio.mp3");
             string imagePath = Path.Combine(FileSystem.CacheDirectory, "thumbnail.jpg");
 
+            if (File.Exists(imagePath))
+                File.Delete(imagePath);
+
             try
             {
-#if ANDROID
-                var context = Android.App.Application.Context;
-                var intent = new Intent(context, typeof(DownloadNotificationService));
-                context.StartForegroundService(intent);
-#endif
-
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
+#if ANDROID
+                    var context = Android.App.Application.Context;
+                    var intent = new Intent(context, typeof(DownloadNotificationService));
+                    context.StartForegroundService(intent);
+#endif
+
                     DownloadIndicator.IsVisible = true;
-                    DownloadIndicator.IsRunning = true;
+                    settings.DownloadIndicatorIsVisible = true;
+
                     StatusLabel.IsVisible = true;
-                    StatusLabel.Text = "Retrieving video";
+                    settings.StatusLabelIsVisible = true;
+                    StatusLabel.Text = "Retrieving video metadata";
+                    settings.StatusLabelText = "Retrieving video metadata";
                 });
 
-                YoutubeExplode.Videos.Video? video = await YouTube.Videos.GetAsync(url, _downloadCts.Token);
+                Video? video = await YouTube.Videos.GetAsync(url).ConfigureAwait(false);
 
                 if (video == null)
                 {
@@ -255,18 +293,24 @@ namespace YTCnv
                 string title = CleanTitle(video.Title, author);
 
                 string thumbnailUrl = video.Thumbnails.GetWithHighestResolution().Url;
-                using HttpClient http = new HttpClient();
                 byte[] bytes = await http.GetByteArrayAsync(thumbnailUrl);
-                File.WriteAllBytes(imagePath, bytes);
+                await File.WriteAllBytesAsync(imagePath, bytes);
 
-                StreamManifest streamManifest = await YouTube.Videos.Streams.GetManifestAsync(url, _downloadCts.Token);
+                MainThread.BeginInvokeOnMainThread(() => StatusLabel.Text = "Retrieving video");
+                settings.StatusLabelText = "Retrieving video";
+
+                StreamManifest streamManifest = await YouTube.Videos.Streams.GetManifestAsync(url, _downloadCts.Token).ConfigureAwait(false);
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     DownloadIndicator.IsVisible = false;
-                    DownloadIndicator.IsRunning = false;
+                    settings.DownloadIndicatorIsVisible = false;
+
                     DwnldProgress.IsVisible = true;
+                    settings.DwnldProgressIsVisible = true;
+
                     StatusLabel.Text = $"Downloading {title}";
+                    settings.StatusLabelText = $"Downloading {title}";
                 });
 
                 if (File.Exists(m4aPath))
@@ -281,24 +325,34 @@ namespace YTCnv
                 if (selectedFormat == 0)
                 {
                     IStreamInfo audioStream = fastDwnld ? streamManifest.GetAudioOnlyStreams().Where(s => s.Container == Container.Mp4).TryGetWithHighestBitrate() : streamManifest.GetAudioOnlyStreams().Where(s => s.Container == Container.Mp4).FirstOrDefault(s => s.Bitrate.KiloBitsPerSecond == audioOptions.ElementAt(qualityPicker.SelectedIndex).Key);
-                    await YouTube.Videos.Streams.DownloadAsync(audioStream, m4aPath, progress: progress, cancellationToken: _downloadCts.Token);
+                    await YouTube.Videos.Streams.DownloadAsync(audioStream, m4aPath, progress: progress, cancellationToken: _downloadCts.Token).ConfigureAwait(false);
 
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         DwnldProgress.IsVisible = false;
+                        settings.DwnldProgressIsVisible = false;
+
                         DownloadIndicator.IsVisible = true;
-                        DownloadIndicator.IsRunning = true;
+                        settings.DownloadIndicatorIsVisible = true;
+
                         StatusLabel.Text = "Adding metadata";
+                        settings.StatusLabelText = "Adding metadata";
                     });
 
+                    GC.AddMemoryPressure(audioStream.Size.Bytes + 3);
 #if ANDROID
-                    await FFmpegInterop.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"");
+                    await FFmpegRunner.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"");
 
-                    SaveAudioToDownloads(Android.App.Application.Context, title + ".mp3", semiOutputAudio);
+                    MainThread.BeginInvokeOnMainThread(() => SaveAudioToDownloads(Android.App.Application.Context, title + ".mp3", semiOutputAudio));
+
+                    await Task.Delay(1000);
 #endif
 
-                    File.Delete(m4aPath);
-                    File.Delete(semiOutputAudio);
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        File.Delete(m4aPath);
+                        File.Delete(semiOutputAudio);
+                    });
                 }
                 if (selectedFormat == 1)
                 {
@@ -318,33 +372,43 @@ namespace YTCnv
                     Task audioTask = YouTube.Videos.Streams.DownloadAsync(audioStream, m4aPath, cancellationToken: _downloadCts.Token).AsTask();
                     Task videoTask = YouTube.Videos.Streams.DownloadAsync(videoStream, mp4Path, progress: progress, cancellationToken: _downloadCts.Token).AsTask();
 
-                    await Task.WhenAll(audioTask, videoTask);
+                    await Task.WhenAll(audioTask, videoTask).ConfigureAwait(false);
 
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         DwnldProgress.IsVisible = false;
+                        settings.DwnldProgressIsVisible = false;
+
                         DownloadIndicator.IsVisible = true;
-                        DownloadIndicator.IsRunning = true;
+                        settings.DownloadIndicatorIsVisible = true;
+
                         StatusLabel.Text = "Joining audio and video";
+                        settings.StatusLabelText = "Joining audio and video";
                     });
 
+                    GC.AddMemoryPressure(videoStream.Size.Bytes + 3);
 #if ANDROID
                     if (_4KChoice)
                     {
                         if (isMoreThan1080p)
-                            await FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
+                            await FFmpegRunner.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
                         else
-                            await FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
+                            await FFmpegRunner.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
                     }
                     else
-                        await FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
+                        await FFmpegRunner.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
 
-                    SaveVideoToDownloads(Android.App.Application.Context, title + ".mp4", semiOutput);
+                    MainThread.BeginInvokeOnMainThread(() => SaveVideoToDownloads(Android.App.Application.Context, title + ".mp4", semiOutput));
+
+                    await Task.Delay(1000);
 #endif
 
-                    File.Delete(m4aPath);
-                    File.Delete(mp4Path);
-                    File.Delete(semiOutput);
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        File.Delete(m4aPath);
+                        File.Delete(mp4Path);
+                        File.Delete(semiOutput);
+                    });
                 }
 
                 DownloadStopped();
@@ -360,10 +424,16 @@ namespace YTCnv
                 });
 
 #if ANDROID
-                var context = Android.App.Application.Context;
-                var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
-                context.StopService(stopIntent);
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    var context = Android.App.Application.Context;
+                    var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
+                    context.StopService(stopIntent);
+                });
+
+                FFmpegRunner.Cancel();
 #endif
+
                 DownloadStopped();
             }
             catch (Exception ex)
@@ -383,16 +453,23 @@ namespace YTCnv
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
                         await DisplayAlert("Error", ex.Message, "OK");
+                        Console.WriteLine(ex.Message);
                         ResetMainPageState(fastDwnld);
                     });
 
                     DeleteFiles();
                 }
 #if ANDROID
-                var context = Android.App.Application.Context;
-                var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
-                context.StopService(stopIntent);
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    var context = Android.App.Application.Context;
+                    var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
+                    context.StopService(stopIntent);
+                });
+
+                FFmpegRunner.Cancel();
 #endif
+
                 DownloadStopped();
             }
             finally
@@ -404,9 +481,14 @@ namespace YTCnv
 
                 DeleteFiles();
 #if ANDROID
-                var context = Android.App.Application.Context;
-                var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
-                context.StopService(stopIntent);
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    var context = Android.App.Application.Context;
+                    var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
+                    context.StopService(stopIntent);
+                });
+
+                FFmpegRunner.Cancel();
 #endif
                 DownloadStopped();
             }
@@ -428,7 +510,7 @@ namespace YTCnv
 
         public static string CleanTitle(string title, string author)
         {
-            List<string> toRemove = new List<string>(["Official Music Video", "Official Video", "Official Audio", "Official Audio Visualizer", "Official Song", "Full Album", "Deluxe Edition", "Lyrics"]);
+            List<string> toRemove = new List<string>(["Official Music Video", "Official Video", "Official Audio", "Audio", "Official Audio Visualizer", "Official Song", "Full Album", "Deluxe Edition", "Lyrics"]);
 
             title = new string(title.Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray());
 
@@ -499,20 +581,18 @@ namespace YTCnv
 
         private void OnCancelClicked(object sender, EventArgs e)
         {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
 #if ANDROID
-            FFmpegInterop.CancelFFmpegCommand();
+                FFmpegRunner.Cancel();
 #endif
 
-            _downloadCts?.Cancel();
+                _downloadCts?.Cancel();
 
-            CancelButton.IsVisible = false;
-            DownloadButton.IsVisible = true;
-            DwnldProgress.IsVisible = false;
-            DownloadIndicator.IsVisible = false;
-            DownloadIndicator.IsRunning = false;
-            StatusLabel.IsVisible = false;
+                settings.IsDownloadRunning = false;
 
-            settings.IsDownloadRunning = false;
+                ResetMainPageState(fastDwnld, false);
+            });
         }
 
         private async void OpenSettings(object sender, EventArgs e)
@@ -523,6 +603,23 @@ namespace YTCnv
         private async void OpenSearch(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(YouTubeSearch));
+        }
+
+        private void InitializeMainPage()
+        {
+            settings.UrlEntryText = UrlEntry.Text;
+            settings.DownloadOptionsIsVisible = downloadOptions.IsVisible;
+            settings.FormatPickerSelectedIndex = FormatPicker.SelectedIndex;
+            settings.qualityPickerIsVisible = qualityPicker.IsVisible;
+            settings.qualityPickerSelectedIndex = qualityPicker.SelectedIndex;
+            settings.LoadButtonIsVisible = LoadButton.IsVisible;
+            settings.LoadButtonIsEnabled = LoadButton.IsEnabled;
+            settings.DownloadButtonIsVisible = DownloadButton.IsVisible;
+            settings.CancelButtonIsVisible = CancelButton.IsVisible;
+            settings.DwnldProgressIsVisible = DwnldProgress.IsVisible;
+            settings.DownloadIndicatorIsVisible = DownloadIndicator.IsVisible;
+            settings.StatusLabelText = StatusLabel.Text;
+            settings.StatusLabelIsVisible = StatusLabel.IsVisible;
         }
 
         private void OnWantedFormatChanged(object sender, EventArgs e)
@@ -536,12 +633,16 @@ namespace YTCnv
             switch (picker.SelectedIndex)
             {
                 case 0:
+                    settings.FormatPickerSelectedIndex = 0;
                     qualityPicker.ItemsSource = audioOptions.Values.ToList();
                     qualityPicker.SelectedIndex = 0;
+                    settings.qualityPickerSelectedIndex = 0;
                     break;
                 case 1:
+                    settings.FormatPickerSelectedIndex = 1;
                     qualityPicker.ItemsSource = videoOptions.Values.ToList();
                     qualityPicker.SelectedIndex = 0;
+                    settings.qualityPickerSelectedIndex = 0;
                     break;
             }
         }
@@ -549,21 +650,41 @@ namespace YTCnv
         private void ResetMainPageState(bool isQuickDownload, bool clearUrl = true)
         {
             downloadOptions.IsVisible = false;
-            FormatPicker.IsEnabled = true;
-            qualityPicker.IsEnabled = true;
-            qualityPicker.SelectedIndex = 0;
-            DownloadButton.IsVisible = false;
-            CancelButton.IsVisible = false;
-            DwnldProgress.IsVisible = false;
-            DownloadIndicator.IsVisible = false;
-            DownloadIndicator.IsRunning = false;
-            StatusLabel.IsVisible = false;
+            settings.DownloadOptionsIsVisible = false;
 
-            UrlEntry.Text = clearUrl ? "" : UrlEntry.Text;
+            FormatPicker.IsEnabled = true;
+            settings.FormatPickerIsEnabled = true;
+
+            qualityPicker.IsEnabled = true;
+            settings.qualityPickerIsEnabled = true;
+
+            qualityPicker.SelectedIndex = 0;
+            settings.qualityPickerSelectedIndex = 0;
+
+            DownloadButton.IsVisible = false;
+            settings.DownloadButtonIsVisible = false;
+
+            CancelButton.IsVisible = false;
+            settings.CancelButtonIsVisible = false;
+
+            DwnldProgress.IsVisible = false;
+            settings.DwnldProgressIsVisible = false;
+
+            DownloadIndicator.IsVisible = false;
+            settings.DownloadIndicatorIsVisible = false;
+
+            StatusLabel.IsVisible = false;
+            settings.StatusLabelIsVisible = false;
+
+            UrlEntry.Text = clearUrl ? "" : settings.UrlEntryText;
+            settings.UrlEntryText = clearUrl ? "" : settings.UrlEntryText;
             url = "";
 
             LoadButton.IsVisible = true;
+            settings.LoadButtonIsVisible = true;
+
             LoadButton.IsEnabled = true;
+            settings.LoadButtonIsEnabled = true;
 
             if (isQuickDownload)
             {
@@ -574,17 +695,45 @@ namespace YTCnv
         private void QuickDownloadPage()
         {
             downloadOptions.IsVisible = true;
+            settings.DownloadOptionsIsVisible = true;
+
             qualityPicker.IsVisible = false;
+            settings.qualityPickerIsVisible = false;
+
             LoadButton.IsVisible = false;
+            settings.LoadButtonIsVisible = false;
+
             DownloadButton.IsVisible = true;
+            settings.DownloadButtonIsVisible = true;
         }
 
         private void DownloadStopped()
         {
-            if (_downloadCts != null)
-                _downloadCts.Dispose();
-            _downloadCts = null;
-            settings.IsDownloadRunning = false;
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (_downloadCts != null)
+                    _downloadCts.Dispose();
+                _downloadCts = null;
+                settings.IsDownloadRunning = false;
+            });
+        }
+
+        private void OnQualityChanged(object sender, EventArgs e)
+        {
+            if (qualityPicker == null || audioOptions == null || videoOptions == null)
+                return;
+
+            if (sender is not Picker picker)
+                return;
+
+            settings.qualityPickerSelectedIndex = picker.SelectedIndex;
+        }
+
+        private async void testFFmpehg(object sender, EventArgs e)
+        {
+#if ANDROID
+            await FFmpegRunner.RunFFmpegCommand("-version");
+#endif
         }
     }
 }

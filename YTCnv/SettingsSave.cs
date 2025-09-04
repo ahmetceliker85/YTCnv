@@ -59,48 +59,30 @@ namespace YTCnv
             }
         }
 
-        //---------- Singleton functions ----------
-
-        public byte APIKeyValidity = 1;
-
-        public async Task<byte> TestApiKey(string? apiKey)
-        {
-            if (string.IsNullOrWhiteSpace(apiKey))
-                return 3;
-
-            try
-            {
-                using var http = new HttpClient();
-                string testUrl = $"https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=test&maxResults=1&key={apiKey}";
-                var result = await http.GetAsync(testUrl);
-                if (result.IsSuccessStatusCode)
-                    return 0;
-                else
-                    return 1;
-            }
-#if ANDROID
-            catch (Java.Net.UnknownHostException)
-            {
-                return 2;
-            }
-#endif
-            catch (HttpRequestException)
-            {
-                return 2;
-            }
-            catch (TaskCanceledException)
-            {
-                return 2;
-            }
-            catch (Exception)
-            {
-                return 1;
-            }
-        }
-
-        //---------- Singleton functions ----------
+        //---------- Singleton variables ----------
 
         public bool IsDownloadRunning = false;
+
+        public bool IHaveId = false;
+        public string ID = "";
+
+        // ---------- MainPage ----------
+        
+        public string UrlEntryText;
+        public bool DownloadOptionsIsVisible;
+        public int FormatPickerSelectedIndex;
+        public bool FormatPickerIsEnabled;
+        public bool qualityPickerIsVisible;
+        public int qualityPickerSelectedIndex;
+        public bool qualityPickerIsEnabled;
+        public bool LoadButtonIsVisible;
+        public bool LoadButtonIsEnabled;
+        public bool DownloadButtonIsVisible;
+        public bool CancelButtonIsVisible;
+        public bool DwnldProgressIsVisible;
+        public bool DownloadIndicatorIsVisible;
+        public string StatusLabelText;
+        public bool StatusLabelIsVisible;
 
         //---------- Save/Load ----------
 
@@ -126,10 +108,30 @@ namespace YTCnv
             }
         }
 
+        // ---------- Classes ----------
+
         public class SettingsClass
         {
             public bool UseUpTo4K { get; set; }
             public bool QuickDownload { get; set; }
+        }
+
+        public class MainPageClass
+        {
+            public string UrlEntryText { get; set; }
+            public bool DownloadOptionsIsVisible { get; set; }
+            public byte FormatPickerSelectedIndex { get; set; }
+            public bool qualityPickerIsVisible { get; set; }
+            public byte qualityPickerSelectedIndex { get; set; }
+            public bool LoadButtonIsVisible { get; set; }
+            public bool LoadButtonIsEnabled { get; set; }
+            public bool DownloadButtonIsVisible { get; set; }
+            public bool CancelButtonIsVisible { get; set; }
+            public bool DwnldProgressIsVisible { get; set; }
+            public bool DownloadIndicatorIsVisible { get; set; }
+            public bool DownloadIndicatorIsRunning { get; set; }
+            public string StatusLabelText { get; set; }
+            public bool StatusLabelIsVisible { get; set; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

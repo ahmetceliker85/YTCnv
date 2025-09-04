@@ -14,15 +14,6 @@
                 <Label Text="Settings" FontSize="18" FontFamily="Poppins" VerticalTextAlignment="Center" Padding="10,2,0,0"/>
             </FlexLayout>
 
-            <Label x:Name="ApiKeyLabel" Text="API Key: " FontFamily="Poppins" />
-
-            <Button x:Name="RevealKeyButton" Text="Unlock to View/Change Key" Clicked="OnUnlockClicked" BackgroundColor="White" TextColor="Black" />
-
-            <StackLayout x:Name="KeyEditorPanel" IsVisible="False" Spacing="10">
-                <Entry x:Name="ApiKeyEntry" Placeholder="Enter new API key" />
-                <Button Text="Save New API Key" Clicked="OnSaveApiKeyClicked" BackgroundColor="White" TextColor="Black" />
-            </StackLayout>
-
             <!--Settings-->
             <FlexLayout BackgroundColor="Grey" Margin="0,20,0,0" Padding="25,0">
                 <Frame  FlexLayout.Grow="1" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">

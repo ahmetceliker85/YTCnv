@@ -21,6 +21,9 @@ namespace YTCnv
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
+#if ANDROID
+            FFmpegRunner.CopyBinaries();
+#endif
 
             return builder.Build();
         }

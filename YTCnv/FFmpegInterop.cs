@@ -5,8 +5,6 @@ namespace YTCnv
 {
     public static class FFmpegInterop
     {
-        private static FFmpegSession _activeSession;
-
         public static async Task<bool> RunFFmpegCommand(string command)
         {
             var tcs = new TaskCompletionSource<FFmpegSession>();
@@ -14,7 +12,7 @@ namespace YTCnv
 
             try
             {
-                _activeSession = FFmpegKit.ExecuteAsync(command, callback);
+                FFmpegSession FFmpegSession = FFmpegKit.ExecuteAsync(command, callback);
 
                 var session = await tcs.Task;
                 var returnCode = session.ReturnCode;
@@ -37,13 +35,83 @@ namespace YTCnv
             }
         }
 
-        public static void CancelFFmpegCommand()
+        public static Task DisposeOfSessions()
         {
-            if (_activeSession != null && _activeSession.State == SessionState.Running)
+            return Task.Run(() =>
             {
-                FFmpegKit.Cancel(_activeSession.SessionId);
-                Console.WriteLine("FFmpeg session cancelled.");
-            }
+                try
+                {
+                    FFmpegKit.Cancel();
+
+                    var sessions = FFmpegKitConfig.FFmpegSessions;
+                    if (sessions != null && sessions.Count > 0)
+                    {
+                        for (int i = 0; i < sessions.Count; i++)
+                        {
+                            try
+                            {
+                                sessions[i]?.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Dispose session {i} failed: {ex.Message}");
+                            }
+                        }
+                    }
+
+                    FFmpegKitConfig.ClearSessions();
+                    FFmpegKitConfig.Sessions.Clear();
+                    FFmpegKitConfig.DisableRedirection();
+
+                    Console.WriteLine("FFmpeg sessions were disposed of");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"DisposeOfSessionsAsync error: {ex}");
+                }
+            });
+        }
+
+        public static Task CancelFFmpegCommand()
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    FFmpegKit.Cancel();
+
+                    var sessions = FFmpegKitConfig.FFmpegSessions;
+                    if (sessions != null && sessions.Count > 0)
+                    {
+                        for (int i = 0; i < sessions.Count; i++)
+                        {
+                            try
+                            {
+                                sessions[i]?.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Dispose session {i} failed: {ex.Message}");
+                            }
+                        }
+                    }
+
+                    FFmpegKitConfig.ClearSessions();
+                    FFmpegKitConfig.Sessions.Clear();
+                    FFmpegKitConfig.DisableRedirection();
+
+                    Console.WriteLine("FFmpeg sessions were disposed of");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"CancelFFmpegCommandAsync error: {ex}");
+                }
+            });
+        }
+
+        public static void SetFFmpegSessionMemory()
+        {
+            FFmpegKitConfig.SessionHistorySize = 0;
         }
     }
 

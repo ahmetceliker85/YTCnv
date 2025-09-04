@@ -30,7 +30,7 @@
                         </x:Array>
                     </Picker.ItemsSource>
                 </Picker>
-                <Picker x:Name="qualityPicker" Title="Choose quality" FontSize="13"/>
+                <Picker x:Name="qualityPicker" Title="Choose quality" FontSize="13" SelectedIndexChanged="OnQualityChanged"/>
             </HorizontalStackLayout>
 
             <Button x:Name="LoadButton" Text="Load metadata" Clicked="OnLoadClicked" WidthRequest="100" BackgroundColor="White" TextColor="Black" FlexLayout.Grow="1"/>
@@ -40,8 +40,10 @@
 
 
         <ProgressBar x:Name="DwnldProgress" IsVisible="False" />
-        <ActivityIndicator x:Name="DownloadIndicator" IsVisible="False" IsRunning="False" />
+        <ActivityIndicator x:Name="DownloadIndicator" IsVisible="False" IsRunning="True" />
         <Label x:Name="StatusLabel" IsVisible="False" HorizontalTextAlignment="Center"/>
+
+        <Button Text="Test ffmpeg" Clicked="testFFmpehg"/>
 
     </VerticalStackLayout>
 </ContentPage>
