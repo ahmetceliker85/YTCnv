@@ -7,6 +7,8 @@ namespace YTCnv
     {
         public static async Task<bool> RunFFmpegCommand(string command)
         {
+            SetFFmpegSessionMemory();
+            
             var tcs = new TaskCompletionSource<FFmpegSession>();
             var callback = new FFmpegSessionCompleteCallback(tcs);
 
@@ -131,4 +133,5 @@ namespace YTCnv
         }
     }
 }
+
 #endif
