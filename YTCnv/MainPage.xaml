@@ -43,7 +43,5 @@
         <ActivityIndicator x:Name="DownloadIndicator" IsVisible="False" IsRunning="True" />
         <Label x:Name="StatusLabel" IsVisible="False" HorizontalTextAlignment="Center"/>
 
-        <Button Text="Test ffmpeg" Clicked="testFFmpehg"/>
-
     </VerticalStackLayout>
 </ContentPage>

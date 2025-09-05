@@ -1,6 +1,9 @@
 ﻿using System.Text.Json;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+#if ANDROID
+using YTCnv.FFmpeg;
+#endif
 
 namespace YTCnv
 {
@@ -66,8 +69,12 @@ namespace YTCnv
         public bool IHaveId = false;
         public string ID = "";
 
+#if ANDROID
+        public FFmpegResultReceiver ffmpegReciever = new FFmpegResultReceiver();
+#endif
+
         // ---------- MainPage ----------
-        
+
         public string UrlEntryText;
         public bool DownloadOptionsIsVisible;
         public int FormatPickerSelectedIndex;
@@ -114,24 +121,6 @@ namespace YTCnv
         {
             public bool UseUpTo4K { get; set; }
             public bool QuickDownload { get; set; }
-        }
-
-        public class MainPageClass
-        {
-            public string UrlEntryText { get; set; }
-            public bool DownloadOptionsIsVisible { get; set; }
-            public byte FormatPickerSelectedIndex { get; set; }
-            public bool qualityPickerIsVisible { get; set; }
-            public byte qualityPickerSelectedIndex { get; set; }
-            public bool LoadButtonIsVisible { get; set; }
-            public bool LoadButtonIsEnabled { get; set; }
-            public bool DownloadButtonIsVisible { get; set; }
-            public bool CancelButtonIsVisible { get; set; }
-            public bool DwnldProgressIsVisible { get; set; }
-            public bool DownloadIndicatorIsVisible { get; set; }
-            public bool DownloadIndicatorIsRunning { get; set; }
-            public string StatusLabelText { get; set; }
-            public bool StatusLabelIsVisible { get; set; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

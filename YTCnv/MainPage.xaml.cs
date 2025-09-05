@@ -29,6 +29,8 @@ namespace YTCnv
 
         private SettingsSave settings = SettingsSave.Instance();
 
+        private bool registered = false;
+
         public MainPage()
         {
             InitializeComponent();
@@ -222,6 +224,8 @@ namespace YTCnv
                 settings.CancelButtonIsVisible = true;
             });
 
+            Console.WriteLine("Download started");
+
             int selectedFormat = settings.FormatPickerSelectedIndex;
 
             Progress<double> progress = new Progress<double>(p =>
@@ -251,6 +255,8 @@ namespace YTCnv
             string semiOutput = Path.Combine(FileSystem.AppDataDirectory, "semi-outputVideo.mp4");
             string semiOutputAudio = Path.Combine(FileSystem.AppDataDirectory, "semi-outputAudio.mp3");
             string imagePath = Path.Combine(FileSystem.CacheDirectory, "thumbnail.jpg");
+
+            string title = "";
 
             if (File.Exists(imagePath))
                 File.Delete(imagePath);
@@ -290,11 +296,30 @@ namespace YTCnv
                 string author = video.Author.ChannelTitle;
                 author = author.Replace(" - Topic", "", true, CultureInfo.InvariantCulture);
 
-                string title = CleanTitle(video.Title, author);
+                title = CleanTitle(video.Title, author);
 
                 string thumbnailUrl = video.Thumbnails.GetWithHighestResolution().Url;
                 byte[] bytes = await http.GetByteArrayAsync(thumbnailUrl);
                 await File.WriteAllBytesAsync(imagePath, bytes);
+
+                if (!registered)
+                {
+#if ANDROID
+                    settings.ffmpegReciever.OnFFmpegFinished += result =>
+                    {
+                        if (result.code == 0)
+                        {
+                            FinishUp(result.audioVideoElse);
+                        }
+                        else
+                        {
+                            itScrewedUp();
+                        }
+                    };
+
+                    registered = true;
+#endif
+                }
 
                 MainThread.BeginInvokeOnMainThread(() => StatusLabel.Text = "Retrieving video");
                 settings.StatusLabelText = "Retrieving video";
@@ -341,18 +366,8 @@ namespace YTCnv
 
                     GC.AddMemoryPressure(audioStream.Size.Bytes + 3);
 #if ANDROID
-                    await FFmpegRunner.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"");
-
-                    MainThread.BeginInvokeOnMainThread(() => SaveAudioToDownloads(Android.App.Application.Context, title + ".mp3", semiOutputAudio));
-
-                    await Task.Delay(1000);
+                    MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"", 1));
 #endif
-
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        File.Delete(m4aPath);
-                        File.Delete(semiOutputAudio);
-                    });
                 }
                 if (selectedFormat == 1)
                 {
@@ -391,34 +406,21 @@ namespace YTCnv
                     if (_4KChoice)
                     {
                         if (isMoreThan1080p)
-                            await FFmpegRunner.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
+                            MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2));
                         else
-                            await FFmpegRunner.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
+                            MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2));
                     }
                     else
-                        await FFmpegRunner.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"");
-
-                    MainThread.BeginInvokeOnMainThread(() => SaveVideoToDownloads(Android.App.Application.Context, title + ".mp4", semiOutput));
-
-                    await Task.Delay(1000);
+                        MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2));
 #endif
-
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        File.Delete(m4aPath);
-                        File.Delete(mp4Path);
-                        File.Delete(semiOutput);
-                    });
                 }
-
-                DownloadStopped();
             }
             catch (OperationCanceledException)
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    await DisplayAlert("Canceled", "The download was cancelled.", "OK");
                     ResetMainPageState(fastDwnld, false);
+                    await DisplayAlert("Canceled", "The download was cancelled.", "OK");
 
                     DeleteFiles();
                 });
@@ -431,7 +433,7 @@ namespace YTCnv
                     context.StopService(stopIntent);
                 });
 
-                FFmpegRunner.Cancel();
+                FFmpegInterop.CancelFFmpeg();
 #endif
 
                 DownloadStopped();
@@ -442,8 +444,8 @@ namespace YTCnv
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await DisplayAlert("Lost connection", "Please connect to the internet", "OK");
                         ResetMainPageState(fastDwnld, false);
+                        await DisplayAlert("Lost connection", "Please connect to the internet", "OK");
                     });
 
                     DeleteFiles();
@@ -452,9 +454,9 @@ namespace YTCnv
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await DisplayAlert("Error", ex.Message, "OK");
                         Console.WriteLine(ex.Message);
                         ResetMainPageState(fastDwnld);
+                        await DisplayAlert("Error", ex.Message, "OK");
                     });
 
                     DeleteFiles();
@@ -467,29 +469,9 @@ namespace YTCnv
                     context.StopService(stopIntent);
                 });
 
-                FFmpegRunner.Cancel();
+                FFmpegInterop.CancelFFmpeg();
 #endif
 
-                DownloadStopped();
-            }
-            finally
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    ResetMainPageState(fastDwnld);
-                });
-
-                DeleteFiles();
-#if ANDROID
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    var context = Android.App.Application.Context;
-                    var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
-                    context.StopService(stopIntent);
-                });
-
-                FFmpegRunner.Cancel();
-#endif
                 DownloadStopped();
             }
 
@@ -505,6 +487,64 @@ namespace YTCnv
                     File.Delete(semiOutputAudio);
                 if (File.Exists(imagePath))
                     File.Delete(imagePath);
+            }
+
+            void FinishUp(byte audioVideoElse)
+            {
+                Console.WriteLine("FFmpeg process finally finished");
+#if ANDROID
+                switch (audioVideoElse)
+                {
+                    case 1:
+                        SaveAudioToDownloads(Android.App.Application.Context, title + ".mp3", semiOutputAudio);
+                        break;
+                    case 2:
+                        SaveVideoToDownloads(Android.App.Application.Context, title + ".mp4", semiOutput);
+                        break;
+                    default:
+                        break;
+                }  
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    var context = Android.App.Application.Context;
+                    var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
+                    context.StopService(stopIntent);
+                });
+
+                FFmpegInterop.CancelFFmpeg();
+#endif
+                DeleteFiles();
+                DownloadStopped();
+
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    ResetMainPageState(fastDwnld);
+                    await DisplayAlert("Finished", "The download has completed successfully.", "OK");
+                });
+            }
+
+            void itScrewedUp()
+            {
+#if ANDROID
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    var context = Android.App.Application.Context;
+                    var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
+                    context.StopService(stopIntent);
+                });
+
+                FFmpegInterop.CancelFFmpeg();
+#endif
+
+                DeleteFiles();
+                DownloadStopped();
+
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    ResetMainPageState(fastDwnld);
+                    await DisplayAlert("Failed", "The app failed to add metadata and save the file.", "OK");
+                });
             }
         }
 
@@ -579,12 +619,12 @@ namespace YTCnv
         }
 #endif
 
-        private void OnCancelClicked(object sender, EventArgs e)
+        private async void OnCancelClicked(object sender, EventArgs e)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
 #if ANDROID
-                FFmpegRunner.Cancel();
+                FFmpegInterop.CancelFFmpeg();
 #endif
 
                 _downloadCts?.Cancel();
@@ -727,13 +767,6 @@ namespace YTCnv
                 return;
 
             settings.qualityPickerSelectedIndex = picker.SelectedIndex;
-        }
-
-        private async void testFFmpehg(object sender, EventArgs e)
-        {
-#if ANDROID
-            await FFmpegRunner.RunFFmpegCommand("-version");
-#endif
         }
     }
 }
