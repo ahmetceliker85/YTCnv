@@ -293,8 +293,7 @@ namespace YTCnv
                     return;
                 }
 
-                string author = video.Author.ChannelTitle;
-                author = author.Replace(" - Topic", "", true, CultureInfo.InvariantCulture);
+                string author = CleanAuthor(video.Author.ChannelTitle);
 
                 title = CleanTitle(video.Title, author);
 
@@ -548,9 +547,17 @@ namespace YTCnv
             }
         }
 
+        public static string CleanAuthor(string author)
+        {
+            author = author.Replace(" - Topic", "", true, CultureInfo.InvariantCulture);
+            author = author.Replace("OfficialVEVO", "", true, CultureInfo.InvariantCulture);
+
+            return author;
+        }
+
         public static string CleanTitle(string title, string author)
         {
-            List<string> toRemove = new List<string>(["Official Music Video", "Official Video", "Official Audio", "Audio", "Official Audio Visualizer", "Official Song", "Full Album", "Deluxe Edition", "Lyrics"]);
+            List<string> toRemove = new List<string> { "Official Music Video", "Official Video", "Official Audio", "Audio", "Official Audio Visualizer", "Official Song", "Full Album", "Deluxe Edition", "Lyrics" };
 
             title = new string(title.Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray());
 
@@ -560,11 +567,33 @@ namespace YTCnv
                 title = title.Replace("[" + subString + "]", "", true, CultureInfo.InvariantCulture);
             }
 
+            Console.WriteLine("Title is " + title);
+            Console.WriteLine("Author is " + author);
+
             title = Regex.Replace(title, @"\[.*?\]", "");
             title = title.Replace($"{author} - ", "", true, CultureInfo.InvariantCulture);
             title = title.Replace($"{author}-", "", true, CultureInfo.InvariantCulture);
             title = title.Replace($" - {author}", "", true, CultureInfo.InvariantCulture);
             title = title.Replace($"-{author}", "", true, CultureInfo.InvariantCulture);
+
+            string[] titleParts = title.Split(new[] { " - " }, StringSplitOptions.None);
+
+            Console.WriteLine("Title parts are " + string.Join(" | ", titleParts));
+
+            for (int i = 0; i < titleParts.Length; i++)
+            {
+                if (titleParts[i].Contains(author, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine($"Match found at index {i}: {titleParts[i]}");
+
+                    var remainingParts = titleParts.Where((part, index) => index != i);
+
+                    title = string.Join(" ", remainingParts);
+
+                    break;
+                }
+            }
+
             title = title.Trim();
 
             if (string.IsNullOrWhiteSpace(title))

@@ -1,14 +1,32 @@
 ﻿using Android;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Core.App;
 
 namespace YTCnv
 {
-    [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+    [Activity(
+        Theme = "@style/Maui.SplashTheme",
+        MainLauncher = true,
+        LaunchMode = LaunchMode.SingleTop,
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation |
+                               ConfigChanges.UiMode | ConfigChanges.ScreenLayout |
+                               ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+    [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataMimeType = "text/plain")]
+    [IntentFilter(new[] { Intent.ActionView },
+                  Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+                  DataScheme = "https",
+                  DataHost = "www.youtube.com")]
+    [IntentFilter(new[] { Intent.ActionView },
+                  Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+                  DataScheme = "https",
+                  DataHost = "youtu.be")]
     public class MainActivity : MauiAppCompatActivity
     {
+        private SettingsSave settings = SettingsSave.Instance();
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -19,6 +37,44 @@ namespace YTCnv
             }
 
             RequestNotificationPermission();
+
+            HandleIntent(Intent);
+        }
+
+        protected override void OnNewIntent(Intent? intent)
+        {
+            base.OnNewIntent(intent);
+            HandleIntent(intent);
+        }
+
+        private void HandleIntent(Intent? intent)
+        {
+            if (intent == null) return;
+
+            if (Intent.ActionSend.Equals(intent.Action) && intent.Type == "text/plain")
+            {
+                string? sharedText = intent.GetStringExtra(Intent.ExtraText);
+                if (!string.IsNullOrEmpty(sharedText))
+                {
+                    Console.WriteLine($"Shared text: {sharedText}");
+                    settings.IHaveId = true;
+                    settings.ID = sharedText.Trim();
+                }
+            }
+            else if (Intent.ActionView.Equals(intent.Action))
+            {
+                Android.Net.Uri? uri = intent.Data;
+                if (uri != null)
+                {
+                    string? youtubeUrl = uri.ToString();
+                    if (!string.IsNullOrEmpty(youtubeUrl))
+                    {
+                        Console.WriteLine($"Opened via YouTube link: {youtubeUrl}");
+                        settings.IHaveId = true;
+                        settings.ID = youtubeUrl.Trim();
+                    }
+                }
+            }
         }
 
         public void RequestNotificationPermission()

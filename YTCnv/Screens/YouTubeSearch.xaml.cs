@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using YoutubeExplode;
 using YoutubeExplode.Search;
 
@@ -124,7 +125,7 @@ public partial class YouTubeSearch : ContentPage
         public TempYouTubeResult(VideoSearchResult video)
         {
             Title = video.Title;
-            Author = video.Author.ChannelTitle;
+            Author = video.Author.ChannelTitle.Replace(" - Topic", "", true, CultureInfo.InvariantCulture);
             ThumbnailUrl = video.Thumbnails?.FirstOrDefault()?.Url ?? "";
             Duration = video.Duration != null ? cleanDuration((TimeSpan)video.Duration) : "Live";
             VideoId = video.Id;
