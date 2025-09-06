@@ -36,6 +36,8 @@ namespace YTCnv
                 Window.SetStatusBarColor(Android.Graphics.Color.Transparent);
             }
 
+            _ = UpdateChecker.CheckForUpdatesAsync();
+
             RequestNotificationPermission();
 
             HandleIntent(Intent);

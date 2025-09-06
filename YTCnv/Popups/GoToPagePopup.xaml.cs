@@ -1,6 +1,6 @@
 using CommunityToolkit.Maui.Views;
 
-namespace YTCnv.Popups;
+namespace YTCnv;
 
 public partial class GoToPagePopup : Popup
 {

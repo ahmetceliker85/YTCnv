@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 #if ANDROID
@@ -62,6 +62,21 @@ namespace YTCnv
             }
         }
 
+        private bool dontShowUpdate = false;
+        public bool DontShowUpdate
+        {
+            get => dontShowUpdate;
+            set
+            {
+                if (dontShowUpdate != value)
+                {
+                    dontShowUpdate = value;
+                    OnPropertyChanged(nameof(DontShowUpdate));
+                    SaveSettings();
+                }
+            }
+        }
+
         //---------- Singleton variables ----------
 
         public bool IsDownloadRunning = false;
@@ -99,8 +114,9 @@ namespace YTCnv
             {
                 UseUpTo4K = Use4K,
                 QuickDownload = QuickDwnld,
+                DontShowUpdatePopup = DontShowUpdate,
             };
-            string json = JsonSerializer.Serialize(settings);
+            string json = JsonConvert.SerializeObject(settings);
             File.WriteAllText(settingsPath, json);
         }
 
@@ -109,9 +125,13 @@ namespace YTCnv
             if (File.Exists(settingsPath))
             {
                 string json = File.ReadAllText(settingsPath);
-                SettingsClass settings = JsonSerializer.Deserialize<SettingsClass>(json);
-                Use4K = settings.UseUpTo4K;
-                QuickDwnld = settings.QuickDownload;
+                SettingsClass? settings = JsonConvert.DeserializeObject<SettingsClass>(json);
+                if (settings != null)
+                {
+                    Use4K = settings.UseUpTo4K;
+                    QuickDwnld = settings.QuickDownload;
+                    DontShowUpdate = settings.DontShowUpdatePopup;
+                }
             }
         }
 
@@ -121,6 +141,7 @@ namespace YTCnv
         {
             public bool UseUpTo4K { get; set; }
             public bool QuickDownload { get; set; }
+            public bool DontShowUpdatePopup { get; set; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

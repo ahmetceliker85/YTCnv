@@ -12,6 +12,7 @@ public partial class Settings : ContentPage
         BindingContext = this;
         use4kSwitch.BindingContext = settings;
         enableQuickDwnld.BindingContext = settings;
+        dontShowPopup.BindingContext = settings;
         VersionLabel.Text = $"{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
     }
 
