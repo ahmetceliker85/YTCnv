@@ -13,7 +13,8 @@ namespace YTCnv
         LaunchMode = LaunchMode.SingleTop,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation |
                                ConfigChanges.UiMode | ConfigChanges.ScreenLayout |
-                               ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+                               ConfigChanges.SmallestScreenSize | ConfigChanges.Density,
+        ScreenOrientation = ScreenOrientation.Portrait)]
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, DataMimeType = "text/plain")]
     [IntentFilter(new[] { Intent.ActionView },
                   Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },

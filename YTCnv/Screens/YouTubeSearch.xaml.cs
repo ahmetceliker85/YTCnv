@@ -2,6 +2,10 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using YoutubeExplode;
 using YoutubeExplode.Search;
+#if ANDROID
+using Android.Views.InputMethods;
+using Microsoft.Maui.Platform;
+#endif
 
 namespace YTCnv.Screens;
 
@@ -16,7 +20,10 @@ public partial class YouTubeSearch : ContentPage
     public YouTubeSearch()
     {
         InitializeComponent();
+        MainGrid.HeightRequest = (DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density) - 153;
+        MainGrid.RowDefinitions[1].Height = new GridLength((DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density) - 240);
         BindingContext = this;
+        HistoryList.BindingContext = settings;
     }
 
     private async void GoBack(object sender, EventArgs e)
@@ -53,7 +60,25 @@ public partial class YouTubeSearch : ContentPage
 
     private async void OnSearchClicked(object sender, EventArgs e)
     {
+        if (SearchEntry.IsFocused)
+            SearchEntry.Unfocus();
+
+#if ANDROID
+        var activity = Platform.CurrentActivity;
+        var inputMethodManager = activity.GetSystemService(Android.Content.Context.InputMethodService) as InputMethodManager;
+
+        var windowToken = activity.CurrentFocus?.WindowToken ?? activity.Window.DecorView.WindowToken;
+
+        if (windowToken != null)
+        {
+            inputMethodManager?.HideSoftInputFromWindow(windowToken, HideSoftInputFlags.None);
+        }
+#endif
+
         string query = SearchEntry.Text?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(query) && !settings.SearchHistory.Contains(query))
+            settings.SearchHistory.Add(query);
 
         if (string.IsNullOrWhiteSpace(query))
         {
@@ -135,5 +160,130 @@ public partial class YouTubeSearch : ContentPage
         {
             return duration.Hours > 0 ? duration.ToString(@"hh\:mm\:ss") : duration.ToString(@"mm\:ss");
         }
+    }
+
+    private void OnEntryFocused(object sender, FocusEventArgs e)
+    {
+        HistoryPanel.Opacity = 1;
+        HistoryPanel.HeightRequest = 55;
+
+        double targetHeight = Math.Min(settings.SearchHistory.Count * 50 + 55, 300);
+
+        HistoryPanel.Animate("Expand",
+            callback: (progress) =>
+            {
+                HistoryPanel.HeightRequest = progress * targetHeight;
+            },
+            start: 0,
+            end: 1,
+            length: 200,
+            easing: Easing.CubicOut);
+    }
+
+    private void OnEntryUnfocused(object sender, FocusEventArgs e)
+    {
+        double startHeight = HistoryPanel.HeightRequest;
+        double endHeight = 55;
+
+        HistoryPanel.Animate("Collapse",
+            callback: (progress) =>
+            {
+                HistoryPanel.HeightRequest = startHeight - (startHeight - endHeight) * progress;
+            },
+            start: 0,
+            end: 1,
+            length: 150,
+            easing: Easing.CubicIn);
+
+    }
+
+    private void OnBackgroundTapped(object sender, TappedEventArgs e)
+    {
+        Console.WriteLine("SearchEntry unfocused");
+        if (SearchEntry.IsFocused)
+            SearchEntry.Unfocus();
+
+#if ANDROID
+        var activity = Platform.CurrentActivity;
+        var inputMethodManager = activity.GetSystemService(Android.Content.Context.InputMethodService) as InputMethodManager;
+
+        var windowToken = activity.CurrentFocus?.WindowToken ?? activity.Window.DecorView.WindowToken;
+
+        if (windowToken != null)
+        {
+            inputMethodManager?.HideSoftInputFromWindow(windowToken, HideSoftInputFlags.None);
+        }
+#endif
+    }
+
+    private void OnHistoryItemTapped(object sender, TappedEventArgs e)
+    {
+        if (e.Parameter is string term)
+        {
+            SearchEntry.Text = term;
+
+            if (SearchEntry.IsFocused)
+                SearchEntry.Unfocus();
+
+#if ANDROID
+            var activity = Platform.CurrentActivity;
+            var inputMethodManager = activity.GetSystemService(Android.Content.Context.InputMethodService) as InputMethodManager;
+
+            var windowToken = activity.CurrentFocus?.WindowToken ?? activity.Window.DecorView.WindowToken;
+
+            if (windowToken != null)
+            {
+                inputMethodManager?.HideSoftInputFromWindow(windowToken, HideSoftInputFlags.None);
+            }
+#endif
+        }
+    }
+
+    private void OnRemoveHistoryItem(object sender, EventArgs e)
+    {
+        Console.WriteLine("Remove history item clicked");
+        if (sender is ImageButton b && b.CommandParameter is string term)
+        {
+            Console.WriteLine($"Removing history item: {term}");
+            settings.SearchHistory.Remove(term);
+        }
+
+        double startHeight = HistoryPanel.HeightRequest;
+        double endHeight = Math.Min(settings.SearchHistory.Count * 50 + 55, 300);
+
+        HistoryPanel.Animate("Collapse",
+            callback: (progress) =>
+            {
+                HistoryPanel.HeightRequest = startHeight - (startHeight - endHeight) * progress;
+            },
+            start: 0,
+            end: 1,
+            length: 150,
+            easing: Easing.CubicIn);
+    }
+
+    private void CollectionViewScrolled(object sender, ItemsViewScrolledEventArgs e)
+    {
+        Console.WriteLine("Collectionview scrolled");
+
+        if (e.VerticalDelta == 0)
+        {
+            return;
+        }
+
+        if (SearchEntry.IsFocused)
+            SearchEntry.Unfocus();
+
+#if ANDROID
+        var activity = Platform.CurrentActivity;
+        var inputMethodManager = activity.GetSystemService(Android.Content.Context.InputMethodService) as InputMethodManager;
+
+        var windowToken = activity.CurrentFocus?.WindowToken ?? activity.Window.DecorView.WindowToken;
+
+        if (windowToken != null)
+        {
+            inputMethodManager?.HideSoftInputFromWindow(windowToken, HideSoftInputFlags.None);
+        }
+#endif
     }
 }

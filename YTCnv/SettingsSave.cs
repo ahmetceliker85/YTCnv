@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 #if ANDROID
@@ -9,8 +10,6 @@ namespace YTCnv
 {
     public class SettingsSave : INotifyPropertyChanged
     {
-        public const string ApiKeyPref = "YoutubeApiKey";
-
         private static SettingsSave instance;
         private static object instanceLock = new object();
         private static string settingsPath = Path.Combine(FileSystem.AppDataDirectory, "settings.json");
@@ -77,6 +76,21 @@ namespace YTCnv
             }
         }
 
+        private ObservableCollection<string> searchHistory = new ObservableCollection<string>();
+        public ObservableCollection<string> SearchHistory
+        {
+            get => searchHistory;
+            set
+            {
+                if (searchHistory != value)
+                {
+                    searchHistory = value;
+                    OnPropertyChanged(nameof(SearchHistory));
+                    SaveSettings();
+                }
+            }
+        }
+
         //---------- Singleton variables ----------
 
         public bool IsDownloadRunning = false;
@@ -115,6 +129,7 @@ namespace YTCnv
                 UseUpTo4K = Use4K,
                 QuickDownload = QuickDwnld,
                 DontShowUpdatePopup = DontShowUpdate,
+                SearchHistory = SearchHistory
             };
             string json = JsonConvert.SerializeObject(settings);
             File.WriteAllText(settingsPath, json);
@@ -131,6 +146,7 @@ namespace YTCnv
                     Use4K = settings.UseUpTo4K;
                     QuickDwnld = settings.QuickDownload;
                     DontShowUpdate = settings.DontShowUpdatePopup;
+                    SearchHistory = settings.SearchHistory;
                 }
             }
         }
@@ -142,6 +158,7 @@ namespace YTCnv
             public bool UseUpTo4K { get; set; }
             public bool QuickDownload { get; set; }
             public bool DontShowUpdatePopup { get; set; }
+            public ObservableCollection<string> SearchHistory { get; set; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
