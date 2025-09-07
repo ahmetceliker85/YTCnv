@@ -8,7 +8,7 @@ namespace YTCnv.FFmpeg
     [BroadcastReceiver(Exported = false)]
     public class FFmpegResultReceiver : BroadcastReceiver
     {
-        public event Action<(int code, byte audioVideoElse)>? OnFFmpegFinished;
+        public event Action<(int code, byte audioVideoElse, string fileTitle)>? OnFFmpegFinished;
 
         public FFmpegResultReceiver()
         {
@@ -22,7 +22,8 @@ namespace YTCnv.FFmpeg
 
                 var returnCode = intent.GetIntExtra("returnCode", -1);
                 byte audioVideoElse = (byte)intent.GetShortExtra("audioVideoElse", 3);
-                OnFFmpegFinished?.Invoke((returnCode, audioVideoElse));
+                string title = intent.GetStringExtra("title") ?? "Unknown";
+                OnFFmpegFinished?.Invoke((returnCode, audioVideoElse, title));
             }
         }
     }

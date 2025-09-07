@@ -44,10 +44,11 @@ namespace YTCnv.FFmpeg
 
             var command = intent.GetStringExtra("command");
             byte audioVideoElse = (byte)intent.GetShortExtra("audioVideoElse", 3);
+            string title = intent.GetStringExtra("title") ?? "Unknown";
 
             if (!string.IsNullOrEmpty(command))
             {
-                var callback = new FFmpegSessionCompleteCallback(this, audioVideoElse);
+                var callback = new FFmpegSessionCompleteCallback(this, audioVideoElse, title);
 
                 var ffmpegSession = FFmpegKit.ExecuteAsync(command, callback);
             }
@@ -72,40 +73,33 @@ namespace YTCnv.FFmpeg
     {
         private readonly Context _context;
         private readonly byte _audioVideoElse;
+        private readonly string _title;
 
-        public FFmpegSessionCompleteCallback(Context context, byte audioVideoElse)
+        public FFmpegSessionCompleteCallback(Context context, byte audioVideoElse, string title)
         {
             _context = context;
             _audioVideoElse = audioVideoElse;
+            _title = title;
         }
 
         public void Apply(FFmpegSession session)
         {
-            Console.WriteLine("Apply() called in separate process");
-
             try
             {
                 var intent = new Intent(FFmpegBroadcasts.FFmpegFinishedAction);
-                Console.WriteLine("Created intent for FFmpegFinishedAction");
                 intent.SetPackage(_context.PackageName);
-                Console.WriteLine("Set package name in intent: " + _context.PackageName);
-                Console.WriteLine("Session return code: " + session.ReturnCode.Value);
                 intent.PutExtra("returnCode", session.ReturnCode.Value);
-                Console.WriteLine("Put returnCode extra: " + session.ReturnCode.Value);
                 intent.PutExtra("audioVideoElse", (byte)_audioVideoElse);
-                Console.WriteLine("Put audioVideoElse extra: " + _audioVideoElse);
+                intent.PutExtra("title", _title);
                 _context.SendBroadcast(intent);
-                Console.WriteLine("Broadcast sent");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Exception while sending broadcast: " + ex.Message);
             }
 
-            Console.WriteLine("About to check context type and call OnSessionFinished");
             if (_context is FFmpegService svc)
             {
-                Console.WriteLine("Context is FFmpegService, calling OnSessionFinished");
                 new Handler(Looper.MainLooper).Post(() => svc.OnSessionFinished());
             }
         }

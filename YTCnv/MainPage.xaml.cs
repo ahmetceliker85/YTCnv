@@ -301,14 +301,14 @@ namespace YTCnv
                 byte[] bytes = await http.GetByteArrayAsync(thumbnailUrl);
                 await File.WriteAllBytesAsync(imagePath, bytes);
 
+#if ANDROID
                 if (!registered)
                 {
-#if ANDROID
                     settings.ffmpegReciever.OnFFmpegFinished += result =>
                     {
                         if (result.code == 0)
                         {
-                            FinishUp(result.audioVideoElse);
+                            FinishUp(result.audioVideoElse, result.fileTitle);
                         }
                         else
                         {
@@ -317,8 +317,8 @@ namespace YTCnv
                     };
 
                     registered = true;
-#endif
                 }
+#endif
 
                 MainThread.BeginInvokeOnMainThread(() => StatusLabel.Text = "Retrieving video");
                 settings.StatusLabelText = "Retrieving video";
@@ -365,7 +365,15 @@ namespace YTCnv
 
                     GC.AddMemoryPressure(audioStream.Size.Bytes + 3);
 #if ANDROID
-                    MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"", 1));
+                    MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"", 1, title));
+#endif
+#if WINDOWS
+                    var ffmpegArgs = $"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"";
+                    int exitCode = await FFmpegInterop.RunFFmpegCommand(ffmpegArgs, line => Console.WriteLine(line)).ConfigureAwait(false);
+                    if (exitCode == 0)
+                        FinishUp(1, title);
+                    else
+                        itScrewedUp();
 #endif
                 }
                 if (selectedFormat == 1)
@@ -405,12 +413,31 @@ namespace YTCnv
                     if (_4KChoice)
                     {
                         if (isMoreThan1080p)
-                            MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2));
+                            MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2, title));
                         else
-                            MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2));
+                            MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2, title));
                     }
                     else
-                        MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2));
+                        MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2, title));
+#endif
+#if WINDOWS
+                    string ffmpegArgs = "";
+
+                    if (_4KChoice)
+                    {
+                        if (isMoreThan1080p)
+                            ffmpegArgs = $"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"";
+                        else
+                            ffmpegArgs = $"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"";
+                    }
+                    else
+                        ffmpegArgs = $"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"";
+
+                    int exitCode = await FFmpegInterop.RunFFmpegCommand(ffmpegArgs, line => Console.WriteLine(line)).ConfigureAwait(false);
+                    if (exitCode == 0)
+                        FinishUp(2, title);
+                    else
+                        itScrewedUp();
 #endif
                 }
             }
@@ -432,6 +459,8 @@ namespace YTCnv
                     context.StopService(stopIntent);
                 });
 
+#endif
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
@@ -468,6 +497,8 @@ namespace YTCnv
                     context.StopService(stopIntent);
                 });
 
+#endif
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
@@ -488,17 +519,16 @@ namespace YTCnv
                     File.Delete(imagePath);
             }
 
-            void FinishUp(byte audioVideoElse)
+            void FinishUp(byte audioVideoElse, string fileTitle)
             {
-                Console.WriteLine("FFmpeg process finally finished");
 #if ANDROID
                 switch (audioVideoElse)
                 {
                     case 1:
-                        SaveAudioToDownloads(Android.App.Application.Context, title + ".mp3", semiOutputAudio);
+                        SaveAudioToDownloads(Android.App.Application.Context, fileTitle + ".mp3", semiOutputAudio);
                         break;
                     case 2:
-                        SaveVideoToDownloads(Android.App.Application.Context, title + ".mp4", semiOutput);
+                        SaveVideoToDownloads(Android.App.Application.Context, fileTitle + ".mp4", semiOutput);
                         break;
                     default:
                         break;
@@ -510,9 +540,24 @@ namespace YTCnv
                     var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
                     context.StopService(stopIntent);
                 });
-
+#endif
+#if WINDOWS
+                switch (audioVideoElse)
+                {
+                    case 1:
+                        SaveToDownloads(fileTitle + ".mp3", semiOutputAudio);
+                        break;
+                    case 2:
+                        SaveToDownloads(fileTitle + ".mp4", semiOutput);
+                        break;
+                    default:
+                        break;
+                }
+#endif
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
+
                 DeleteFiles();
                 DownloadStopped();
 
@@ -532,7 +577,8 @@ namespace YTCnv
                     var stopIntent = new Intent(context, Java.Lang.Class.FromType(typeof(DownloadNotificationService)));
                     context.StopService(stopIntent);
                 });
-
+#endif
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
@@ -647,12 +693,34 @@ namespace YTCnv
             }
         }
 #endif
-
-        private async void OnCancelClicked(object sender, EventArgs e)
+#if WINDOWS
+        public static void SaveToDownloads(string NameOfFile, string sourceFilePath)
         {
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (!File.Exists(sourceFilePath))
+                throw new FileNotFoundException("Source file does not exist.", sourceFilePath);
+
+            string downloadsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Downloads"
+            );
+
+            string fileName = Path.GetFileName(sourceFilePath);
+            string destinationPath = Path.Combine(downloadsPath, NameOfFile);
+
+            if (File.Exists(destinationPath))
+                File.Delete(destinationPath);
+
+            File.Move(sourceFilePath, destinationPath);
+
+            Console.WriteLine($"File moved to: {destinationPath}");
+        }
+#endif
+
+        private void OnCancelClicked(object sender, EventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-#if ANDROID
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
