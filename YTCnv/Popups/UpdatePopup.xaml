@@ -5,8 +5,10 @@
                x:Class="YTCnv.UpdatePopup">
 
     <Frame >
-        <VerticalStackLayout Spacing="15">
+        <VerticalStackLayout Spacing="0">
             <Label x:Name="VersionLabel" FontAttributes="Bold" FontSize="Medium" HorizontalOptions="Center" />
+
+            <Label x:Name="ChangeLog" FontSize="Small" HorizontalOptions="Center" Margin="0,20,0,10"/>
 
             <HorizontalStackLayout>
                 <CheckBox x:Name="DontShowCheckbox" CheckedChanged="OnCheckboxChanged"/>

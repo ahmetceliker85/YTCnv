@@ -36,11 +36,14 @@ public class UpdateChecker
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    var popup = new UpdatePopup(latestVersion);
-                    bool dontShow = (bool)await Application.Current.MainPage.ShowPopupAsync(popup);
+                    var popup = new UpdatePopup(latestVersion, release.body);
+                    bool? dontShow = (bool?)await Application.Current.MainPage.ShowPopupAsync(popup);
 
-                    if (dontShow)
-                        settings.DontShowUpdate = true;
+                    if (dontShow != null)
+                    {
+                        if ((bool)dontShow)
+                            settings.DontShowUpdate = true;
+                    }
                 });
             }
         }
@@ -53,7 +56,7 @@ public class UpdateChecker
     private class GitHubRelease
     {
         public string? tag_name { get; set; } = string.Empty;
-        public string? html_url { get; set; } = string.Empty;
+        public string? body { get; set; } = string.Empty;
     }
 }
 

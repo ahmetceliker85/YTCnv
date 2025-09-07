@@ -256,8 +256,6 @@ namespace YTCnv
             string semiOutputAudio = Path.Combine(FileSystem.AppDataDirectory, "semi-outputAudio.mp3");
             string imagePath = Path.Combine(FileSystem.CacheDirectory, "thumbnail.jpg");
 
-            string title = "";
-
             if (File.Exists(imagePath))
                 File.Delete(imagePath);
 
@@ -295,7 +293,7 @@ namespace YTCnv
 
                 string author = CleanAuthor(video.Author.ChannelTitle);
 
-                title = CleanTitle(video.Title, author);
+                string title = CleanTitle(video.Title, author);
 
                 string thumbnailUrl = video.Thumbnails.GetWithHighestResolution().Url;
                 byte[] bytes = await http.GetByteArrayAsync(thumbnailUrl);
