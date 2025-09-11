@@ -5,7 +5,7 @@
 
     <VerticalStackLayout Padding="25,0" Spacing="25">
 
-        <FlexLayout Padding="0,20,0,25" HeightRequest="80" VerticalOptions="Center">
+        <FlexLayout Padding="0,20,0,25" HeightRequest="100" VerticalOptions="Center">
             <Label Text="Youtube Converter" FontAttributes="Bold" FontSize="20" FlexLayout.Grow="1" FontFamily="Poppins"/>
             <Frame Padding="5" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent">
                 <ImageButton x:Name="YoutubeSearcher" Source="magglass.png" WidthRequest="25" HeightRequest="25" Clicked="OpenSearch"/>
@@ -22,7 +22,7 @@
 
         <FlexLayout VerticalOptions="Center">
             <HorizontalStackLayout x:Name="downloadOptions" FlexLayout.Grow="1" IsVisible="False">
-                <Picker x:Name="FormatPicker" Title="Choose format" WidthRequest="35" FontSize="13" SelectedIndexChanged="OnWantedFormatChanged">
+                <Picker x:Name="FormatPicker" Title="Choose format" FontSize="13" SelectedIndexChanged="OnWantedFormatChanged">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:String}">
                             <x:String>MP3</x:String>

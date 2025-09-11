@@ -7,7 +7,7 @@
     <VerticalStackLayout Padding="20,10,20,0">
 
         <FlexLayout Padding="0,0,15,25" HeightRequest="80">
-            <Frame Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent">
+            <Frame Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent" CornerRadius="0">
                 <ImageButton x:Name="GoFromSettings" Source="back.png" WidthRequest="23" HeightRequest="23" Clicked="GoBack"/>
             </Frame>
             <Label Text="Youtube Search" FontSize="18" FontFamily="Poppins" VerticalTextAlignment="Center" Padding="10,2,0,0"/>
@@ -27,8 +27,8 @@
                 <FlexLayout x:Name="SearchPanel" HeightRequest="55" Padding="0" ZIndex="4" Grid.Row="0">
                     <Frame BackgroundColor="#404040" BorderColor="#404040" CornerRadius="25" Padding="5">
                         <FlexLayout>
-                            <Frame Padding="10,0,0,0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent" >
-                                <Entry x:Name="SearchEntry" Placeholder="Search for videos..." ReturnType="Search" Completed="OnSearchClicked" Focused="OnEntryFocused" Unfocused="OnEntryUnfocused"/>
+                            <Frame Padding="10,0,0,0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent" HorizontalOptions="Center">
+                                <Entry x:Name="SearchEntry" FlexLayout.Grow="1" Placeholder="Search for videos..." ReturnType="Search" Completed="OnSearchClicked" Focused="OnEntryFocused" Unfocused="OnEntryUnfocused" Margin="0,0,0,5"/>
                             </Frame>
                             <ImageButton Source="magglass.png" Clicked="OnSearchClicked" HeightRequest="45" HorizontalOptions="Center" Aspect="AspectFit" Padding="10"/>
                         </FlexLayout>

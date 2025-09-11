@@ -29,8 +29,8 @@
 		<ApplicationId>com.pg_axis.ytcnv</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.1.1</ApplicationDisplayVersion>
-		<ApplicationVersion>16</ApplicationVersion>
+		<ApplicationDisplayVersion>2.2.0</ApplicationDisplayVersion>
+		<ApplicationVersion>17</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
@@ -60,6 +60,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Windows\Assets\Icon\icon.scale-100.png" />
+	  <None Remove="Platforms\Windows\Assets\SplashScreen\splash.scale-100.png" />
+	  <None Remove="Platforms\Windows\Assets\SplashScreen\splash.scale-400.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Platforms\Windows\Assets\Icon\icon.scale-100.png" />
+	  <Content Include="Platforms\Windows\Assets\SplashScreen\splash.scale-100.png" />
+	  <Content Include="Platforms\Windows\Assets\SplashScreen\splash.scale-400.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
@@ -68,20 +80,32 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="YoutubeExplode" Version="6.5.4" />
 	</ItemGroup>
-
-	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-		<RuntimeIdentifiers>iossimulator-x64;iossimulator-arm64;ios-arm64</RuntimeIdentifiers>
-	</PropertyGroup>
 	
 	<ItemGroup>
 	  <Folder Include="Screens\" />
 	</ItemGroup>
-	
-	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-	  <ProjectReference Include="..\FFmpegKitBindingAndroid\FFmpegKitBindingAndroid.csproj" />
+
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+		<Reference Include="FFmpegKitIOSBinding">
+			<HintPath>Platforms\iOS\FFmpeg\FFmpegKitIOSBinding.dll</HintPath>
+			<Private>true</Private>
+		</Reference>
 	</ItemGroup>
 	
-<!---->
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+	  <None Update="Platforms\Windows\ffmpeg\ffmpeg.exe">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+	
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+		<WindowsPackageType>None</WindowsPackageType>
+	</PropertyGroup>
+	
+<!----><!---->
 	<ItemGroup>
 	  <MauiXaml Update="Popups\GoToPagePopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
