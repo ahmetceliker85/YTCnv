@@ -27,8 +27,8 @@
                 <FlexLayout x:Name="SearchPanel" HeightRequest="55" Padding="0" ZIndex="4" Grid.Row="0">
                     <Frame BackgroundColor="#404040" BorderColor="#404040" CornerRadius="25" Padding="5">
                         <FlexLayout>
-                            <Frame Padding="10,0,0,0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent" HorizontalOptions="Center">
-                                <Entry x:Name="SearchEntry" FlexLayout.Grow="1" Placeholder="Search for videos..." ReturnType="Search" Completed="OnSearchClicked" Focused="OnEntryFocused" Unfocused="OnEntryUnfocused" Margin="0,0,0,5"/>
+                            <Frame Padding="10,0,0,0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent">
+                                <Entry x:Name="SearchEntry" Placeholder="Search for videos..." ReturnType="Search" Completed="OnSearchClicked" Focused="OnEntryFocused" Unfocused="OnEntryUnfocused" Margin="0,0,0,5"/>
                             </Frame>
                             <ImageButton Source="magglass.png" Clicked="OnSearchClicked" HeightRequest="45" HorizontalOptions="Center" Aspect="AspectFit" Padding="10"/>
                         </FlexLayout>

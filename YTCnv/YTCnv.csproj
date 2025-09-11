@@ -39,6 +39,15 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<DefaultLanguage>en-us</DefaultLanguage>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateThumbprint>F44216DC4052663A82D0E9140E81CB2AF86DAE4C</PackageCertificateThumbprint>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<AppInstallerUri>C:\Users\Axiss\Plocha\Local Program\ProgramC#\maui\release</AppInstallerUri>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -46,7 +55,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#000000" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#1c1c1c" BaseSize="512,512" />
+		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#1c1c1b" BaseSize="512,512" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -99,10 +108,12 @@
 	</ItemGroup>
 	
 	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+		<UseWinUI>false</UseWinUI>
 		<PublishTrimmed>true</PublishTrimmed>
+		<PublishSingleFile>false</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<WindowsPackageType>None</WindowsPackageType>
+		<WindowsPackageType>MSIX</WindowsPackageType>
 	</PropertyGroup>
 	
 <!----><!---->

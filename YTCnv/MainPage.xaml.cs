@@ -37,6 +37,10 @@ namespace YTCnv
             FormatPicker.SelectedIndex = 0;
             settings.LoadSettings();
             InitializeMainPage();
+
+#if ANDROID
+            FormatPicker.WidthRequest = 35;
+#endif
         }
 
         protected override void OnAppearing()
