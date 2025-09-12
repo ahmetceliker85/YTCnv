@@ -4,17 +4,16 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  xmlns:uap18="http://schemas.microsoft.com/appx/manifest/uap/windows10/18"
-  IgnorableNamespaces="uap rescap uap18">
+  IgnorableNamespaces="uap rescap">
 
-  <Identity Name="com.pg-axis.ytcnv" Publisher="CN=PG_Axis" Version="2.2.0.0" />
+  <Identity Name="com.pgaxis.ytcnv" Publisher="CN=Program Axis" Version="2.2.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="B22D3640-892E-4C14-9D5E-853F75C60581" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>YouTube Convert</DisplayName>
     <PublisherDisplayName>PG Axis</PublisherDisplayName>
-    <Logo>$placeholdericon.png</Logo>
+    <Logo>Platforms\Windows\Assets\package\package.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -27,15 +26,15 @@
   </Resources>
 
   <Applications>
-    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$" uap18:TrustLevel="mediumIL" uap18:RuntimeBehavior="packagedClassicApp">
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="YouTube Convert"
         Description="$placeholder$"
         Square150x150Logo="$placeholder$.png"
-        Square44x44Logo="Platforms\Windows\Assets\Icon\icon.png"
+        Square44x44Logo="Platforms\Windows\Assets\icon\icon.png"
         BackgroundColor="black">
         <uap:DefaultTile Square71x71Logo="$placeholder$.png" Wide310x150Logo="$placeholder$.png" Square310x310Logo="$placeholder$.png" />
-        <uap:SplashScreen Image="Platforms\Windows\Assets\SplashScreen\splash.png"  BackgroundColor="black"/>
+        <uap:SplashScreen Image="Platforms\Windows\Assets\splash\splash.png"  BackgroundColor="black"/>
         <uap:InitialRotationPreference>
           <uap:Rotation Preference="landscape"/></uap:InitialRotationPreference>
       </uap:VisualElements>
@@ -44,7 +43,6 @@
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
-    <Capability Name="internetClient"/>
   </Capabilities>
 
 </Package>

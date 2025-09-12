@@ -37,6 +37,9 @@ namespace YTCnv
             FormatPicker.SelectedIndex = 0;
             settings.LoadSettings();
             InitializeMainPage();
+#if ANDROID
+            FormatPicker.WidthRequest = 35;
+#endif
         }
 
         protected override void OnAppearing()
@@ -364,14 +367,8 @@ namespace YTCnv
                     GC.AddMemoryPressure(audioStream.Size.Bytes + 3);
 #if ANDROID
                     MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"", 1, title));
-#elif IOS
-                    var ffmpegArgs = $"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"";
-                    bool result = await FFmpegInterop.RunFFmpegCommand(ffmpegArgs).ConfigureAwait(false);
-                    if (result)
-                        FinishUp(1, title);
-                    else
-                        itScrewedUp();
-#elif WINDOWS
+#endif
+#if WINDOWS
                     var ffmpegArgs = $"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"";
                     int exitCode = await FFmpegInterop.RunFFmpegCommand(ffmpegArgs, line => Console.WriteLine(line)).ConfigureAwait(false);
                     if (exitCode == 0)
@@ -423,23 +420,8 @@ namespace YTCnv
                     }
                     else
                         MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"", 2, title));
-#elif IOS
-                    string ffmpegArgs = "";
-                    if (_4KChoice)
-                    {
-                        if (isMoreThan1080p)
-                            ffmpegArgs = $"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"";
-                        else
-                            ffmpegArgs = $"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"";
-                    }
-                    else
-                        ffmpegArgs = $"-y -i \"{mp4Path}\" -i \"{m4aPath}\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"{title}\" -metadata artist=\"{author}\" \"{semiOutput}\"";
-                    bool result = await FFmpegInterop.RunFFmpegCommand(ffmpegArgs).ConfigureAwait(false);
-                    if (result)
-                        FinishUp(2, title);
-                    else
-                        itScrewedUp();
-#elif WINDOWS
+#endif
+#if WINDOWS
                     string ffmpegArgs = "";
 
                     if (_4KChoice)
@@ -479,7 +461,7 @@ namespace YTCnv
                 });
 
 #endif
-#if ANDROID || WINDOWS || IOS
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
@@ -517,7 +499,7 @@ namespace YTCnv
                 });
 
 #endif
-#if ANDROID || WINDOWS || IOS
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
@@ -560,19 +542,6 @@ namespace YTCnv
                     context.StopService(stopIntent);
                 });
 #endif
-#if IOS
-                switch (audioVideoElse)
-                {
-                    case 1:
-                        MainThread.BeginInvokeOnMainThread(async () => await ShareFileOniOS(semiOutputAudio));
-                        break;
-                    case 2:
-                        MainThread.BeginInvokeOnMainThread(async () => await ShareFileOniOS(semiOutput));
-                        break;
-                    default:
-                        break;
-                }
-#endif
 #if WINDOWS
                 switch (audioVideoElse)
                 {
@@ -586,7 +555,7 @@ namespace YTCnv
                         break;
                 }
 #endif
-#if ANDROID || WINDOWS || IOS
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
@@ -610,7 +579,7 @@ namespace YTCnv
                     context.StopService(stopIntent);
                 });
 #endif
-#if ANDROID || WINDOWS || IOS
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 
@@ -725,32 +694,6 @@ namespace YTCnv
             }
         }
 #endif
-#if IOS
-
-        public async Task ShareFileOniOS(string filePath)
-        {
-            try
-            {
-                if (!File.Exists(filePath))
-                {
-                    Console.WriteLine("File does not exist: " + filePath);
-                    return;
-                }
-
-                var shareFile = new ShareFile(filePath);
-
-                await Share.RequestAsync(new ShareFileRequest
-                {
-                    Title = "Save File",
-                    File = shareFile
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to share file: {ex.Message}");
-            }
-        }
-#endif
 #if WINDOWS
         public static void SaveToDownloads(string NameOfFile, string sourceFilePath)
         {
@@ -778,7 +721,7 @@ namespace YTCnv
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-#if ANDROID || WINDOWS || IOS
+#if ANDROID || WINDOWS
                 FFmpegInterop.CancelFFmpeg();
 #endif
 

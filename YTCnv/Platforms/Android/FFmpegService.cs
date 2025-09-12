@@ -1,18 +1,18 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-//using Com.Arthenica.Ffmpegkit;
+using Com.Arthenica.Ffmpegkit;
 
 namespace YTCnv.FFmpeg
 {
     [Service(Name = "com.pg_axis.ytcnv.FFmpegService", Exported = false, ForegroundServiceType = Android.Content.PM.ForegroundService.TypeDataSync)]
     public class FFmpegService : Service
-    { 
+    {
         public override IBinder OnBind(Intent intent) => null!;
 
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
-            /*var channelId = "ffmpeg_channel";
+            var channelId = "ffmpeg_channel";
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
                 var channel = new NotificationChannel(channelId, "FFmpeg Service", NotificationImportance.Low);
@@ -51,7 +51,7 @@ namespace YTCnv.FFmpeg
 
                 var ffmpegSession = FFmpegKit.ExecuteAsync(command, callback);
             }
-            */
+
             return StartCommandResult.NotSticky;
         }
 
@@ -62,13 +62,13 @@ namespace YTCnv.FFmpeg
 
         public void CancelCurrentCommand()
         {
-            /*FFmpegKit.Cancel();
-            */
+            FFmpegKit.Cancel();
+
             StopSelf();
         }
     }
 
-    /*public class FFmpegSessionCompleteCallback : Java.Lang.Object, IFFmpegSessionCompleteCallback
+    public class FFmpegSessionCompleteCallback : Java.Lang.Object, IFFmpegSessionCompleteCallback
     {
         private readonly Context _context;
         private readonly byte _audioVideoElse;
@@ -102,5 +102,5 @@ namespace YTCnv.FFmpeg
                 new Handler(Looper.MainLooper).Post(() => svc.OnSessionFinished());
             }
         }
-    }*/
+    }
 }
