@@ -116,7 +116,15 @@
 		<WindowsPackageType>MSIX</WindowsPackageType>
 	</PropertyGroup>
 	
-<!----><!---->
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<ProjectReference Include="..\FFmpegKitBindingAndroid\FFmpegKitBindingAndroid.csproj" />
+	</ItemGroup>
+	
+	<!--<ItemGroup>
+	  <ProjectReference Include="..\FFmpegKitBindingAndroid\FFmpegKitBindingAndroid.csproj" />
+	</ItemGroup>-->
+	
+<!---->
 	<ItemGroup>
 	  <MauiXaml Update="Popups\GoToPagePopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
