@@ -59,14 +59,14 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
 	  <None Remove="Platforms\Windows\Assets\icon\icon.scale-100.png" />
 	  <None Remove="Platforms\Windows\Assets\icon\icon.scale-400.png" />
 	  <None Remove="Platforms\Windows\Assets\package\package.scale-400.png" />
 	  <None Remove="Platforms\Windows\Assets\splash\splash.scale-400.png" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
 	  <Content Include="Platforms\Windows\Assets\icon\icon.scale-100.png" />
 	  <Content Include="Platforms\Windows\Assets\icon\icon.scale-400.png" />
 	  <Content Include="Platforms\Windows\Assets\package\package.scale-400.png" />
@@ -95,6 +95,12 @@
 		<SelfContained>true</SelfContained>
 		<WindowsPackageType>MSIX</WindowsPackageType>
 	</PropertyGroup>
+	
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+	  <None Update="Platforms\Windows\ffmpeg\ffmpeg.exe">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 <!---->
 	<ItemGroup>
 	  <MauiXaml Update="Popups\GoToPagePopup.xaml">
