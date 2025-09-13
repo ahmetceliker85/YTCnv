@@ -91,6 +91,51 @@ namespace YTCnv
             }
         }
 
+        private string fileUri = "";
+        public string FileUri
+        {
+            get => fileUri;
+            set
+            {
+                if (fileUri != value)
+                {
+                    fileUri = value;
+                    OnPropertyChanged(nameof(FileUri));
+                    SaveSettings();
+                }
+            }
+        }
+
+        private string mainFolder = "Internal Storage";
+        public string MainFolder
+        {
+            get => mainFolder;
+            set
+            {
+                if (mainFolder != value)
+                {
+                    mainFolder = value;
+                    OnPropertyChanged(nameof(MainFolder));
+                    SaveSettings();
+                }
+            }
+        }
+
+        private string finalFolder = " - Downloads";
+        public string FinalFolder
+        {
+            get => finalFolder;
+            set
+            {
+                if (finalFolder != value)
+                {
+                    finalFolder = value;
+                    OnPropertyChanged(nameof(FinalFolder));
+                    SaveSettings();
+                }
+            }
+        }
+
         //---------- Singleton variables ----------
 
         public bool IsDownloadRunning = false;
@@ -129,7 +174,10 @@ namespace YTCnv
                 UseUpTo4K = Use4K,
                 QuickDownload = QuickDwnld,
                 DontShowUpdatePopup = DontShowUpdate,
-                SearchHistory = SearchHistory
+                SearchHistory = SearchHistory,
+                SavedFileUri = FileUri,
+                MainFolderName = MainFolder,
+                FinalFolderName = FinalFolder,
             };
             string json = JsonConvert.SerializeObject(settings);
             File.WriteAllText(settingsPath, json);
@@ -147,6 +195,9 @@ namespace YTCnv
                     QuickDwnld = settings.QuickDownload;
                     DontShowUpdate = settings.DontShowUpdatePopup;
                     SearchHistory = settings.SearchHistory;
+                    FileUri = settings.SavedFileUri;
+                    MainFolder = settings.MainFolderName;
+                    FinalFolder = settings.FinalFolderName;
                 }
             }
         }
@@ -159,6 +210,9 @@ namespace YTCnv
             public bool QuickDownload { get; set; }
             public bool DontShowUpdatePopup { get; set; }
             public ObservableCollection<string> SearchHistory { get; set; }
+            public string SavedFileUri { get; set; }
+            public string MainFolderName { get; set; }
+            public string FinalFolderName { get; set; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

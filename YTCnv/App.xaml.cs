@@ -11,6 +11,8 @@ namespace YTCnv
             Routing.RegisterRoute(nameof(Settings), typeof(Settings));
             Routing.RegisterRoute(nameof(YouTubeSearch), typeof(YouTubeSearch));
 
+            Application.Current.UserAppTheme = AppTheme.Dark;
+
             MainPage = new AppShell();
         }
     }

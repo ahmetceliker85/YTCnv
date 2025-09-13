@@ -7,7 +7,7 @@
     <VerticalStackLayout Padding="20,10,20,0">
 
         <FlexLayout Padding="0,0,15,25" HeightRequest="80">
-            <Frame Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent">
+            <Frame Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent" CornerRadius="0">
                 <ImageButton x:Name="GoFromSettings" Source="back.png" WidthRequest="23" HeightRequest="23" Clicked="GoBack"/>
             </Frame>
             <Label Text="Youtube Search" FontSize="18" FontFamily="Poppins" VerticalTextAlignment="Center" Padding="10,2,0,0"/>

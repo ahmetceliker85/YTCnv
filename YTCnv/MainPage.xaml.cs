@@ -169,16 +169,24 @@ namespace YTCnv
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await DisplayAlert("Lost connection", "Please connect to the internet", "OK");
                         ResetMainPageState(fastDwnld, false);
+                        await DisplayAlert("Lost connection", "Please connect to the internet", "OK");
+                    });
+                }
+                else if (ex.Message.Contains("403") || ex.Message.Contains("404"))
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        ResetMainPageState(fastDwnld, false);
+                        await DisplayAlert("Video unavailable", "The video is private, age-restricted, does not exist, or YouTube is just not feeling it today. Please try again", "OK");
                     });
                 }
                 else
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await DisplayAlert("Error", ex.Message, "OK");
                         ResetMainPageState(fastDwnld);
+                        await DisplayAlert("Error", ex.Message, "OK");
                     });
                 }
                 settings.IsDownloadRunning = false;
@@ -369,7 +377,7 @@ namespace YTCnv
                     MainThread.BeginInvokeOnMainThread(() => FFmpegInterop.RunFFmpegCommand($"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"", 1, title));
 #endif
 #if WINDOWS
-                    var ffmpegArgs = $"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"";
+                    var ffmpegArgs = $"-y -i \"{m4aPath}\" -i \"{imagePath}\" -map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg -disposition:v attached_pic -id3v2_version 3 -metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" -metadata title=\"{title}\" -metadata artist=\"{author}\"  -threads 1 \"{semiOutputAudio}\"";
                     int exitCode = await FFmpegInterop.RunFFmpegCommand(ffmpegArgs, line => Console.WriteLine(line)).ConfigureAwait(false);
                     if (exitCode == 0)
                         FinishUp(1, title);
@@ -479,6 +487,15 @@ namespace YTCnv
 
                     DeleteFiles();
                 }
+                else if (ex.Message.Contains("403") || ex.Message.Contains("404"))
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        ResetMainPageState(fastDwnld, false);
+                        await DisplayAlert("Video unavailable", "The video is private, age-restricted, does not exist, or YouTube is just not feeling it today. Please try again", "OK");
+                    });
+                    DeleteFiles();
+                }
                 else
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
@@ -526,10 +543,10 @@ namespace YTCnv
                 switch (audioVideoElse)
                 {
                     case 1:
-                        SaveAudioToDownloads(Android.App.Application.Context, fileTitle + ".mp3", semiOutputAudio);
+                        SaveAudio(Android.App.Application.Context, fileTitle + ".mp3", semiOutputAudio);
                         break;
                     case 2:
-                        SaveVideoToDownloads(Android.App.Application.Context, fileTitle + ".mp4", semiOutput);
+                        SaveVideo(Android.App.Application.Context, fileTitle + ".mp4", semiOutput);
                         break;
                     default:
                         break;
@@ -654,6 +671,30 @@ namespace YTCnv
         }
 
 #if ANDROID
+        public void SaveAudio(Context context, string fileName, string inputFilePath)
+        {
+            Console.WriteLine($"Saving audio: {fileName} from {inputFilePath}, file uri is {settings.FileUri}");
+            if (settings.FileUri != null)
+                SaveAudioToChosenFolder(context, fileName, inputFilePath);
+            else
+                SaveAudioToDownloads(context, fileName, inputFilePath);
+        }
+
+        public void SaveAudioToChosenFolder(Context context, string fileName, string inputFilePath)
+        {
+            if (settings.FileUri == null)
+                throw new InvalidOperationException("User has not chosen a folder yet.");
+
+            Android.Net.Uri folderUri = Android.Net.Uri.Parse(settings.FileUri);
+
+            var pickedDir = AndroidX.DocumentFile.Provider.DocumentFile.FromTreeUri(context, folderUri);
+            var newFile = pickedDir.CreateFile("audio/mpeg", fileName);
+
+            using var outputStream = context.ContentResolver.OpenOutputStream(newFile.Uri);
+            using var inputStream = File.OpenRead(inputFilePath);
+            inputStream.CopyTo(outputStream);
+        }
+
         public static void SaveAudioToDownloads(Context context, string fileName, string inputFilePath)
         {
             ContentValues values = new ContentValues();
@@ -672,6 +713,29 @@ namespace YTCnv
                 using var inputStream = File.OpenRead(inputFilePath);
                 inputStream.CopyTo(outputStream);
             }
+        }
+
+        public void SaveVideo(Context context, string fileName, string inputFilePath)
+        {
+            if (settings.FileUri != null)
+                SaveVideoToChosenFolder(context, fileName, inputFilePath);
+            else
+                SaveVideoToDownloads(context, fileName, inputFilePath);
+        }
+
+        public void SaveVideoToChosenFolder(Context context, string fileName, string inputFilePath)
+        {
+            if (settings.FileUri == null)
+                throw new InvalidOperationException("User has not chosen a folder yet.");
+
+            Android.Net.Uri folderUri = Android.Net.Uri.Parse(settings.FileUri);
+
+            var pickedDir = AndroidX.DocumentFile.Provider.DocumentFile.FromTreeUri(context, folderUri);
+            var newFile = pickedDir.CreateFile("video/mp4", fileName);
+
+            using var outputStream = context.ContentResolver.OpenOutputStream(newFile.Uri);
+            using var inputStream = File.OpenRead(inputFilePath);
+            inputStream.CopyTo(outputStream);
         }
 
         public static void SaveVideoToDownloads(Context context, string fileName, string inputFilePath)
@@ -695,18 +759,20 @@ namespace YTCnv
         }
 #endif
 #if WINDOWS
-        public static void SaveToDownloads(string NameOfFile, string sourceFilePath)
+        public void SaveToDownloads(string NameOfFile, string sourceFilePath)
         {
             if (!File.Exists(sourceFilePath))
                 throw new FileNotFoundException("Source file does not exist.", sourceFilePath);
 
-            string downloadsPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "Downloads"
-            );
+            string filePath = "";
+
+            if (settings.FileUri != null)
+                filePath = settings.FileUri;
+            else
+                filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
             string fileName = Path.GetFileName(sourceFilePath);
-            string destinationPath = Path.Combine(downloadsPath, NameOfFile);
+            string destinationPath = Path.Combine(filePath, NameOfFile);
 
             if (File.Exists(destinationPath))
                 File.Delete(destinationPath);

@@ -6,7 +6,7 @@
     <VerticalStackLayout Padding="25,0" Spacing="25">
 
         <FlexLayout Padding="0,20,0,25" HeightRequest="100" VerticalOptions="Center">
-            <Label Text="Youtube Converter" FontAttributes="Bold" FontSize="20" FlexLayout.Grow="1" FontFamily="Poppins"/>
+            <Label Text="Youtube Converter" FontAttributes="Bold" FontSize="20" FlexLayout.Grow="1" FontFamily="Poppins" VerticalOptions="Center"/>
             <Frame Padding="5" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent">
                 <ImageButton x:Name="YoutubeSearcher" Source="magglass.png" WidthRequest="25" HeightRequest="25" Clicked="OpenSearch"/>
             </Frame>
