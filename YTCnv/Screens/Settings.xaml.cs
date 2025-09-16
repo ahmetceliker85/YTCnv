@@ -22,11 +22,6 @@ public partial class Settings : ContentPage
         VersionLabel.Text = $"{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
     }
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-    }
-
     private async void GoBack(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("///MainPage");

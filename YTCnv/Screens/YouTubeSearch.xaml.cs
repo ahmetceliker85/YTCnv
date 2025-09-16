@@ -78,7 +78,10 @@ public partial class YouTubeSearch : ContentPage
         string query = SearchEntry.Text?.Trim();
 
         if (!string.IsNullOrWhiteSpace(query) && !settings.SearchHistory.Contains(query))
+        {
             settings.SearchHistory.Add(query);
+            settings.SaveSettings();
+        }  
 
         if (string.IsNullOrWhiteSpace(query))
         {
@@ -150,7 +153,7 @@ public partial class YouTubeSearch : ContentPage
         public TempYouTubeResult(VideoSearchResult video)
         {
             Title = video.Title;
-            Author = CleanAuthor(video.Author.ChannelTitle);
+            Author = MainPage.CleanAuthor(video.Author.ChannelTitle);
             ThumbnailUrl = video.Thumbnails?.FirstOrDefault()?.Url ?? "";
             Duration = video.Duration != null ? cleanDuration((TimeSpan)video.Duration) : "Live";
             VideoId = video.Id;
@@ -159,14 +162,6 @@ public partial class YouTubeSearch : ContentPage
         private string cleanDuration(TimeSpan duration)
         {
             return duration.Hours > 0 ? duration.ToString(@"hh\:mm\:ss") : duration.ToString(@"mm\:ss");
-        }
-
-        public static string CleanAuthor(string author)
-        {
-            author = author.Replace(" - Topic", "", true, CultureInfo.InvariantCulture);
-            author = author.Replace("OfficialVEVO", "", true, CultureInfo.InvariantCulture);
-
-            return author;
         }
     }
 
@@ -244,6 +239,7 @@ public partial class YouTubeSearch : ContentPage
                 inputMethodManager?.HideSoftInputFromWindow(windowToken, HideSoftInputFlags.None);
             }
 #endif
+            OnSearchClicked(sender, new EventArgs());
         }
     }
 
@@ -254,6 +250,7 @@ public partial class YouTubeSearch : ContentPage
         {
             Console.WriteLine($"Removing history item: {term}");
             settings.SearchHistory.Remove(term);
+            settings.SaveSettings();
         }
 
         double startHeight = HistoryPanel.HeightRequest;

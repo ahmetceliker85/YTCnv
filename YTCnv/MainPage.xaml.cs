@@ -59,13 +59,14 @@ namespace YTCnv
             }
         }
 
-        private void OnLoadClicked(object sender, EventArgs e)
+        // ---------- Load methods ----------
+        private async void OnLoadClicked(object sender, EventArgs e)
         {
             StatusLabel.IsVisible = false;
             settings.StatusLabelIsVisible = false;
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
-                Task.Run(async () => await LoadVideoMetadata());
+                await LoadVideoMetadata();
             }
             else
             {
@@ -109,7 +110,7 @@ namespace YTCnv
 
             try
             {
-                Video? video = await YouTube.Videos.GetAsync(url);
+                Video? video = await YouTube.Videos.GetAsync(url).ConfigureAwait(false);
 
                 if (video == null)
                 {
@@ -122,7 +123,18 @@ namespace YTCnv
                     return;
                 }
 
-                StreamManifest streamManifest = await YouTube.Videos.Streams.GetManifestAsync(url);
+                if (video.Duration == null)
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        ResetMainPageState(fastDwnld);
+                        await DisplayAlert("Live stream", "The video is a live stream, and therefore can’t be downloaded", "OK");
+                    });
+                    DownloadStopped();
+                    return;
+                }
+
+                StreamManifest streamManifest = await YouTube.Videos.Streams.GetManifestAsync(url).ConfigureAwait(false);
 
                 List<AudioOnlyStreamInfo> audioStreams = streamManifest.GetAudioOnlyStreams().Where(s => s.Container == Container.Mp4).OrderByDescending(s => s.Bitrate).ToList();
                 audioOptions = audioStreams.GroupBy(s => (int)Math.Floor(s.Bitrate.KiloBitsPerSecond)).Select(g => g.OrderByDescending(s => s.Bitrate.KiloBitsPerSecond).First()).ToDictionary(s => s.Bitrate.KiloBitsPerSecond, s => $"{Math.Round(s.Bitrate.KiloBitsPerSecond)} kbps ({s.Size.MegaBytes:F1} MB)");
@@ -193,6 +205,7 @@ namespace YTCnv
             }
         }
 
+        // --------- Download methods ----------
         private async void OnDownloadClicked(object sender, EventArgs e)
         {
             FormatPicker.IsEnabled = false;
@@ -215,8 +228,8 @@ namespace YTCnv
             }
             else
             {
-                await DisplayAlert("Lost connection", "Please connect to the internet", "OK");
                 ResetMainPageState(fastDwnld, false);
+                await DisplayAlert("Lost connection", "Please connect to the internet", "OK");
             }
         }
 
@@ -254,8 +267,8 @@ namespace YTCnv
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    await DisplayAlert("No URL", "Please enter a YouTube URL", "OK");
                     ResetMainPageState(fastDwnld);
+                    await DisplayAlert("No URL", "Please enter a YouTube URL", "OK");
                 });
                 DownloadStopped();
                 return;
@@ -295,8 +308,19 @@ namespace YTCnv
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await DisplayAlert("Invalid URL", "Please enter a valid YouTube URL", "OK");
                         ResetMainPageState(fastDwnld);
+                        await DisplayAlert("Invalid URL", "Please enter a valid YouTube URL", "OK");
+                    });
+                    DownloadStopped();
+                    return;
+                }
+
+                if (video.Duration == null || video.Duration == TimeSpan.Zero)
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        ResetMainPageState(fastDwnld);
+                        await DisplayAlert("Live stream", "The video is a live stream, and therefore can’t be downloaded", "OK");
                     });
                     DownloadStopped();
                     return;
@@ -611,6 +635,7 @@ namespace YTCnv
             }
         }
 
+        // ---------- Title and author cleaning methods ----------
         public static string CleanAuthor(string author)
         {
             author = author.Replace(" - Topic", "", true, CultureInfo.InvariantCulture);
@@ -644,37 +669,61 @@ namespace YTCnv
 
             Console.WriteLine("Title parts are " + string.Join(" | ", titleParts));
 
-            for (int i = 0; i < titleParts.Length; i++)
+            if (titleParts.Length > 1)
             {
-                if (titleParts[i].Contains(author, StringComparison.OrdinalIgnoreCase))
+                for (int i = 0; i < titleParts.Length; i++)
                 {
-                    Console.WriteLine($"Match found at index {i}: {titleParts[i]}");
+                    if (titleParts[i].Contains(author, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine($"Match found at index {i}: {titleParts[i]}");
 
-                    var remainingParts = titleParts.Where((part, index) => index != i);
+                        var remainingParts = titleParts.Where((part, index) => index != i);
 
-                    title = string.Join(" ", remainingParts);
+                        title = string.Join(" ", remainingParts);
 
-                    break;
+                        break;
+                    }
                 }
             }
 
             title = title.Trim();
 
             if (string.IsNullOrWhiteSpace(title))
-                title = "YouTube_Audio";
+                title = "YouTube_Video";
 
             if (title.Length > 60)
-                title = title.Substring(0, 60);
+                title = TruncateSmart(title);
 
 
             return title;
         }
 
+        public static string TruncateSmart(string input, int maxLength = 60)
+        {
+            if (string.IsNullOrEmpty(input) || input.Length <= maxLength)
+                return input;
+
+            int lastSpace = input.LastIndexOf(' ', maxLength);
+
+            string result;
+
+            if (lastSpace > -1)
+            {
+                result = input.Substring(0, lastSpace);
+            }
+            else
+            {
+                result = input.Substring(0, maxLength);
+            }
+
+            return result + " ...";
+        }
+
+        // ---------- File saving methods ----------
 #if ANDROID
         public void SaveAudio(Context context, string fileName, string inputFilePath)
         {
-            Console.WriteLine($"Saving audio: {fileName} from {inputFilePath}, file uri is {settings.FileUri}");
-            if (settings.FileUri != null)
+            if (!string.IsNullOrWhiteSpace(settings.FileUri))
                 SaveAudioToChosenFolder(context, fileName, inputFilePath);
             else
                 SaveAudioToDownloads(context, fileName, inputFilePath);
@@ -717,7 +766,7 @@ namespace YTCnv
 
         public void SaveVideo(Context context, string fileName, string inputFilePath)
         {
-            if (settings.FileUri != null)
+            if (!string.IsNullOrWhiteSpace(settings.FileUri))
                 SaveVideoToChosenFolder(context, fileName, inputFilePath);
             else
                 SaveVideoToDownloads(context, fileName, inputFilePath);
@@ -766,7 +815,7 @@ namespace YTCnv
 
             string filePath = "";
 
-            if (settings.FileUri != null)
+            if (!string.IsNullOrWhiteSpace(settings.FileUri))
                 filePath = settings.FileUri;
             else
                 filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
@@ -783,6 +832,7 @@ namespace YTCnv
         }
 #endif
 
+        // ---------- Canceling ----------
         private void OnCancelClicked(object sender, EventArgs e)
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -799,6 +849,18 @@ namespace YTCnv
             });
         }
 
+        private void DownloadStopped()
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (_downloadCts != null)
+                    _downloadCts.Dispose();
+                _downloadCts = null;
+                settings.IsDownloadRunning = false;
+            });
+        }
+
+        // ---------- Navigation ----------
         private async void OpenSettings(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(Settings));
@@ -809,6 +871,56 @@ namespace YTCnv
             await Shell.Current.GoToAsync(nameof(YouTubeSearch));
         }
 
+        // ---------- Picker changed events ----------
+        private void OnWantedFormatChanged(object sender, EventArgs e)
+        {
+            if (sender is not Picker picker)
+                return;
+
+            switch (picker.SelectedIndex)
+            {
+                case -1:
+                    return;
+                case 0:
+                    settings.FormatPickerSelectedIndex = 0;
+                    break;
+                case 1:
+                    settings.FormatPickerSelectedIndex = 1;
+                    break;
+                default:
+                    return;
+            }
+
+            if (qualityPicker == null || audioOptions == null || videoOptions == null)
+                return;
+
+            switch (picker.SelectedIndex)
+            {
+                case 0:
+                    qualityPicker.ItemsSource = audioOptions.Values.ToList();
+                    qualityPicker.SelectedIndex = 0;
+                    settings.qualityPickerSelectedIndex = 0;
+                    break;
+                case 1:
+                    qualityPicker.ItemsSource = videoOptions.Values.ToList();
+                    qualityPicker.SelectedIndex = 0;
+                    settings.qualityPickerSelectedIndex = 0;
+                    break;
+            }
+        }
+
+        private void OnQualityChanged(object sender, EventArgs e)
+        {
+            if (qualityPicker == null || audioOptions == null || videoOptions == null)
+                return;
+
+            if (sender is not Picker picker)
+                return;
+
+            settings.qualityPickerSelectedIndex = picker.SelectedIndex;
+        }
+
+        // ---------- UI state management ----------
         private void InitializeMainPage()
         {
             settings.UrlEntryText = UrlEntry.Text;
@@ -824,31 +936,6 @@ namespace YTCnv
             settings.DownloadIndicatorIsVisible = DownloadIndicator.IsVisible;
             settings.StatusLabelText = StatusLabel.Text;
             settings.StatusLabelIsVisible = StatusLabel.IsVisible;
-        }
-
-        private void OnWantedFormatChanged(object sender, EventArgs e)
-        {
-            if (qualityPicker == null || audioOptions == null || videoOptions == null)
-                return;
-
-            if (sender is not Picker picker)
-                return;
-
-            switch (picker.SelectedIndex)
-            {
-                case 0:
-                    settings.FormatPickerSelectedIndex = 0;
-                    qualityPicker.ItemsSource = audioOptions.Values.ToList();
-                    qualityPicker.SelectedIndex = 0;
-                    settings.qualityPickerSelectedIndex = 0;
-                    break;
-                case 1:
-                    settings.FormatPickerSelectedIndex = 1;
-                    qualityPicker.ItemsSource = videoOptions.Values.ToList();
-                    qualityPicker.SelectedIndex = 0;
-                    settings.qualityPickerSelectedIndex = 0;
-                    break;
-            }
         }
 
         private void ResetMainPageState(bool isQuickDownload, bool clearUrl = true)
@@ -909,28 +996,6 @@ namespace YTCnv
 
             DownloadButton.IsVisible = true;
             settings.DownloadButtonIsVisible = true;
-        }
-
-        private void DownloadStopped()
-        {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                if (_downloadCts != null)
-                    _downloadCts.Dispose();
-                _downloadCts = null;
-                settings.IsDownloadRunning = false;
-            });
-        }
-
-        private void OnQualityChanged(object sender, EventArgs e)
-        {
-            if (qualityPicker == null || audioOptions == null || videoOptions == null)
-                return;
-
-            if (sender is not Picker picker)
-                return;
-
-            settings.qualityPickerSelectedIndex = picker.SelectedIndex;
         }
     }
 }

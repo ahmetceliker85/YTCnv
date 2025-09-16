@@ -60,6 +60,7 @@ namespace YTCnv
     public static class FFmpegInterop
     {
         private static CancellationTokenSource? _cts;
+        private static Process? process;
 
         public static Task<int> RunFFmpegCommand(string arguments, Action<string>? onOutput = null)
         {
@@ -71,7 +72,7 @@ namespace YTCnv
         {
             var tcs = new TaskCompletionSource<int>();
 
-            var process = new Process
+            process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -114,6 +115,7 @@ namespace YTCnv
         public static void CancelFFmpeg()
         {
             _cts?.Cancel();
+            process?.Kill(true);
         }
     }
 }

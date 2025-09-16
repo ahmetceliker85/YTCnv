@@ -76,7 +76,7 @@ namespace YTCnv
             }
         }
 
-        private ObservableCollection<string> searchHistory = new ObservableCollection<string>();
+        private ObservableCollection<string> searchHistory = [];
         public ObservableCollection<string> SearchHistory
         {
             get => searchHistory;
@@ -106,7 +106,8 @@ namespace YTCnv
             }
         }
 
-        private string mainFolder = "Internal Storage";
+
+        private string mainFolder = DeviceInfo.Platform == DevicePlatform.Android ? "Internal storage" : (DeviceInfo.Platform == DevicePlatform.WinUI ? "User" : "Unknown");
         public string MainFolder
         {
             get => mainFolder;
@@ -121,7 +122,7 @@ namespace YTCnv
             }
         }
 
-        private string finalFolder = " - Downloads";
+        private string finalFolder = DeviceInfo.Platform == DevicePlatform.Android || DeviceInfo.Platform == DevicePlatform.WinUI ? " - Downloads" : "";
         public string FinalFolder
         {
             get => finalFolder;
