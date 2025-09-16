@@ -24,7 +24,7 @@ namespace YTCnv.FFmpeg
                 .SetContentTitle("FFmpeg running")
                 .SetContentText("Processing media...")
                 .SetSmallIcon(Resource.Drawable.icon)
-                .SetColor(Android.Graphics.Color.Cyan)
+                .SetColor(Android.Graphics.Color.ParseColor("#2b950f"))
                 .SetCategory(Notification.CategoryService)
                 .Build();
 

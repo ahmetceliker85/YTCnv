@@ -52,7 +52,7 @@ namespace YTCnv
                 .SetContentTitle("Downloading in background")
                 .SetContentText("The download is running. Please keep the app open.")
                 .SetSmallIcon(Resource.Drawable.icon)
-                .SetColor(Android.Graphics.Color.Cyan)
+                .SetColor(Android.Graphics.Color.ParseColor("#2b950f"))
                 .SetContentIntent(pendingIntent)
                 .SetOngoing(true)
                 .SetPriority(NotificationCompat.PriorityLow)
