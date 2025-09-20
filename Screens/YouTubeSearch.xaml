@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YTCnv.Screens.YouTubeSearch"
+             Shell.NavBarIsVisible="False">
+
+    <VerticalStackLayout Padding="20,10,20,0">
+
+        <FlexLayout Padding="0,0,15,25" HeightRequest="80">
+            <Frame Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent" CornerRadius="0">
+                <ImageButton x:Name="GoFromSettings" Source="back.png" WidthRequest="23" HeightRequest="23" Clicked="GoBack"/>
+            </Frame>
+            <Label Text="Youtube Search" FontSize="18" FontFamily="Poppins" VerticalTextAlignment="Center" Padding="10,2,0,0"/>
+        </FlexLayout>
+
+        <VerticalStackLayout Padding="0,20,0,20" Spacing="15">
+            <Grid x:Name="MainGrid" ZIndex="0">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackgroundTapped"/>
+                </Grid.GestureRecognizers>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="55"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <FlexLayout x:Name="SearchPanel" HeightRequest="55" Padding="0" ZIndex="4" Grid.Row="0">
+                    <Frame BackgroundColor="#404040" BorderColor="#404040" CornerRadius="25" Padding="5">
+                        <FlexLayout>
+                            <Frame Padding="10,0,0,0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent" >
+                                <Entry x:Name="SearchEntry" Placeholder="Search for videos..." ReturnType="Search" Completed="OnSearchClicked" Focused="OnEntryFocused" Unfocused="OnEntryUnfocused"/>
+                            </Frame>
+                            <ImageButton Source="magglass.png" Clicked="OnSearchClicked" HeightRequest="45" HorizontalOptions="Center" Aspect="AspectFit" Padding="10"/>
+                        </FlexLayout>
+                    </Frame>
+                </FlexLayout>
+
+                <Frame x:Name="HistoryPanel" ZIndex="3" Grid.Row="0" Grid.RowSpan="2" HeightRequest="55" Padding="0,55,0,0" CornerRadius="25" BackgroundColor="#2c2c2c" BorderColor="#2c2c2c" VerticalOptions="Start">
+                    <CollectionView ItemsSource="{Binding SearchHistory}" x:Name="HistoryList" SelectionMode="None" BackgroundColor="Transparent" ZIndex="3">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame Padding="12" HeightRequest="50" BackgroundColor="Transparent" BorderColor="Transparent">
+                                    <FlexLayout>
+                                        <Label Text="{Binding .}" VerticalTextAlignment="Center" Padding="10,0,0,0" FlexLayout.Grow="1">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding .}"/>
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                        <ImageButton Source="cross.png"
+                                                 CommandParameter="{Binding .}"
+                                                 Clicked="OnRemoveHistoryItem"
+                                                 BackgroundColor="Transparent"
+                                                 WidthRequest="25" HeightRequest="25"
+                                                 Margin="0,0,10,0"/>
+                                    </FlexLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Frame>
+
+                <ActivityIndicator x:Name="GettingVidsIndicator" IsVisible="False" IsRunning="True" Grid.Row="1" ZIndex="1" HeightRequest="45" VerticalOptions="Start" Margin="0,20,0,0"/>
+
+                <CollectionView x:Name="ResultsView" ItemsSource="{Binding SearchResults}" Grid.Row="1" ZIndex="1" Margin="0,20,0,0"  Scrolled="CollectionViewScrolled">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="10" Margin="0,5" BorderColor="#acacac" BackgroundColor="DimGrey" CornerRadius="10">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Title}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Author}" FontSize="10" />
+                                    <FlexLayout>
+                                        <Frame Padding="0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent">
+                                            <Frame Padding="0" HeightRequest="120" BackgroundColor="Transparent" BorderColor="Transparent" WidthRequest="213" HorizontalOptions="Start" CornerRadius="10">
+                                                <Grid WidthRequest="214" HeightRequest="120">
+                                                    <Image Source="{Binding ThumbnailUrl}" HeightRequest="120" WidthRequest="214" BackgroundColor="Transparent" />
+                                                    <Label Text="{Binding Duration}" BackgroundColor="#80000000" TextColor="White" FontSize="12" Padding="4" HorizontalOptions="End" VerticalOptions="End" Margin="4" />
+                                                </Grid>
+                                            </Frame>
+                                        </Frame>
+                                        <VerticalStackLayout Spacing="15" VerticalOptions="Center">
+                                            <Button Text="Download" Clicked="OnPlsDownloadClicked" CommandParameter="{Binding VideoId}" BackgroundColor="#acacac" TextColor="Black"/>
+                                            <Button Text="Copy URL" Clicked="OnCopyUrlClicked" CommandParameter="{Binding VideoId}" BackgroundColor="#acacac" TextColor="Black"/>
+                                        </VerticalStackLayout>
+                                    </FlexLayout>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </VerticalStackLayout>
+
+    </VerticalStackLayout>
+</ContentPage>

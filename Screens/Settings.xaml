@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YTCnv.Screens.Settings"
+             Shell.NavBarIsVisible="False">
+
+    <FlexLayout Direction="Column">
+        <VerticalStackLayout Padding="20,10,20,0" Spacing="15" FlexLayout.Grow="1">
+
+            <FlexLayout Padding="0,0,15,25" HeightRequest="80">
+                <Frame Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent" CornerRadius="0">
+                    <ImageButton x:Name="GoFromSettings" Source="back.png" WidthRequest="23" HeightRequest="23" Clicked="GoBack"/>
+                </Frame>
+                <Label Text="Settings" FontSize="18" FontFamily="Poppins" VerticalTextAlignment="Center" Padding="10,2,0,0"/>
+            </FlexLayout>
+
+            <FlexLayout Direction="Column" BackgroundColor="Grey" Padding="25,5">
+                <Button Text="Change download destination" HorizontalOptions="Center" BackgroundColor="Aqua" TextColor="Black" Clicked="ChangeDestination"/>
+                <HorizontalStackLayout x:Name="FileStack" HorizontalOptions="Center">
+                    <Label Text="{Binding MainFolder}"/>
+                    <Label Text="{Binding FinalFolder}"/>
+                </HorizontalStackLayout>
+            </FlexLayout>
+
+            <!--Settings-->
+            <FlexLayout BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
+                <Frame  FlexLayout.Grow="1" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
+                    <HorizontalStackLayout HorizontalOptions="Start">
+                        <Label Text="Enable up to 4K downloads" VerticalOptions="Center" HorizontalOptions="Start"/>
+                    </HorizontalStackLayout>
+                </Frame>
+                <Switch x:Name="use4kSwitch" VerticalOptions="Center" IsToggled="{Binding Use4K, Mode=TwoWay}"/>
+            </FlexLayout>
+
+            <FlexLayout BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
+                <Frame  FlexLayout.Grow="1" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
+                    <HorizontalStackLayout HorizontalOptions="Start">
+                        <Label Text="Enable quick download" VerticalOptions="Center" HorizontalOptions="Start"/>
+                    </HorizontalStackLayout>
+                </Frame>
+                <Switch x:Name="enableQuickDwnld" VerticalOptions="Center" IsToggled="{Binding QuickDwnld, Mode=TwoWay}"/>
+            </FlexLayout>
+
+            <FlexLayout BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
+                <Frame  FlexLayout.Grow="1" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
+                    <HorizontalStackLayout HorizontalOptions="Start">
+                        <Label Text="Don’t remind me of new versions" VerticalOptions="Center" HorizontalOptions="Start"/>
+                        <!--<Frame HorizontalOptions="End" VerticalOptions="Start" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
+                            <Label BackgroundColor="Red" Text="Beta" Padding="2,0" FontSize="10" VerticalTextAlignment="Center"/>
+                        </Frame>-->
+                    </HorizontalStackLayout>
+                </Frame>
+                <Switch x:Name="dontShowPopup" VerticalOptions="Center" IsToggled="{Binding DontShowUpdate, Mode=TwoWay}"/>
+            </FlexLayout>
+
+        </VerticalStackLayout>
+
+        <Label x:Name="VersionLabel" HorizontalOptions="Center" TextColor="DimGrey" Padding="2"/>
+    </FlexLayout>
+</ContentPage>
