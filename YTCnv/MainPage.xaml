@@ -38,10 +38,43 @@
             <Button x:Name="CancelButton" Text="Cancel" Clicked="OnCancelClicked" WidthRequest="100" BackgroundColor="White" TextColor="Black" IsVisible="False"/>
         </FlexLayout>
 
+        <VerticalStackLayout HeightRequest="80">
+            <ProgressBar x:Name="DwnldProgress" IsVisible="False" />
+            <ActivityIndicator x:Name="DownloadIndicator" IsVisible="False" IsRunning="True" />
+            <Label x:Name="StatusLabel" IsVisible="False" HorizontalTextAlignment="Center"/>
+        </VerticalStackLayout>
 
-        <ProgressBar x:Name="DwnldProgress" IsVisible="False" />
-        <ActivityIndicator x:Name="DownloadIndicator" IsVisible="False" IsRunning="True" />
-        <Label x:Name="StatusLabel" IsVisible="False" HorizontalTextAlignment="Center"/>
+        <BoxView HeightRequest="1" Color="Aqua" Margin="10,0"/>
+
+        <Frame x:Name="DownloadHistoryFrame" BackgroundColor="#252525" BorderColor="#252525" Padding="15" CornerRadius="20">
+            <FlexLayout Direction="Column">
+                <Label Text="DOWNLOAD HISTORY" FontFamily="Poppins" HorizontalTextAlignment="Center" FontSize="15"/>
+
+                <Label x:Name="EmptyHistory" Text="History is empty" FlexLayout.Grow="1" VerticalTextAlignment="Center" HorizontalTextAlignment="Center"/>
+
+                <CollectionView ItemsSource="{Binding DownloadHistory}" x:Name="DownloadList" SelectionMode="None" BackgroundColor="Transparent" IsVisible="False">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="12" HeightRequest="50" BackgroundColor="Transparent" BorderColor="Transparent">
+                                <FlexLayout>
+                                    <Label Text="{Binding .}" VerticalTextAlignment="Center" Padding="10,0,0,0" FlexLayout.Grow="1">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding .}"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <ImageButton Source="cross.png"
+                                         CommandParameter="{Binding .}"
+                                         Clicked="OnRemoveHistoryItem"
+                                         BackgroundColor="Transparent"
+                                         WidthRequest="25" HeightRequest="25"
+                                         Margin="0,0,10,0"/>
+                                </FlexLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </FlexLayout>
+        </Frame>
 
     </VerticalStackLayout>
 </ContentPage>

@@ -26,9 +26,7 @@ public class UpdateChecker
             if (release == null) return;
 
             string latestVersion = release.tag_name.TrimStart('v');
-            Console.WriteLine(latestVersion);
             string currentVersion = AppInfo.Current.VersionString;
-            Console.WriteLine(currentVersion);
 
             if (Version.TryParse(latestVersion, out Version latest) &&
                 Version.TryParse(currentVersion, out Version current) &&

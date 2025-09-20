@@ -1,11 +1,14 @@
 ﻿#if ANDROID
 using Android.Content;
 using Android.Provider;
+using Android.Views.InputMethods;
+using Microsoft.Maui.Platform;
 #endif
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
+using YoutubeExplode.Channels;
 using Settings = YTCnv.Screens.Settings;
 using YTCnv.Screens;
 using System.Globalization;
@@ -37,6 +40,9 @@ namespace YTCnv
             FormatPicker.SelectedIndex = 0;
             settings.LoadSettings();
             InitializeMainPage();
+            DownloadList.BindingContext = settings;
+            DownloadHistoryFrame.HeightRequest = (DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density) - 500;
+            DownloadList.HeightRequest = (DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density) - 550;
 #if ANDROID
             FormatPicker.WidthRequest = 35;
 #endif
@@ -46,22 +52,55 @@ namespace YTCnv
         {
             base.OnAppearing();
 
+            if (settings.DownloadHistory != null)
+            {
+                if (settings.DownloadHistory.Count() != 0)
+                {
+                    EmptyHistory.IsVisible = false;
+                    DownloadList.IsVisible = true;
+                }
+                else
+                {
+                    EmptyHistory.IsVisible = true;
+                    DownloadList.IsVisible = false;
+                }
+            }
+
             fastDwnld = settings.QuickDwnld;
 
             if (!settings.IsDownloadRunning)
+            {
                 ResetMainPageState(fastDwnld);
 
-            if (settings.IHaveId)
-            {
-                settings.IHaveId = false;
-                UrlEntry.Text = settings.ID;
-                settings.UrlEntryText = UrlEntry.Text;
+                if (settings.IHaveId)
+                {
+                    settings.IHaveId = false;
+                    UrlEntry.Text = settings.ID;
+                    settings.UrlEntryText = UrlEntry.Text;
+                }
             }
+            else
+            {
+                RestoreMainPage();
+            }
+
         }
 
         // ---------- Load methods ----------
         private async void OnLoadClicked(object sender, EventArgs e)
         {
+#if ANDROID
+            var activity = Platform.CurrentActivity;
+            var inputMethodManager = activity.GetSystemService(Android.Content.Context.InputMethodService) as InputMethodManager;
+
+            var windowToken = activity.CurrentFocus?.WindowToken ?? activity.Window.DecorView.WindowToken;
+
+            if (windowToken != null)
+            {
+                inputMethodManager?.HideSoftInputFromWindow(windowToken, HideSoftInputFlags.None);
+            }
+#endif
+
             StatusLabel.IsVisible = false;
             settings.StatusLabelIsVisible = false;
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
@@ -86,6 +125,28 @@ namespace YTCnv
             LoadButton.IsEnabled = false;
             settings.LoadButtonIsEnabled = false;
             url = UrlEntry.Text;
+            settings.UrlEntryText = url;
+
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                if (!settings.DownloadHistory.Contains(url))
+                {
+                    settings.DownloadHistory.Insert(0, url);
+                    settings.SaveExtraData();
+                    EmptyHistory.IsVisible = false;
+                    DownloadList.IsVisible = true;
+                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
+                }
+                else
+                {
+                    settings.DownloadHistory.Remove(url);
+                    settings.DownloadHistory.Insert(0, url);
+                    settings.SaveExtraData();
+                    EmptyHistory.IsVisible = false;
+                    DownloadList.IsVisible = true;
+                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
+                }
+            }
 
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -174,6 +235,8 @@ namespace YTCnv
                     DownloadButton.IsVisible = true;
                     settings.DownloadButtonIsVisible = true;
                 });
+
+                settings.IsDownloadRunning = false;
             }
             catch (Exception ex)
             {
@@ -208,6 +271,18 @@ namespace YTCnv
         // --------- Download methods ----------
         private async void OnDownloadClicked(object sender, EventArgs e)
         {
+#if ANDROID
+            var activity = Platform.CurrentActivity;
+            var inputMethodManager = activity.GetSystemService(Android.Content.Context.InputMethodService) as InputMethodManager;
+
+            var windowToken = activity.CurrentFocus?.WindowToken ?? activity.Window.DecorView.WindowToken;
+
+            if (windowToken != null)
+            {
+                inputMethodManager?.HideSoftInputFromWindow(windowToken, HideSoftInputFlags.None);
+            }
+#endif
+
             FormatPicker.IsEnabled = false;
             settings.FormatPickerIsEnabled = false;
 
@@ -263,6 +338,27 @@ namespace YTCnv
             if (useNewUrl)
                 url = UrlEntry.Text;
 
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                if (!settings.DownloadHistory.Contains(url))
+                {
+                    settings.DownloadHistory.Insert(0, url);
+                    settings.SaveExtraData();
+                    EmptyHistory.IsVisible = false;
+                    DownloadList.IsVisible = true;
+                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
+                }
+                else
+                {
+                    settings.DownloadHistory.Remove(url);
+                    settings.DownloadHistory.Insert(0, url);
+                    settings.SaveExtraData();
+                    EmptyHistory.IsVisible = false;
+                    DownloadList.IsVisible = true;
+                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(url))
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
@@ -287,12 +383,6 @@ namespace YTCnv
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-#if ANDROID
-                    var context = Android.App.Application.Context;
-                    var intent = new Intent(context, typeof(DownloadNotificationService));
-                    context.StartForegroundService(intent);
-#endif
-
                     DownloadIndicator.IsVisible = true;
                     settings.DownloadIndicatorIsVisible = true;
 
@@ -326,9 +416,18 @@ namespace YTCnv
                     return;
                 }
 
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+#if ANDROID
+                    var context = Android.App.Application.Context;
+                    var intent = new Intent(context, typeof(DownloadNotificationService));
+                    context.StartForegroundService(intent);
+#endif
+                });
+
                 string author = CleanAuthor(video.Author.ChannelTitle);
 
-                string title = CleanTitle(video.Title, author);
+                string title = CleanTitle(video.Title, ref author);
 
                 string thumbnailUrl = video.Thumbnails.GetWithHighestResolution().Url;
                 byte[] bytes = await http.GetByteArrayAsync(thumbnailUrl);
@@ -520,6 +619,15 @@ namespace YTCnv
                     });
                     DeleteFiles();
                 }
+                else if (ex.Message.Contains("ID or URL"))
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        ResetMainPageState(fastDwnld);
+                        await DisplayAlert("Invalid URL", "Please enter a valid YouTube URL", "OK");
+                    });
+                    DeleteFiles();
+                }
                 else
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
@@ -638,13 +746,12 @@ namespace YTCnv
         // ---------- Title and author cleaning methods ----------
         public static string CleanAuthor(string author)
         {
-            author = author.Replace(" - Topic", "", true, CultureInfo.InvariantCulture);
-            author = author.Replace("OfficialVEVO", "", true, CultureInfo.InvariantCulture);
+            author = Regex.Replace(author, @"(VEVO|OfficialVEVO|TV|- Topic)$", "", RegexOptions.IgnoreCase).Trim();
 
             return author;
         }
 
-        public static string CleanTitle(string title, string author)
+        public static string CleanTitle(string title, ref string author)
         {
             List<string> toRemove = new List<string> { "Official Music Video", "Official Video", "Official Audio", "Audio", "Official Audio Visualizer", "Official Song", "Full Album", "Deluxe Edition", "Lyrics" };
 
@@ -673,13 +780,19 @@ namespace YTCnv
             {
                 for (int i = 0; i < titleParts.Length; i++)
                 {
-                    if (titleParts[i].Contains(author, StringComparison.OrdinalIgnoreCase))
+                    string normalizedPart = titleParts[i].Replace(" ", "");
+                    string normalizedAuthor = author.Replace(" ", "");
+
+                    if (normalizedPart.Equals(normalizedAuthor, StringComparison.OrdinalIgnoreCase))
                     {
                         Console.WriteLine($"Match found at index {i}: {titleParts[i]}");
 
-                        var remainingParts = titleParts.Where((part, index) => index != i);
+                        author = titleParts[i];
 
-                        title = string.Join(" ", remainingParts);
+                        var remainingParts = titleParts.Where((part, index) => index != i);
+                        title = string.Join(" - ", remainingParts);
+
+                        Console.WriteLine($"Final title: {title}, final author: {author}");
 
                         break;
                     }
@@ -938,6 +1051,23 @@ namespace YTCnv
             settings.StatusLabelIsVisible = StatusLabel.IsVisible;
         }
 
+        private void RestoreMainPage()
+        {
+            UrlEntry.Text = settings.UrlEntryText;
+            downloadOptions.IsVisible = settings.DownloadOptionsIsVisible;
+            FormatPicker.SelectedIndex = settings.FormatPickerSelectedIndex;
+            qualityPicker.IsVisible = settings.qualityPickerIsVisible;
+            qualityPicker.SelectedIndex = settings.qualityPickerSelectedIndex;
+            LoadButton.IsVisible = settings.LoadButtonIsVisible;
+            LoadButton.IsEnabled = settings.LoadButtonIsEnabled;
+            DownloadButton.IsVisible = settings.DownloadButtonIsVisible;
+            CancelButton.IsVisible = settings.CancelButtonIsVisible;
+            DwnldProgress.IsVisible = settings.DwnldProgressIsVisible;
+            DownloadIndicator.IsVisible = settings.DownloadIndicatorIsVisible;
+            StatusLabel.Text = settings.StatusLabelText;
+            StatusLabel.IsVisible = settings.StatusLabelIsVisible;
+        }
+
         private void ResetMainPageState(bool isQuickDownload, bool clearUrl = true)
         {
             downloadOptions.IsVisible = false;
@@ -996,6 +1126,30 @@ namespace YTCnv
 
             DownloadButton.IsVisible = true;
             settings.DownloadButtonIsVisible = true;
+        }
+
+        private void OnHistoryItemTapped(object sender, TappedEventArgs e)
+        {
+            if (e.Parameter is string term)
+            {
+                UrlEntry.Text = term;
+                settings.UrlEntryText = term;
+            }
+        }
+
+        private void OnRemoveHistoryItem(object sender, EventArgs e)
+        {
+            if (sender is ImageButton b && b.CommandParameter is string term)
+            {
+                Console.WriteLine($"Removing download item: {term}");
+                settings.DownloadHistory.Remove(term);
+                settings.SaveExtraData();
+                if (settings.DownloadHistory.Count() == 0)
+                {
+                    DownloadList.IsVisible = false;
+                    EmptyHistory.IsVisible = true;
+                }
+            }
         }
     }
 }

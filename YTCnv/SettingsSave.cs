@@ -13,6 +13,7 @@ namespace YTCnv
         private static SettingsSave instance;
         private static object instanceLock = new object();
         private static string settingsPath = Path.Combine(FileSystem.AppDataDirectory, "settings.json");
+        private static string EDataPath = Path.Combine(FileSystem.AppDataDirectory, "extra_data.json");
 
         public static SettingsSave Instance()
         {
@@ -86,7 +87,22 @@ namespace YTCnv
                 {
                     searchHistory = value;
                     OnPropertyChanged(nameof(SearchHistory));
-                    SaveSettings();
+                    SaveExtraData();
+                }
+            }
+        }
+
+        private ObservableCollection<string> downloadHistory = [];
+        public ObservableCollection<string> DownloadHistory
+        {
+            get => downloadHistory;
+            set
+            {
+                if (downloadHistory != value)
+                {
+                    downloadHistory = value;
+                    OnPropertyChanged(nameof(DownloadHistory));
+                    SaveExtraData();
                 }
             }
         }
@@ -107,7 +123,7 @@ namespace YTCnv
         }
 
 
-        private string mainFolder = DeviceInfo.Platform == DevicePlatform.Android ? "Internal storage" : (DeviceInfo.Platform == DevicePlatform.WinUI ? "User" : "Unknown");
+        private string mainFolder = DeviceInfo.Platform == DevicePlatform.Android ? "Internal storage" : (DeviceInfo.Platform == DevicePlatform.WinUI ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads") : "Unknown");
         public string MainFolder
         {
             get => mainFolder;
@@ -122,7 +138,7 @@ namespace YTCnv
             }
         }
 
-        private string finalFolder = DeviceInfo.Platform == DevicePlatform.Android || DeviceInfo.Platform == DevicePlatform.WinUI ? " - Downloads" : "";
+        private string finalFolder = DeviceInfo.Platform == DevicePlatform.Android ? " - Downloads" : "";
         public string FinalFolder
         {
             get => finalFolder;
@@ -175,13 +191,23 @@ namespace YTCnv
                 UseUpTo4K = Use4K,
                 QuickDownload = QuickDwnld,
                 DontShowUpdatePopup = DontShowUpdate,
-                SearchHistory = SearchHistory,
                 SavedFileUri = FileUri,
                 MainFolderName = MainFolder,
                 FinalFolderName = FinalFolder,
             };
             string json = JsonConvert.SerializeObject(settings);
             File.WriteAllText(settingsPath, json);
+        }
+
+        public void SaveExtraData()
+        {
+            ExtraData extraData = new ExtraData
+            {
+                SearchHistory = SearchHistory,
+                DownloadHistory = DownloadHistory,
+            };
+            string json = JsonConvert.SerializeObject(extraData);
+            File.WriteAllText(EDataPath, json);
         }
 
         public void LoadSettings()
@@ -195,10 +221,19 @@ namespace YTCnv
                     Use4K = settings.UseUpTo4K;
                     QuickDwnld = settings.QuickDownload;
                     DontShowUpdate = settings.DontShowUpdatePopup;
-                    SearchHistory = settings.SearchHistory;
                     FileUri = settings.SavedFileUri;
                     MainFolder = settings.MainFolderName;
                     FinalFolder = settings.FinalFolderName;
+                }
+            }
+            if (File.Exists(EDataPath))
+            {
+                string json = File.ReadAllText(EDataPath);
+                ExtraData? extraData = JsonConvert.DeserializeObject<ExtraData>(json);
+                if (extraData != null)
+                {
+                    SearchHistory = extraData.SearchHistory;
+                    DownloadHistory = extraData.DownloadHistory;
                 }
             }
         }
@@ -210,10 +245,15 @@ namespace YTCnv
             public bool UseUpTo4K { get; set; }
             public bool QuickDownload { get; set; }
             public bool DontShowUpdatePopup { get; set; }
-            public ObservableCollection<string> SearchHistory { get; set; }
             public string SavedFileUri { get; set; }
             public string MainFolderName { get; set; }
             public string FinalFolderName { get; set; }
+        }
+
+        public class ExtraData
+        {
+            public ObservableCollection<string> SearchHistory { get; set; }
+            public ObservableCollection<string> DownloadHistory { get; set; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
