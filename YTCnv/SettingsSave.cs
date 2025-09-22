@@ -92,8 +92,8 @@ namespace YTCnv
             }
         }
 
-        private ObservableCollection<string> downloadHistory = [];
-        public ObservableCollection<string> DownloadHistory
+        private ObservableCollection<HistoryItem> downloadHistory = [];
+        public ObservableCollection<HistoryItem> DownloadHistory
         {
             get => downloadHistory;
             set
@@ -164,6 +164,15 @@ namespace YTCnv
         public FFmpegResultReceiver ffmpegReciever = new FFmpegResultReceiver();
 #endif
 
+        public HistoryItem GetHistoryItem(string title, string urlOrID)
+        {
+            return new HistoryItem
+            {
+                Title = title,
+                UrlOrID = urlOrID
+            };
+        }
+
         // ---------- MainPage ----------
 
         public string UrlEntryText;
@@ -229,11 +238,19 @@ namespace YTCnv
             if (File.Exists(EDataPath))
             {
                 string json = File.ReadAllText(EDataPath);
-                ExtraData? extraData = JsonConvert.DeserializeObject<ExtraData>(json);
-                if (extraData != null)
+                try
                 {
-                    SearchHistory = extraData.SearchHistory;
-                    DownloadHistory = extraData.DownloadHistory;
+                    ExtraData? extraData = JsonConvert.DeserializeObject<ExtraData>(json);
+                    if (extraData != null)
+                    {
+                        SearchHistory = extraData.SearchHistory;
+                        DownloadHistory = extraData.DownloadHistory;
+                    }
+                }
+                catch
+                {
+                    SearchHistory = new ObservableCollection<string>();
+                    DownloadHistory = new ObservableCollection<HistoryItem>();
                 }
             }
         }
@@ -253,8 +270,16 @@ namespace YTCnv
         public class ExtraData
         {
             public ObservableCollection<string> SearchHistory { get; set; }
-            public ObservableCollection<string> DownloadHistory { get; set; }
+            public ObservableCollection<HistoryItem> DownloadHistory { get; set; }
         }
+
+        public class HistoryItem
+        {
+            public string Title { get; set; }
+            public string UrlOrID { get; set; }
+        }
+
+        // ---------- INotifyPropertyChanged Implementation ----------
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) =>

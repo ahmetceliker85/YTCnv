@@ -72,11 +72,13 @@ namespace YTCnv
         {
             var tcs = new TaskCompletionSource<int>();
 
+            string exePath = Path.Combine(AppContext.BaseDirectory, "Platforms", "Windows", "ffmpeg", "ffmpeg.exe");
+
             process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "ffmpeg.exe",
+                    FileName = exePath,
                     Arguments = arguments,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,

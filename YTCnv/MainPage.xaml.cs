@@ -127,26 +127,7 @@ namespace YTCnv
             url = UrlEntry.Text;
             settings.UrlEntryText = url;
 
-            if (!string.IsNullOrWhiteSpace(url))
-            {
-                if (!settings.DownloadHistory.Contains(url))
-                {
-                    settings.DownloadHistory.Insert(0, url);
-                    settings.SaveExtraData();
-                    EmptyHistory.IsVisible = false;
-                    DownloadList.IsVisible = true;
-                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
-                }
-                else
-                {
-                    settings.DownloadHistory.Remove(url);
-                    settings.DownloadHistory.Insert(0, url);
-                    settings.SaveExtraData();
-                    EmptyHistory.IsVisible = false;
-                    DownloadList.IsVisible = true;
-                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
-                }
-            }
+            url = ExtractVideoID(url);
 
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -194,6 +175,34 @@ namespace YTCnv
                     DownloadStopped();
                     return;
                 }
+
+                string title = CleanTitle(video.Title, video.Author.ChannelTitle);
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    if (!string.IsNullOrWhiteSpace(url))
+                    {
+                        if (!settings.DownloadHistory.Any(item => item.UrlOrID == url))
+                        {
+                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
+                            settings.DownloadHistory.Insert(0, newItem);
+                            settings.SaveExtraData();
+                            EmptyHistory.IsVisible = false;
+                            DownloadList.IsVisible = true;
+                            DownloadList.ScrollTo(newItem, ScrollToPosition.Start);
+                        }
+                        else
+                        {
+                            settings.DownloadHistory.Remove(settings.DownloadHistory.FirstOrDefault(item => item.UrlOrID == url));
+                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
+                            settings.DownloadHistory.Insert(0, newItem);
+                            settings.SaveExtraData();
+                            EmptyHistory.IsVisible = false;
+                            DownloadList.IsVisible = true;
+                            DownloadList.ScrollTo(newItem, ScrollToPosition.Start);
+                        }
+                    }
+                });
 
                 StreamManifest streamManifest = await YouTube.Videos.Streams.GetManifestAsync(url).ConfigureAwait(false);
 
@@ -338,26 +347,7 @@ namespace YTCnv
             if (useNewUrl)
                 url = UrlEntry.Text;
 
-            if (!string.IsNullOrWhiteSpace(url))
-            {
-                if (!settings.DownloadHistory.Contains(url))
-                {
-                    settings.DownloadHistory.Insert(0, url);
-                    settings.SaveExtraData();
-                    EmptyHistory.IsVisible = false;
-                    DownloadList.IsVisible = true;
-                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
-                }
-                else
-                {
-                    settings.DownloadHistory.Remove(url);
-                    settings.DownloadHistory.Insert(0, url);
-                    settings.SaveExtraData();
-                    EmptyHistory.IsVisible = false;
-                    DownloadList.IsVisible = true;
-                    DownloadList.ScrollTo(url, ScrollToPosition.Start);
-                }
-            }
+            url = ExtractVideoID(url);
 
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -428,6 +418,32 @@ namespace YTCnv
                 string author = CleanAuthor(video.Author.ChannelTitle);
 
                 string title = CleanTitle(video.Title, ref author);
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    if (!string.IsNullOrWhiteSpace(url))
+                    {
+                        if (!settings.DownloadHistory.Any(item => item.UrlOrID == url))
+                        {
+                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
+                            settings.DownloadHistory.Insert(0, newItem);
+                            settings.SaveExtraData();
+                            EmptyHistory.IsVisible = false;
+                            DownloadList.IsVisible = true;
+                            DownloadList.ScrollTo(newItem, ScrollToPosition.Start);
+                        }
+                        else
+                        {
+                            settings.DownloadHistory.Remove(settings.DownloadHistory.FirstOrDefault(item => item.UrlOrID == url));
+                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
+                            settings.DownloadHistory.Insert(0, newItem);
+                            settings.SaveExtraData();
+                            EmptyHistory.IsVisible = false;
+                            DownloadList.IsVisible = true;
+                            DownloadList.ScrollTo(newItem, ScrollToPosition.Start);
+                        }
+                    }
+                });
 
                 string thumbnailUrl = video.Thumbnails.GetWithHighestResolution().Url;
                 byte[] bytes = await http.GetByteArrayAsync(thumbnailUrl);
@@ -743,7 +759,7 @@ namespace YTCnv
             }
         }
 
-        // ---------- Title and author cleaning methods ----------
+        // ---------- Title, author and URL cleaning methods ----------
         public static string CleanAuthor(string author)
         {
             author = Regex.Replace(author, @"(VEVO|OfficialVEVO|TV|- Topic)$", "", RegexOptions.IgnoreCase).Trim();
@@ -811,6 +827,65 @@ namespace YTCnv
             return title;
         }
 
+        public static string CleanTitle(string title, string author)
+        {
+            List<string> toRemove = new List<string> { "Official Music Video", "Official Video", "Official Audio", "Audio", "Official Audio Visualizer", "Official Song", "Full Album", "Deluxe Edition", "Lyrics" };
+
+            title = new string(title.Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray());
+
+            foreach (string subString in toRemove)
+            {
+                title = title.Replace("(" + subString + ")", "", true, CultureInfo.InvariantCulture);
+                title = title.Replace("[" + subString + "]", "", true, CultureInfo.InvariantCulture);
+            }
+
+            Console.WriteLine("Title is " + title);
+
+            author = CleanAuthor(author);
+
+            title = Regex.Replace(title, @"\[.*?\]", "");
+            title = title.Replace($"{author} - ", "", true, CultureInfo.InvariantCulture);
+            title = title.Replace($"{author}-", "", true, CultureInfo.InvariantCulture);
+            title = title.Replace($" - {author}", "", true, CultureInfo.InvariantCulture);
+            title = title.Replace($"-{author}", "", true, CultureInfo.InvariantCulture);
+
+            string[] titleParts = title.Split(new[] { " - " }, StringSplitOptions.None);
+
+            Console.WriteLine("Title parts are " + string.Join(" | ", titleParts));
+
+            if (titleParts.Length > 1)
+            {
+                for (int i = 0; i < titleParts.Length; i++)
+                {
+                    string normalizedPart = titleParts[i].Replace(" ", "");
+                    string normalizedAuthor = author.Replace(" ", "");
+
+                    if (normalizedPart.Equals(normalizedAuthor, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine($"Match found at index {i}: {titleParts[i]}");
+
+                        var remainingParts = titleParts.Where((part, index) => index != i);
+                        title = string.Join(" - ", remainingParts);
+
+                        Console.WriteLine($"Final title: {title}");
+
+                        break;
+                    }
+                }
+            }
+
+            title = title.Trim();
+
+            if (string.IsNullOrWhiteSpace(title))
+                title = "YouTube_Video";
+
+            if (title.Length > 60)
+                title = TruncateSmart(title);
+
+
+            return title;
+        }
+
         public static string TruncateSmart(string input, int maxLength = 60)
         {
             if (string.IsNullOrEmpty(input) || input.Length <= maxLength)
@@ -830,6 +905,19 @@ namespace YTCnv
             }
 
             return result + " ...";
+        }
+
+        public static string ExtractVideoID(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return null;
+            var regex = new Regex(@"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)?([a-zA-Z0-9_-]{11})$");
+            var match = regex.Match(url);
+            if (match.Success && match.Groups.Count > 1)
+            {
+                return match.Groups[1].Value;
+            }
+            return null;
         }
 
         // ---------- File saving methods ----------
@@ -1142,7 +1230,7 @@ namespace YTCnv
             if (sender is ImageButton b && b.CommandParameter is string term)
             {
                 Console.WriteLine($"Removing download item: {term}");
-                settings.DownloadHistory.Remove(term);
+                settings.DownloadHistory.Remove(settings.DownloadHistory.FirstOrDefault(item => item.UrlOrID == term));
                 settings.SaveExtraData();
                 if (settings.DownloadHistory.Count() == 0)
                 {

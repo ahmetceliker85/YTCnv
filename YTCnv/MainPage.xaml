@@ -55,20 +55,23 @@
                 <CollectionView ItemsSource="{Binding DownloadHistory}" x:Name="DownloadList" SelectionMode="None" BackgroundColor="Transparent" IsVisible="False">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame Padding="12" HeightRequest="50" BackgroundColor="Transparent" BorderColor="Transparent">
-                                <FlexLayout>
-                                    <Label Text="{Binding .}" VerticalTextAlignment="Center" Padding="10,0,0,0" FlexLayout.Grow="1">
+                            <Frame Padding="12" BackgroundColor="Transparent" BorderColor="Transparent">
+                                <Grid VerticalOptions="Center" ColumnDefinitions="*, 15, Auto">
+                                    <Label Text="{Binding Title}" VerticalTextAlignment="Center" LineBreakMode="WordWrap" Padding="10,0,0,0" Grid.Column="0">
                                         <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding UrlOrID}"/>
                                         </Label.GestureRecognizers>
                                     </Label>
-                                    <ImageButton Source="cross.png"
-                                         CommandParameter="{Binding .}"
-                                         Clicked="OnRemoveHistoryItem"
-                                         BackgroundColor="Transparent"
-                                         WidthRequest="25" HeightRequest="25"
-                                         Margin="0,0,10,0"/>
-                                </FlexLayout>
+                                    <Frame Padding="0" BackgroundColor="Transparent" BorderColor="Transparent" Grid.Column="2">
+                                        <ImageButton Source="cross.png"
+                                             CommandParameter="{Binding UrlOrID}"
+                                             Clicked="OnRemoveHistoryItem"
+                                             BackgroundColor="Transparent"
+                                             WidthRequest="25" HeightRequest="25"
+                                             VerticalOptions="Center"
+                                             Margin="0,0,10,0"/>
+                                    </Frame>
+                                </Grid>
                             </Frame>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

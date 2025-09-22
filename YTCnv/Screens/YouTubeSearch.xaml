@@ -27,15 +27,15 @@
                 <FlexLayout x:Name="SearchPanel" HeightRequest="55" Padding="0" ZIndex="4" Grid.Row="0">
                     <Frame BackgroundColor="#404040" BorderColor="#404040" CornerRadius="25" Padding="5">
                         <FlexLayout>
-                            <Frame Padding="10,0,0,0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent" >
-                                <Entry x:Name="SearchEntry" Placeholder="Search for videos..." ReturnType="Search" Completed="OnSearchClicked" Focused="OnEntryFocused" Unfocused="OnEntryUnfocused"/>
+                            <Frame Padding="10,0,0,0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent" VerticalOptions="Center">
+                                <Entry x:Name="SearchEntry" Placeholder="Search for videos..." ReturnType="Search" Completed="OnSearchClicked" Focused="OnEntryFocused" Unfocused="OnEntryUnfocused" VerticalOptions="Center"/>
                             </Frame>
                             <ImageButton Source="magglass.png" Clicked="OnSearchClicked" HeightRequest="45" HorizontalOptions="Center" Aspect="AspectFit" Padding="10"/>
                         </FlexLayout>
                     </Frame>
                 </FlexLayout>
 
-                <Frame x:Name="HistoryPanel" ZIndex="3" Grid.Row="0" Grid.RowSpan="2" HeightRequest="55" Padding="0,55,0,0" CornerRadius="25" BackgroundColor="#2c2c2c" BorderColor="#2c2c2c" VerticalOptions="Start">
+                <Frame CornerRadius="25" x:Name="HistoryPanel" ZIndex="3" Grid.Row="0" Grid.RowSpan="2" HeightRequest="55" Padding="0,55,0,0" BackgroundColor="#2c2c2c" BorderColor="#2c2c2c" VerticalOptions="Start">
                     <CollectionView ItemsSource="{Binding SearchHistory}" x:Name="HistoryList" SelectionMode="None" BackgroundColor="Transparent" ZIndex="3">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>

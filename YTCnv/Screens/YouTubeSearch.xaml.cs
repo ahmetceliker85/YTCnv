@@ -37,6 +37,7 @@ public partial class YouTubeSearch : ContentPage
 
         SearchResults.Clear();
         SearchEntry.Text = "";
+        SearchEntry.ReturnType = ReturnType.Search;
     }
 
     private async void OnCopyUrlClicked(object sender, EventArgs e)
@@ -167,9 +168,6 @@ public partial class YouTubeSearch : ContentPage
 
     private void OnEntryFocused(object sender, FocusEventArgs e)
     {
-        HistoryPanel.Opacity = 1;
-        HistoryPanel.HeightRequest = 55;
-
         double targetHeight = Math.Min(settings.SearchHistory.Count * 50 + 55, 300);
 
         HistoryPanel.Animate("Expand",
