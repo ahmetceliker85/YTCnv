@@ -9,11 +9,15 @@ public class UpdateChecker
 
     private static SettingsSave settings = SettingsSave.Instance();
 
+    public static bool _alreadyShown = false;
+
     public static async Task CheckForUpdatesAsync()
     {
+        Console.WriteLine("Checking for updates...");
+
         try
         {
-            if (settings.DontShowUpdate)
+            if (settings.DontShowUpdate || _alreadyShown)
                 return;
 
             using HttpClient client = new HttpClient();
@@ -26,7 +30,9 @@ public class UpdateChecker
             if (release == null) return;
 
             string latestVersion = release.tag_name.TrimStart('v');
-            string currentVersion = AppInfo.Current.VersionString;
+
+            string[] AppVersion = AppInfo.Current.VersionString.Split('.');
+            string currentVersion = $"{AppVersion[0]}.{AppVersion[1]}.{AppVersion[2]}";
 
             if (Version.TryParse(latestVersion, out Version latest) &&
                 Version.TryParse(currentVersion, out Version current) &&
@@ -34,7 +40,7 @@ public class UpdateChecker
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    var popup = new UpdatePopup(latestVersion, release.body);
+                    UpdatePopup popup = new UpdatePopup(latestVersion, release.body);
                     bool? dontShow = (bool?)await Application.Current.MainPage.ShowPopupAsync(popup);
 
                     if (dontShow != null)
@@ -44,6 +50,8 @@ public class UpdateChecker
                     }
                 });
             }
+
+            _alreadyShown = true;
         }
         catch(Exception ex)
         {

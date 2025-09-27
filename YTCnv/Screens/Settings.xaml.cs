@@ -19,7 +19,8 @@ public partial class Settings : ContentPage
     {
         InitializeComponent();
         BindingContext = settings;
-        VersionLabel.Text = $"{AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
+        string[] AppVersion = AppInfo.Current.VersionString.Split('.');
+        VersionLabel.Text = $"{AppVersion[0]}.{AppVersion[1]}.{AppVersion[2]} ({AppInfo.Current.BuildString})";
     }
 
     private async void GoBack(object sender, EventArgs e)

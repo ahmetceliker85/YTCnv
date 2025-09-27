@@ -23,35 +23,23 @@
             </FlexLayout>
 
             <!--Settings-->
-            <FlexLayout BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
-                <Frame  FlexLayout.Grow="1" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
-                    <HorizontalStackLayout HorizontalOptions="Start">
-                        <Label Text="Enable up to 4K downloads" VerticalOptions="Center" HorizontalOptions="Start"/>
-                    </HorizontalStackLayout>
-                </Frame>
-                <Switch x:Name="use4kSwitch" VerticalOptions="Center" IsToggled="{Binding Use4K, Mode=TwoWay}"/>
-            </FlexLayout>
+            <Grid ColumnDefinitions="*, 15, Auto" BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
+                <Label Grid.Column="0" Text="Enable up to 4K downloads" VerticalOptions="Center" HorizontalOptions="Start"/>
+                <Switch Grid.Column="2" x:Name="use4kSwitch" VerticalOptions="Center" IsToggled="{Binding Use4K, Mode=TwoWay}"/>
+            </Grid>
 
-            <FlexLayout BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
-                <Frame  FlexLayout.Grow="1" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
-                    <HorizontalStackLayout HorizontalOptions="Start">
-                        <Label Text="Enable quick download" VerticalOptions="Center" HorizontalOptions="Start"/>
-                    </HorizontalStackLayout>
-                </Frame>
-                <Switch x:Name="enableQuickDwnld" VerticalOptions="Center" IsToggled="{Binding QuickDwnld, Mode=TwoWay}"/>
-            </FlexLayout>
+            <Grid ColumnDefinitions="*, 15, Auto" BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
+                <Label Grid.Column="0" Text="Enable quick download" VerticalOptions="Center" HorizontalOptions="Start"/>
+                <Switch Grid.Column="2" x:Name="enableQuickDwnld" VerticalOptions="Center" IsToggled="{Binding QuickDwnld, Mode=TwoWay}"/>
+            </Grid>
 
-            <FlexLayout BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
-                <Frame  FlexLayout.Grow="1" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
-                    <HorizontalStackLayout HorizontalOptions="Start">
-                        <Label Text="Don’t remind me of new versions" VerticalOptions="Center" HorizontalOptions="Start"/>
-                        <!--<Frame HorizontalOptions="End" VerticalOptions="Start" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
-                            <Label BackgroundColor="Red" Text="Beta" Padding="2,0" FontSize="10" VerticalTextAlignment="Center"/>
-                        </Frame>-->
-                    </HorizontalStackLayout>
-                </Frame>
-                <Switch x:Name="dontShowPopup" VerticalOptions="Center" IsToggled="{Binding DontShowUpdate, Mode=TwoWay}"/>
-            </FlexLayout>
+            <Grid ColumnDefinitions="Auto, *, Auto" BackgroundColor="Grey" Margin="0,2,0,0" Padding="25,0">
+                <Label Text="Don’t remind me of new versions" VerticalOptions="Center" HorizontalOptions="Start"/>
+                <!--<Frame Grid.Column="1" HorizontalOptions="Start" VerticalOptions="Start" Padding="0" BackgroundColor="Transparent" BorderColor="Transparent">
+                    <Label BackgroundColor="Red" Text="Beta" Padding="2,0" FontSize="10" VerticalTextAlignment="Center"/>
+                </Frame>-->
+                <Switch Grid.Column="2" x:Name="dontShowPopup" VerticalOptions="Center" IsToggled="{Binding DontShowUpdate, Mode=TwoWay}"/>
+            </Grid>
 
         </VerticalStackLayout>
 

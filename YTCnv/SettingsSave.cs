@@ -189,6 +189,8 @@ namespace YTCnv
         public bool DwnldProgressIsVisible;
         public bool DownloadIndicatorIsVisible;
         public string StatusLabelText;
+        public FormattedString StatusLabelFormattedText;
+        public bool StatusLabelUsesFormattedText;
         public bool StatusLabelIsVisible;
 
         //---------- Save/Load ----------

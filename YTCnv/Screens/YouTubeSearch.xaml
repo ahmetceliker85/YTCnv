@@ -40,19 +40,21 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Frame Padding="12" HeightRequest="50" BackgroundColor="Transparent" BorderColor="Transparent">
-                                    <FlexLayout>
-                                        <Label Text="{Binding .}" VerticalTextAlignment="Center" Padding="10,0,0,0" FlexLayout.Grow="1">
-                                            <Label.GestureRecognizers>
-                                                <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding .}"/>
-                                            </Label.GestureRecognizers>
-                                        </Label>
-                                        <ImageButton Source="cross.png"
-                                                 CommandParameter="{Binding .}"
-                                                 Clicked="OnRemoveHistoryItem"
-                                                 BackgroundColor="Transparent"
-                                                 WidthRequest="25" HeightRequest="25"
-                                                 Margin="0,0,10,0"/>
-                                    </FlexLayout>
+                                    <Grid RowDefinitions="Auto">
+                                        <FlexLayout Direction="Row">
+                                            <Label Text="{Binding .}" VerticalTextAlignment="Center" Padding="10,0,0,0" FlexLayout.Grow="1">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding .}"/>
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                            <ImageButton Source="cross.png"
+                                                     CommandParameter="{Binding .}"
+                                                     Clicked="OnRemoveHistoryItem"
+                                                     BackgroundColor="Transparent"
+                                                     WidthRequest="25" HeightRequest="25"
+                                                     Margin="0,0,10,0"/>
+                                        </FlexLayout>
+                                    </Grid>
                                 </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -69,20 +71,20 @@
                                 <VerticalStackLayout>
                                     <Label Text="{Binding Title}" FontAttributes="Bold"/>
                                     <Label Text="{Binding Author}" FontSize="10" />
-                                    <FlexLayout>
-                                        <Frame Padding="0" FlexLayout.Grow="1" BackgroundColor="Transparent" BorderColor="Transparent">
-                                            <Frame Padding="0" HeightRequest="120" BackgroundColor="Transparent" BorderColor="Transparent" WidthRequest="213" HorizontalOptions="Start" CornerRadius="10">
-                                                <Grid WidthRequest="214" HeightRequest="120">
-                                                    <Image Source="{Binding ThumbnailUrl}" HeightRequest="120" WidthRequest="214" BackgroundColor="Transparent" />
+                                    <Grid ColumnDefinitions="*, Auto, *, Auto, *">
+                                        <Frame Padding="0" Grid.Column="1" BackgroundColor="Transparent" BorderColor="Transparent">
+                                            <Frame Padding="-1" BackgroundColor="Transparent" BorderColor="Transparent" HorizontalOptions="Start" CornerRadius="10">
+                                                <Grid> 
+                                                    <Image Source="{Binding ThumbnailUrl}" BackgroundColor="Transparent" />
                                                     <Label Text="{Binding Duration}" BackgroundColor="#80000000" TextColor="White" FontSize="12" Padding="4" HorizontalOptions="End" VerticalOptions="End" Margin="4" />
                                                 </Grid>
                                             </Frame>
                                         </Frame>
-                                        <VerticalStackLayout Spacing="15" VerticalOptions="Center">
+                                        <VerticalStackLayout Spacing="15" VerticalOptions="Center" Grid.Column="3">
                                             <Button Text="Download" Clicked="OnPlsDownloadClicked" CommandParameter="{Binding VideoId}" BackgroundColor="#acacac" TextColor="Black"/>
                                             <Button Text="Copy URL" Clicked="OnCopyUrlClicked" CommandParameter="{Binding VideoId}" BackgroundColor="#acacac" TextColor="Black"/>
                                         </VerticalStackLayout>
-                                    </FlexLayout>
+                                    </Grid>
                                 </VerticalStackLayout>
                             </Frame>
                         </DataTemplate>

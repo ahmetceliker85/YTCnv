@@ -48,9 +48,14 @@ namespace YTCnv
 #endif
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            if (!UpdateChecker._alreadyShown)
+            {
+                await UpdateChecker.CheckForUpdatesAsync();
+            }
 
             if (settings.DownloadHistory != null)
             {
@@ -70,7 +75,7 @@ namespace YTCnv
 
             if (!settings.IsDownloadRunning)
             {
-                ResetMainPageState(fastDwnld);
+                ResetMainPageState(fastDwnld, false);
 
                 if (settings.IHaveId)
                 {
@@ -113,6 +118,7 @@ namespace YTCnv
                 settings.StatusLabelIsVisible = true;
                 StatusLabel.Text = "Please connect to the internet";
                 settings.StatusLabelText = "Please connect to the internet";
+                settings.StatusLabelUsesFormattedText = false;
             }
         }
 
@@ -126,8 +132,6 @@ namespace YTCnv
             settings.LoadButtonIsEnabled = false;
             url = UrlEntry.Text;
             settings.UrlEntryText = url;
-
-            url = ExtractVideoID(url);
 
             if (string.IsNullOrWhiteSpace(url))
             {
@@ -148,6 +152,7 @@ namespace YTCnv
                 settings.StatusLabelIsVisible = true;
                 StatusLabel.Text = "Retrieving video metadata";
                 settings.StatusLabelText = "Retrieving video metadata";
+                settings.StatusLabelUsesFormattedText = false;
             });
 
             try
@@ -175,34 +180,6 @@ namespace YTCnv
                     DownloadStopped();
                     return;
                 }
-
-                string title = CleanTitle(video.Title, video.Author.ChannelTitle);
-
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    if (!string.IsNullOrWhiteSpace(url))
-                    {
-                        if (!settings.DownloadHistory.Any(item => item.UrlOrID == url))
-                        {
-                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
-                            settings.DownloadHistory.Insert(0, newItem);
-                            settings.SaveExtraData();
-                            EmptyHistory.IsVisible = false;
-                            DownloadList.IsVisible = true;
-                            DownloadList.ScrollTo(newItem, ScrollToPosition.Start);
-                        }
-                        else
-                        {
-                            settings.DownloadHistory.Remove(settings.DownloadHistory.FirstOrDefault(item => item.UrlOrID == url));
-                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
-                            settings.DownloadHistory.Insert(0, newItem);
-                            settings.SaveExtraData();
-                            EmptyHistory.IsVisible = false;
-                            DownloadList.IsVisible = true;
-                            DownloadList.ScrollTo(newItem, ScrollToPosition.Start);
-                        }
-                    }
-                });
 
                 StreamManifest streamManifest = await YouTube.Videos.Streams.GetManifestAsync(url).ConfigureAwait(false);
 
@@ -347,8 +324,6 @@ namespace YTCnv
             if (useNewUrl)
                 url = UrlEntry.Text;
 
-            url = ExtractVideoID(url);
-
             if (string.IsNullOrWhiteSpace(url))
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
@@ -380,6 +355,7 @@ namespace YTCnv
                     settings.StatusLabelIsVisible = true;
                     StatusLabel.Text = "Retrieving video metadata";
                     settings.StatusLabelText = "Retrieving video metadata";
+                    settings.StatusLabelUsesFormattedText = false;
                 });
 
                 Video? video = await YouTube.Videos.GetAsync(url).ConfigureAwait(false);
@@ -418,14 +394,17 @@ namespace YTCnv
                 string author = CleanAuthor(video.Author.ChannelTitle);
 
                 string title = CleanTitle(video.Title, ref author);
+                string unalteredTitle = video.Title.Trim();
+
+                string id = video.Id.ToString();
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    if (!string.IsNullOrWhiteSpace(url))
+                    if (!string.IsNullOrWhiteSpace(id))
                     {
-                        if (!settings.DownloadHistory.Any(item => item.UrlOrID == url))
+                        if (!settings.DownloadHistory.Any(item => item.UrlOrID == id))
                         {
-                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
+                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = unalteredTitle, UrlOrID = id };
                             settings.DownloadHistory.Insert(0, newItem);
                             settings.SaveExtraData();
                             EmptyHistory.IsVisible = false;
@@ -434,8 +413,8 @@ namespace YTCnv
                         }
                         else
                         {
-                            settings.DownloadHistory.Remove(settings.DownloadHistory.FirstOrDefault(item => item.UrlOrID == url));
-                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = title, UrlOrID = url };
+                            settings.DownloadHistory.Remove(settings.DownloadHistory.FirstOrDefault(item => item.UrlOrID == id));
+                            SettingsSave.HistoryItem newItem = new SettingsSave.HistoryItem { Title = unalteredTitle, UrlOrID = id };
                             settings.DownloadHistory.Insert(0, newItem);
                             settings.SaveExtraData();
                             EmptyHistory.IsVisible = false;
@@ -470,6 +449,7 @@ namespace YTCnv
 
                 MainThread.BeginInvokeOnMainThread(() => StatusLabel.Text = "Retrieving video");
                 settings.StatusLabelText = "Retrieving video";
+                settings.StatusLabelUsesFormattedText = false;
 
                 StreamManifest streamManifest = await YouTube.Videos.Streams.GetManifestAsync(url, _downloadCts.Token).ConfigureAwait(false);
 
@@ -481,8 +461,10 @@ namespace YTCnv
                     DwnldProgress.IsVisible = true;
                     settings.DwnldProgressIsVisible = true;
 
-                    StatusLabel.Text = $"Downloading {title}";
-                    settings.StatusLabelText = $"Downloading {title}";
+                    FormattedString status = new FormattedString { Spans = {new Span { Text = "Downloading "}, new Span { Text = title, FontAttributes = FontAttributes.Bold } } };
+                    StatusLabel.FormattedText = status;
+                    settings.StatusLabelFormattedText = status;
+                    settings.StatusLabelUsesFormattedText = true;
                 });
 
                 if (File.Exists(m4aPath))
@@ -509,6 +491,7 @@ namespace YTCnv
 
                         StatusLabel.Text = "Adding metadata";
                         settings.StatusLabelText = "Adding metadata";
+                        settings.StatusLabelUsesFormattedText = false;
                     });
 
                     GC.AddMemoryPressure(audioStream.Size.Bytes + 3);
@@ -554,6 +537,7 @@ namespace YTCnv
 
                         StatusLabel.Text = "Joining audio and video";
                         settings.StatusLabelText = "Joining audio and video";
+                        settings.StatusLabelUsesFormattedText = false;
                     });
 
                     GC.AddMemoryPressure(videoStream.Size.Bytes + 3);
@@ -907,19 +891,6 @@ namespace YTCnv
             return result + " ...";
         }
 
-        public static string ExtractVideoID(string url)
-        {
-            if (string.IsNullOrWhiteSpace(url))
-                return null;
-            var regex = new Regex(@"^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)?([a-zA-Z0-9_-]{11})$");
-            var match = regex.Match(url);
-            if (match.Success && match.Groups.Count > 1)
-            {
-                return match.Groups[1].Value;
-            }
-            return null;
-        }
-
         // ---------- File saving methods ----------
 #if ANDROID
         public void SaveAudio(Context context, string fileName, string inputFilePath)
@@ -1136,6 +1107,7 @@ namespace YTCnv
             settings.DwnldProgressIsVisible = DwnldProgress.IsVisible;
             settings.DownloadIndicatorIsVisible = DownloadIndicator.IsVisible;
             settings.StatusLabelText = StatusLabel.Text;
+            settings.StatusLabelUsesFormattedText = false;
             settings.StatusLabelIsVisible = StatusLabel.IsVisible;
         }
 
@@ -1152,7 +1124,14 @@ namespace YTCnv
             CancelButton.IsVisible = settings.CancelButtonIsVisible;
             DwnldProgress.IsVisible = settings.DwnldProgressIsVisible;
             DownloadIndicator.IsVisible = settings.DownloadIndicatorIsVisible;
-            StatusLabel.Text = settings.StatusLabelText;
+            if (settings.StatusLabelUsesFormattedText)
+            {
+                StatusLabel.FormattedText = settings.StatusLabelFormattedText;
+            }
+            else
+            {
+                StatusLabel.Text = settings.StatusLabelText;
+            }
             StatusLabel.IsVisible = settings.StatusLabelIsVisible;
         }
 
@@ -1215,6 +1194,8 @@ namespace YTCnv
             DownloadButton.IsVisible = true;
             settings.DownloadButtonIsVisible = true;
         }
+
+        // ---------- History list events ----------
 
         private void OnHistoryItemTapped(object sender, TappedEventArgs e)
         {

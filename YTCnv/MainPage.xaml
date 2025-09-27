@@ -55,8 +55,8 @@
                 <CollectionView ItemsSource="{Binding DownloadHistory}" x:Name="DownloadList" SelectionMode="None" BackgroundColor="Transparent" IsVisible="False">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame Padding="12" BackgroundColor="Transparent" BorderColor="Transparent">
-                                <Grid VerticalOptions="Center" ColumnDefinitions="*, 15, Auto">
+                            <Frame Padding="12,10,12,0" BackgroundColor="Transparent" BorderColor="Transparent">
+                                <Grid VerticalOptions="Center" ColumnDefinitions="*, 15, Auto" RowDefinitions="Auto, Auto">
                                     <Label Text="{Binding Title}" VerticalTextAlignment="Center" LineBreakMode="WordWrap" Padding="10,0,0,0" Grid.Column="0">
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding UrlOrID}"/>
@@ -71,6 +71,7 @@
                                              VerticalOptions="Center"
                                              Margin="0,0,10,0"/>
                                     </Frame>
+                                    <BoxView Grid.Row="1" Grid.ColumnSpan="3" HeightRequest="1" Color="Gray" Margin="8,10,8,0"/>
                                 </Grid>
                             </Frame>
                         </DataTemplate>
