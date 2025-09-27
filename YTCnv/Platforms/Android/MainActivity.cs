@@ -9,8 +9,8 @@ namespace YTCnv
 {
     [Activity(
         Theme = "@style/Maui.SplashTheme",
-        MainLauncher = true,
         LaunchMode = LaunchMode.SingleTop,
+        MainLauncher = true,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation |
                                ConfigChanges.UiMode | ConfigChanges.ScreenLayout |
                                ConfigChanges.SmallestScreenSize | ConfigChanges.Density,
@@ -33,14 +33,9 @@ namespace YTCnv
             base.OnCreate(savedInstanceState);
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
-            {
                 Window.SetStatusBarColor(Android.Graphics.Color.Transparent);
-            }
-
-            _ = UpdateChecker.CheckForUpdatesAsync();
 
             RequestNotificationPermission();
-
             HandleIntent(Intent);
         }
 
