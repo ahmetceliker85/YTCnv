@@ -4,12 +4,15 @@ namespace YTCnv;
 
 public partial class UpdatePopup : Popup
 {
-    public bool DontShowAgain { get; private set; } = false;
+    public static bool DontShowAgain { get; private set; } = false;
+    private static string latestRelease = "";
+    private static SettingsSave settings = SettingsSave.Instance();
 
     public UpdatePopup(string latestVersion, string? changeLog)
     {
         InitializeComponent();
-        this.Color = Colors.Transparent;
+        this.BackgroundColor = Colors.Transparent;
+        latestRelease = latestVersion;
         VersionLabel.Text = $"A new version ({latestVersion}) is available.";
         ChangeLog.FormattedText = string.IsNullOrWhiteSpace(changeLog) ? "No changelog available." : FormatChangelog(changeLog);
     }
@@ -32,15 +35,17 @@ public partial class UpdatePopup : Popup
         return retString;
     }
 
-    private void OnOpenLinkClicked(object sender, EventArgs e)
+    private async void OnOpenLinkClicked(object sender, EventArgs e)
     {
-        Launcher.OpenAsync("https://github.com/PGAxis/YTCnv/releases/latest");
-        Close(DontShowAgain);
+        await Launcher.OpenAsync($"https://github.com/PGAxis/YTCnv/releases/latest");
+        settings.DontShowUpdate = DontShowAgain;
+        await CloseAsync();
     }
 
-    private void OnCancelClicked(object sender, EventArgs e)
+    private async void OnCancelClicked(object sender, EventArgs e)
     {
-        Close(DontShowAgain);
+        settings.DontShowUpdate = DontShowAgain;
+        await CloseAsync();
     }
 
     private void OnCheckboxChanged(object sender, CheckedChangedEventArgs e)

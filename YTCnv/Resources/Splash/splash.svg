@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 512 512"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="splash.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   width="512"
+   height="512"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect1"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     showguides="true"
+     inkscape:zoom="1.3359375"
+     inkscape:cx="350.31579"
+     inkscape:cy="249.63743"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     inkscape:window-x="1672"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1"
+     showgrid="true">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
+  <!--!Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke-width:0.99927"
+     id="rect1"
+     width="512"
+     height="512"
+     x="0"
+     y="0"
+     sodipodi:type="rect"
+     rx="100"
+     ry="100" />
+  <g
+     id="g1"
+     transform="matrix(0.82387404,0,0,0.82387404,31,97.816214)">
+    <path
+       d="m 288,177 h 35 l -50,85 -50,-85 h 35 V 92 h 30 m 75,200 H 183 v -10 h 180"
+       style="fill:#ffffff;fill-opacity:1"
+       id="path1-8"
+       inkscape:label="path2" />
+    <path
+       d="M 534.7,60.1 C 528.5,36.4 509.9,17.8 486.4,11.5 443.9,0 273.1,0 273.1,0 273.1,0 102.3,0 59.7,11.5 36.2,17.8 17.7,36.4 11.4,60.1 0,103 0,192.4 0,192.4 c 0,0 0,89.4 11.4,132.3 6.3,23.6 24.8,41.5 48.3,47.8 42.6,11.5 213.4,11.5 213.4,11.5 0,0 170.8,0 213.4,-11.5 23.5,-6.3 42,-24.2 48.3,-47.8 11.4,-42.9 11.4,-132.3 11.4,-132.3 0,0 0,-89.4 -11.4,-132.3 z M 288,177 h 35 l -50,85 -50,-85 h 35 V 92 h 30 m 75,200 H 183 v -10 h 180"
+       id="path1"
+       sodipodi:nodetypes="ccccccccccccccccccccccccc"
+       style="fill:#ff0000;fill-opacity:1" />
+  </g>
+</svg>

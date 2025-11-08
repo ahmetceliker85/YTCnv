@@ -252,7 +252,7 @@ public partial class YouTubeSearch : ContentPage
         }
 
         double startHeight = HistoryPanel.HeightRequest;
-        double endHeight = Math.Min(settings.SearchHistory.Count * 50 + 55, 300);
+        double endHeight = Math.Min(settings.SearchHistory.Count * 52 + 55, 300);
 
         HistoryPanel.Animate("Collapse",
             callback: (progress) =>

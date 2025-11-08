@@ -2,9 +2,9 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <IsFirstTimeProjectOpen>False</IsFirstTimeProjectOpen>
-    <ActiveDebugFramework>net8.0-android</ActiveDebugFramework>
-    <ActiveDebugProfile>Pixel 7 Pro - API 34 (Android 14.0 - API 34)</ActiveDebugProfile>
-    <SelectedPlatformGroup>Emulator</SelectedPlatformGroup>
+    <ActiveDebugFramework>net9.0-android</ActiveDebugFramework>
+    <ActiveDebugProfile>Samsung SM-M135F (Android 14.0 - API 34)</ActiveDebugProfile>
+    <SelectedPlatformGroup>PhysicalDevice</SelectedPlatformGroup>
     <DefaultDevice>pixel_7_pro_-_api_34</DefaultDevice>
     <AppIconSource>C:\Users\Axiss\Plocha\Local Program\ProgramC#\YTCnv\YTCnv\Resources\Splash\splash.png</AppIconSource>
     <SplashScreenSource>C:\Users\Axiss\Plocha\Local Program\ProgramC#\YTCnv\YTCnv\Resources\Splash\splash.png</SplashScreenSource>

@@ -173,26 +173,6 @@ namespace YTCnv
             };
         }
 
-        // ---------- MainPage ----------
-
-        public string UrlEntryText;
-        public bool DownloadOptionsIsVisible;
-        public int FormatPickerSelectedIndex;
-        public bool FormatPickerIsEnabled;
-        public bool qualityPickerIsVisible;
-        public int qualityPickerSelectedIndex;
-        public bool qualityPickerIsEnabled;
-        public bool LoadButtonIsVisible;
-        public bool LoadButtonIsEnabled;
-        public bool DownloadButtonIsVisible;
-        public bool CancelButtonIsVisible;
-        public bool DwnldProgressIsVisible;
-        public bool DownloadIndicatorIsVisible;
-        public string StatusLabelText;
-        public FormattedString StatusLabelFormattedText;
-        public bool StatusLabelUsesFormattedText;
-        public bool StatusLabelIsVisible;
-
         //---------- Save/Load ----------
 
         public void SaveSettings()

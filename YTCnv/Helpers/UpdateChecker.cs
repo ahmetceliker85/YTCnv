@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Views;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using Newtonsoft.Json;
 
 namespace YTCnv;
@@ -41,13 +42,7 @@ public class UpdateChecker
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     UpdatePopup popup = new UpdatePopup(latestVersion, release.body);
-                    bool? dontShow = (bool?)await Application.Current.MainPage.ShowPopupAsync(popup);
-
-                    if (dontShow != null)
-                    {
-                        if ((bool)dontShow)
-                            settings.DontShowUpdate = true;
-                    }
+                    await Application.Current.MainPage.ShowPopupAsync(popup);
                 });
             }
 

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 640 640"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="youtube-brands-solid-full.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     showguides="true"
+     inkscape:zoom="1.3359375"
+     inkscape:cx="379.50877"
+     inkscape:cy="318.50292"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     inkscape:window-x="1672"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1">
+    <sodipodi:guide
+       position="319.62573,582.36257"
+       orientation="1,0"
+       id="guide1"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
+  <!--!Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+  <path
+     d="M 581.7,188.1 C 575.5,164.4 556.9,145.8 533.4,139.5 490.9,128 320.1,128 320.1,128 c 0,0 -170.8,0 -213.4,11.5 -23.5,6.3 -42,24.9 -48.3,48.6 C 47,231 47,320.4 47,320.4 c 0,0 0,89.4 11.4,132.3 6.3,23.6 24.8,41.5 48.3,47.8 42.6,11.5 213.4,11.5 213.4,11.5 0,0 170.8,0 213.4,-11.5 23.5,-6.3 42,-24.2 48.3,-47.8 11.4,-42.9 11.4,-132.3 11.4,-132.3 0,0 0,-89.4 -11.4,-132.3 z M 335,305 h 35 l -50,85 -50,-85 h 35 v -85 h 30 m 75,200 H 230 v -10 h 180"
+     id="path1"
+     sodipodi:nodetypes="ccccccccccccccccccccccccc"
+     style="fill:#ffffff" />
+</svg>
