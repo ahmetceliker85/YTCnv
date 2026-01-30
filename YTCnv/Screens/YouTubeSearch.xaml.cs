@@ -80,9 +80,16 @@ public partial class YouTubeSearch : ContentPage
 
         if (!string.IsNullOrWhiteSpace(query) && !settings.SearchHistory.Contains(query))
         {
-            settings.SearchHistory.Add(query);
+            settings.SearchHistory.Insert(0, query);
             settings.SaveSettings();
-        }  
+        }
+        
+        if (!string.IsNullOrWhiteSpace(query) && settings.SearchHistory.Contains(query))
+        {
+            settings.SearchHistory.Remove(query);
+            settings.SearchHistory.Insert(0, query);
+            settings.SaveSettings();
+        }
 
         if (string.IsNullOrWhiteSpace(query))
         {
@@ -168,7 +175,7 @@ public partial class YouTubeSearch : ContentPage
 
     private void OnEntryFocused(object sender, FocusEventArgs e)
     {
-        double targetHeight = Math.Min(settings.SearchHistory.Count * 50 + 55, 300);
+        double targetHeight = Math.Min(settings.SearchHistory.Count * 55 + 55, 300);
 
         HistoryPanel.Animate("Expand",
             callback: (progress) =>
@@ -252,7 +259,7 @@ public partial class YouTubeSearch : ContentPage
         }
 
         double startHeight = HistoryPanel.HeightRequest;
-        double endHeight = Math.Min(settings.SearchHistory.Count * 52 + 55, 300);
+        double endHeight = Math.Min(settings.SearchHistory.Count * 55 + 55, 300);
 
         HistoryPanel.Animate("Collapse",
             callback: (progress) =>

@@ -13,6 +13,7 @@ using Settings = YTCnv.Screens.Settings;
 using YTCnv.Screens;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using CommunityToolkit.Maui.Extensions;
 
 namespace YTCnv
 {
@@ -353,6 +354,13 @@ namespace YTCnv
                         }
                     }
                 });
+
+                var popup = new TitleAuthor(title, author);
+
+                await this.ShowPopupAsync(popup);
+
+                author = CleanAuthor(popup.resultAuthor);
+                title = CleanTitle(popup.resultTitle, author);
 
                 string thumbnailUrl = video.Thumbnails.GetWithHighestResolution().Url;
                 byte[] bytes = await http.GetByteArrayAsync(thumbnailUrl);

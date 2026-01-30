@@ -7,9 +7,9 @@
     <VerticalStackLayout Padding="20,10,20,0">
 
         <FlexLayout Padding="0,0,15,25" HeightRequest="80">
-            <Frame Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent" CornerRadius="0">
-                <ImageButton x:Name="GoFromSettings" Source="back.svg" WidthRequest="23" HeightRequest="23" Clicked="GoBack"/>
-            </Frame>
+            <Border Margin="0,5,0,0" Padding="0,0,10,0" VerticalOptions="Center" BackgroundColor="Transparent" Stroke="Transparent" StrokeShape="0" WidthRequest="40" HeightRequest="40">
+                <ImageButton x:Name="GoFromSettings" Source="back.svg" Clicked="GoBack"/>
+            </Border>
             <Label Text="Youtube Search" FontSize="18" FontFamily="Poppins" VerticalTextAlignment="Center" Padding="10,2,0,0"/>
         </FlexLayout>
 
@@ -39,19 +39,19 @@
                     <CollectionView ItemsSource="{Binding SearchHistory}" x:Name="HistoryList" SelectionMode="None" BackgroundColor="Transparent" ZIndex="3">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Frame Padding="12" HeightRequest="52" BackgroundColor="Transparent" BorderColor="Transparent">
+                                <Frame Padding="12" HeightRequest="50" BackgroundColor="Transparent" BorderColor="Transparent">
                                     <FlexLayout Direction="Row">
                                         <Label Text="{Binding .}" VerticalTextAlignment="Center" Padding="10,0,0,0" FlexLayout.Grow="1">
                                             <Label.GestureRecognizers>
                                                 <TapGestureRecognizer Tapped="OnHistoryItemTapped" CommandParameter="{Binding .}"/>
                                             </Label.GestureRecognizers>
                                         </Label>
-                                        <ImageButton Source="cross.svg"
-                                                     CommandParameter="{Binding .}"
-                                                     Clicked="OnRemoveHistoryItem"
-                                                     BackgroundColor="Transparent"
-                                                     WidthRequest="25" HeightRequest="25"
-                                                     Margin="0,0,10,0"/>
+                                        <Border Padding="0" WidthRequest="25" HeightRequest="25" Margin="0,0,10,0" Stroke="Transparent">
+                                            <ImageButton Source="cross.svg"
+                                                         CommandParameter="{Binding .}"
+                                                         Clicked="OnRemoveHistoryItem"
+                                                         BackgroundColor="Transparent"/>
+                                        </Border>
                                     </FlexLayout>
                                 </Frame>
                             </DataTemplate>

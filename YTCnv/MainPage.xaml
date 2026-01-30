@@ -8,12 +8,12 @@
 
             <FlexLayout Padding="0,20,0,25" HeightRequest="100" VerticalOptions="Center">
                 <Label Text="Youtube Converter" FontAttributes="Bold" FontSize="20" FlexLayout.Grow="1" FontFamily="Poppins" VerticalOptions="Center"/>
-                <Frame Padding="5" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent">
-                    <ImageButton x:Name="YoutubeSearcher" Source="magglass.svg" WidthRequest="25" HeightRequest="25" Clicked="OpenSearch"/>
-                </Frame>
-                <Frame Padding="5,0,0,0" VerticalOptions="Center" BackgroundColor="Transparent" BorderColor="Transparent">
-                    <ImageButton x:Name="GoToSettings" Source="settings.svg" WidthRequest="25" HeightRequest="25" Clicked="OpenSettings"/>
-                </Frame>
+                <Border Margin="0,4,0,0" Padding="5" VerticalOptions="Start" BackgroundColor="Transparent" Stroke="Transparent" WidthRequest="40" HeightRequest="40">
+                    <ImageButton x:Name="YoutubeSearcher" Source="magglass.svg" Clicked="OpenSearch"/>
+                </Border>
+                <Border Margin="0,8,0,0" Padding="5,0,0,0" VerticalOptions="End" BackgroundColor="Transparent" Stroke="Transparent" WidthRequest="40" HeightRequest="40">
+                    <ImageButton x:Name="GoToSettings" Source="settings.svg" Clicked="OpenSettings"/>
+                </Border>
             </FlexLayout>
 
             <VerticalStackLayout>
