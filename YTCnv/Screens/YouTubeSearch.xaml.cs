@@ -81,14 +81,13 @@ public partial class YouTubeSearch : ContentPage
         if (!string.IsNullOrWhiteSpace(query) && !settings.SearchHistory.Contains(query))
         {
             settings.SearchHistory.Insert(0, query);
-            settings.SaveSettings();
+            settings.SaveExtraData();
         }
-        
-        if (!string.IsNullOrWhiteSpace(query) && settings.SearchHistory.Contains(query))
+        else if (!string.IsNullOrWhiteSpace(query) && settings.SearchHistory.Contains(query))
         {
             settings.SearchHistory.Remove(query);
             settings.SearchHistory.Insert(0, query);
-            settings.SaveSettings();
+            settings.SaveExtraData();
         }
 
         if (string.IsNullOrWhiteSpace(query))
@@ -255,7 +254,7 @@ public partial class YouTubeSearch : ContentPage
         {
             Console.WriteLine($"Removing history item: {term}");
             settings.SearchHistory.Remove(term);
-            settings.SaveSettings();
+            settings.SaveExtraData();
         }
 
         double startHeight = HistoryPanel.HeightRequest;
