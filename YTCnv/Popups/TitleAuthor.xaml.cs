@@ -11,6 +11,8 @@ public partial class TitleAuthor : Popup
     public TitleAuthor(string title, string author)
     {
         InitializeComponent();
+        this.BackgroundColor = Colors.Transparent;
+        this.Padding = 0;
 
         TitleEntry.Text = title;
         AuthorEntry.Text = author;

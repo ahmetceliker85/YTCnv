@@ -5,23 +5,21 @@
                CanBeDismissedByTappingOutsideOfPopup="False"
                x:Class="YTCnv.UpdatePopup">
 
-    <Frame BorderColor="Transparent" BackgroundColor="Transparent" Padding="25">
-        <Frame BackgroundColor="#4c4c4c" BorderColor="Aqua">
-            <VerticalStackLayout Spacing="0">
-                <Label x:Name="VersionLabel" FontAttributes="Bold" FontSize="Medium" HorizontalOptions="Center" />
+    <Border Background="Transparent" Stroke="Transparent" StrokeThickness="0" StrokeShape="15">
+        <VerticalStackLayout Padding="20" Spacing="12" BackgroundColor="Black">
+            <Label x:Name="VersionLabel" FontAttributes="Bold" FontSize="Medium" HorizontalOptions="Center" />
 
-                <Label x:Name="ChangeLog" FontSize="Small" HorizontalOptions="Center" Margin="0,20,0,10"/>
+            <Label x:Name="ChangeLog" FontSize="Small" HorizontalOptions="Center" Margin="0,20,0,10"/>
 
-                <HorizontalStackLayout>
-                    <CheckBox x:Name="DontShowCheckbox" CheckedChanged="OnCheckboxChanged"/>
-                    <Label Text="Don't show again" VerticalOptions="Center" />
-                </HorizontalStackLayout>
+            <HorizontalStackLayout>
+                <CheckBox x:Name="DontShowCheckbox" CheckedChanged="OnCheckboxChanged"/>
+                <Label Text="Don't show again" VerticalOptions="Center" />
+            </HorizontalStackLayout>
 
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
-                    <Button Text="Open Link" Clicked="OnOpenLinkClicked" BackgroundColor="Grey"/>
-                    <Button Text="Later" Clicked="OnCancelClicked" BackgroundColor="Grey"/>
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-        </Frame>
-    </Frame>
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                <Button Text="Open Link" Clicked="OnOpenLinkClicked" BackgroundColor="Grey"/>
+                <Button Text="Later" Clicked="OnCancelClicked" BackgroundColor="Grey"/>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Border>
 </toolkit:Popup>

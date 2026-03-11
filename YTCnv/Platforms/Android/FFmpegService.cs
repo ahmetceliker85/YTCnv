@@ -13,12 +13,9 @@ namespace YTCnv.FFmpeg
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             var channelId = "ffmpeg_channel";
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
-            {
-                var channel = new NotificationChannel(channelId, "FFmpeg Service", NotificationImportance.Low);
-                var nm = (NotificationManager)GetSystemService(NotificationService);
-                nm.CreateNotificationChannel(channel);
-            }
+            var channel = new NotificationChannel(channelId, "FFmpeg Service", NotificationImportance.Low);
+            var nm = (NotificationManager)GetSystemService(NotificationService);
+            nm.CreateNotificationChannel(channel);
 
             var notification = new Notification.Builder(this, channelId)
                 .SetContentTitle("FFmpeg running")
@@ -29,7 +26,6 @@ namespace YTCnv.FFmpeg
                 .Build();
 
             StartForeground(1, notification);
-            Console.WriteLine("FFmpegService OnStartCommand called");
 
             if (intent.Action == FFmpegBroadcasts.FFmpegCancelAction)
             {
@@ -37,9 +33,7 @@ namespace YTCnv.FFmpeg
                 return StartCommandResult.NotSticky;
             }
 
-            Console.WriteLine("FFmpegKit is about to start");
-
-            FFmpegKitConfig.DisableRedirection();
+            FFmpegKitConfig.EnableLogCallback(new FFmpegLogCallback());
 
             var command = intent.GetStringExtra("command");
             byte audioVideoElse = (byte)intent.GetShortExtra("audioVideoElse", 3);
@@ -68,6 +62,14 @@ namespace YTCnv.FFmpeg
         }
     }
 
+    public class FFmpegLogCallback : Java.Lang.Object, ILogCallback
+    {
+        public void Apply(Log log)
+        {
+            Console.WriteLine($"[FFmpegKit] {log.Message}");
+        }
+    }
+
     public class FFmpegSessionCompleteCallback : Java.Lang.Object, IFFmpegSessionCompleteCallback
     {
         private readonly Context _context;
@@ -83,6 +85,9 @@ namespace YTCnv.FFmpeg
 
         public void Apply(FFmpegSession session)
         {
+            Console.WriteLine($"[FFmpegKit] Return code: {session.ReturnCode.Value}");
+            Console.WriteLine($"[FFmpegKit] Output: {session.Output}");
+            Console.WriteLine($"[FFmpegKit] Fail stack trace: {session.FailStackTrace}");
             try
             {
                 var intent = new Intent(FFmpegBroadcasts.FFmpegFinishedAction);

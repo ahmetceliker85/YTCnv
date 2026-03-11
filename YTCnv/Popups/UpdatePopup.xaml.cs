@@ -12,6 +12,7 @@ public partial class UpdatePopup : Popup
     {
         InitializeComponent();
         this.BackgroundColor = Colors.Transparent;
+        this.Padding = 0;
         latestRelease = latestVersion;
         VersionLabel.Text = $"A new version ({latestVersion}) is available.";
         ChangeLog.FormattedText = string.IsNullOrWhiteSpace(changeLog) ? "No changelog available." : FormatChangelog(changeLog);

@@ -55,11 +55,8 @@ namespace YTCnv
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-
-            if (!UpdateChecker._alreadyShown)
-            {
-                await UpdateChecker.CheckForUpdatesAsync();
-            }
+            
+            await UpdateChecker.CheckForUpdatesAsync();
 
             if (settings.DownloadHistory != null)
             {
@@ -232,7 +229,6 @@ namespace YTCnv
 
             if (_downloadCts != null)
                 _downloadCts.Dispose();
-            _downloadCts = null;
             _downloadCts = new CancellationTokenSource();
 
             mainPage.StatusLabelIsVisible = false;
@@ -960,7 +956,6 @@ namespace YTCnv
         {
             if (_downloadCts != null)
                 _downloadCts.Dispose();
-            _downloadCts = null;
             settings.IsDownloadRunning = false;
         }
 

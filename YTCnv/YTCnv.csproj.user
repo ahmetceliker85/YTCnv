@@ -3,8 +3,8 @@
   <PropertyGroup>
     <IsFirstTimeProjectOpen>False</IsFirstTimeProjectOpen>
     <ActiveDebugFramework>net10.0-android</ActiveDebugFramework>
-    <ActiveDebugProfile>Pixel 9 (Android 15.0 - API 35)</ActiveDebugProfile>
-    <SelectedPlatformGroup>Emulator</SelectedPlatformGroup>
+    <ActiveDebugProfile>Samsung SM-M135F (Android 14.0 - API 34)</ActiveDebugProfile>
+    <SelectedPlatformGroup>PhysicalDevice</SelectedPlatformGroup>
     <DefaultDevice>pixel_9</DefaultDevice>
     <AppIconSource>C:\Users\Axiss\Plocha\Local Program\ProgramC#\YTCnv\YTCnv\Resources\Splash\splash.png</AppIconSource>
     <SplashScreenSource>C:\Users\Axiss\Plocha\Local Program\ProgramC#\YTCnv\YTCnv\Resources\Splash\splash.png</SplashScreenSource>

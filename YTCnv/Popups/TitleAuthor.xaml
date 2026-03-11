@@ -3,30 +3,33 @@
                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                CanBeDismissedByTappingOutsideOfPopup="False"
+               
                x:Class="YTCnv.TitleAuthor">
 
-    <VerticalStackLayout
-        Padding="20"
-        Spacing="12"
-        WidthRequest="300"
-        BackgroundColor="Black">
+    <Border Background="Transparent" Stroke="Transparent" StrokeThickness="0" StrokeShape="15">
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="12"
+            WidthRequest="300"
+            BackgroundColor="Black">
 
-        <Label Text="Edit metadata"
-               FontSize="18"
-               FontAttributes="Bold"
-               HorizontalOptions="Center" />
+            <Label Text="Edit metadata"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
 
-        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="5" RowDefinitions="Auto, Auto">
-            <Label Text="Title:" VerticalOptions="Center" HorizontalTextAlignment="End" Grid.Column="0" Grid.Row="0"/>
-            <Entry x:Name="TitleEntry" Placeholder="Title" Grid.Column="1" Grid.Row="0"/>
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="5" RowDefinitions="Auto, Auto">
+                <Label Text="Title:" VerticalOptions="Center" HorizontalTextAlignment="End" Grid.Column="0" Grid.Row="0"/>
+                <Entry x:Name="TitleEntry" Placeholder="Title" Grid.Column="1" Grid.Row="0"/>
 
-            <Label Text="Author:" VerticalOptions="Center" HorizontalTextAlignment="End" Grid.Column="0" Grid.Row="1"/>
-            <Entry x:Name="AuthorEntry" Placeholder="Author" Grid.Column="1" Grid.Row="1"/>
-        </Grid>
+                <Label Text="Author:" VerticalOptions="Center" HorizontalTextAlignment="End" Grid.Column="0" Grid.Row="1"/>
+                <Entry x:Name="AuthorEntry" Placeholder="Author" Grid.Column="1" Grid.Row="1"/>
+            </Grid>
 
-        <Button
-            Text="OK"
-            Clicked="OnOkClicked" />
+            <Button
+                Text="OK"
+                Clicked="OnOkClicked" />
 
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Border>
 </toolkit:Popup>

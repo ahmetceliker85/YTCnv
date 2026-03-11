@@ -10,16 +10,16 @@ public class UpdateChecker
 
     private static SettingsSave settings = SettingsSave.Instance();
 
-    public static bool _alreadyShown = false;
-
     public static async Task CheckForUpdatesAsync()
     {
         Console.WriteLine("Checking for updates...");
 
         try
         {
-            if (settings.DontShowUpdate || _alreadyShown)
+            if (settings.DontShowUpdate || settings._alreadyShown)
                 return;
+
+            settings._alreadyShown = true;
 
             using HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "YTCnv-App");
@@ -45,8 +45,6 @@ public class UpdateChecker
                     await Application.Current.MainPage.ShowPopupAsync(popup);
                 });
             }
-
-            _alreadyShown = true;
         }
         catch(Exception ex)
         {

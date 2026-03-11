@@ -156,6 +156,7 @@ namespace YTCnv
         //---------- Singleton variables ----------
 
         public bool IsDownloadRunning = false;
+        public bool _alreadyShown = false;
 
         public bool IHaveId = false;
         public string ID = "";
