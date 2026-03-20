@@ -1,0 +1,59 @@
+package com.pg_axis.ytcnv
+
+import android.annotation.SuppressLint
+import android.app.Application
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.pg_axis.ytcnv.ui.theme.YTCnvTheme
+import org.schabi.newpipe.extractor.NewPipe
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import org.schabi.newpipe.extractor.localization.ContentCountry
+import org.schabi.newpipe.extractor.localization.Localization
+
+class MainActivity : ComponentActivity() {
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {  }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        NewPipe.init(
+            NewPipeDownloader(),
+            Localization.DEFAULT,
+            ContentCountry.DEFAULT
+        )
+        enableEdgeToEdge()
+        setContent {
+            YTCnvTheme {
+                AppNavigation()
+            }
+        }
+    }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun GreetingPreview() {
+    YTCnvTheme {
+        MainScreen(viewModel = MainViewModel(Application()), {}, {})
+    }
+}
