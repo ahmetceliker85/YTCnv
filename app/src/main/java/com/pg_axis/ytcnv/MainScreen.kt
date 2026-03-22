@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -293,7 +294,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = CardDark)
             ) {
-                Column(modifier = Modifier.padding(15.dp)) {
+                Column(modifier = Modifier.fillMaxHeight().padding(15.dp)) {
                     Text(
                         text = "DOWNLOAD HISTORY",
                         modifier = Modifier.fillMaxWidth(),
@@ -305,14 +306,19 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                     Spacer(modifier = Modifier.height(8.dp))
 
                     if (settings.downloadHistory.isEmpty()) {
-                        Text(
-                            text = "History is empty",
-                            color = TextSecondary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            textAlign = TextAlign.Center
-                        )
+                        Box(
+                            modifier = Modifier.fillMaxHeight().weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "History is empty",
+                                color = TextSecondary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     } else {
                         LazyColumn {
                             items(settings.downloadHistory) { item ->
