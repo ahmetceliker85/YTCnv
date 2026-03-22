@@ -64,7 +64,7 @@ class DownloadNotificationService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val openIntent = Intent(this, MainActivity::class.java)
-        openIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        openIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
 
         val pendingIntent = PendingIntent.getActivity(
             this, 0, openIntent,
