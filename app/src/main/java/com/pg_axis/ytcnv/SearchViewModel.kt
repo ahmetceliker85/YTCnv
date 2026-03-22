@@ -59,6 +59,7 @@ class SearchViewModel(val settings: ISettings) : ViewModel() {
         val updated = settings.searchHistory.toMutableList()
         updated.remove(query)
         settings.searchHistory = updated
+        (settings as? SettingsSave)?.saveExtraData()
     }
 
     private fun updateSearchHistory(query: String) {
