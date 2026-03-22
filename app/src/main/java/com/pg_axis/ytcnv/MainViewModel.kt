@@ -25,7 +25,6 @@ import org.schabi.newpipe.extractor.stream.VideoStream
 import java.io.File
 import java.net.URL
 import kotlin.math.abs
-import kotlin.math.roundToInt
 
 data class QualityOption(
     val key: Double,
@@ -36,7 +35,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val settings: ISettings = try {
         SettingsSave.getInstance(application)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         PreviewSettings()
     }
 
@@ -82,8 +81,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var audioOptions = mapOf<Double, AudioStream>()
     private var videoOptions = mapOf<Int, VideoStream>()
     private var downloadJob: Job? = null
-    private var pendingTitle = ""
-    private var pendingAuthor = ""
     private var pendingOnConfirm: ((String, String) -> Unit)? = null
     var updateInfo by mutableStateOf<UpdateInfo?>(null)
 
@@ -181,9 +178,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     .distinctBy { it.averageBitrate }
             }
 
-            audioOptions = audioStreams.associate {
-                it.averageBitrate.toDouble() to it
-            }
+            audioOptions = audioStreams.associateBy { it.averageBitrate.toDouble() }
 
             // Build video options
             val use4K = settings.use4K
@@ -196,7 +191,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .sortedByDescending { it.height }
                 .distinctBy { it.height }
 
-            videoOptions = videoStreams.associate { it.height to it }
+            videoOptions = videoStreams.associateBy { it.height }
 
             withContext(Dispatchers.Main) {
                 loadButtonIsVisible = false
@@ -374,6 +369,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (ffmpegResult) {
                     FileSaver.saveAudio(context, "$title.mp3", semiOutputAudio, settings.fileUri.ifBlank { null })
+                    if (settings.notifyOnFinish) {
+                        DownloadNotificationService.showFinishNotification(context, "$title.mp3")
+                    }
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
                         showPopup("Finished", "The download has completed successfully.", 1)
@@ -438,6 +436,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (ffmpegResult) {
                     FileSaver.saveVideo(context, "$title.mp4", semiOutput, settings.fileUri.ifBlank { null })
+                    if (settings.notifyOnFinish) {
+                        DownloadNotificationService.showFinishNotification(context, "$title.mp4")
+                    }
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
                         showPopup("Finished", "The download has completed successfully.", 1)
@@ -450,7 +451,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
 
-        } catch (e: kotlinx.coroutines.CancellationException) {
+        } catch (_: kotlinx.coroutines.CancellationException) {
             FFmpegKit.cancel()
             deleteFiles()
             stopService()
@@ -537,7 +538,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         outputPath: String,
         onProgress: (Float) -> Unit
     ) = withContext(Dispatchers.IO) {
-        val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
+        val connection = URL(url).openConnection() as java.net.HttpURLConnection
         connection.connect()
         val totalBytes = connection.contentLengthLong
         var downloadedBytes = 0L

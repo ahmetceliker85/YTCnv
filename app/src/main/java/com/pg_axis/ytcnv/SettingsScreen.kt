@@ -138,6 +138,13 @@ fun SettingsScreen(
                 checked = viewModel.settings.dontShowUpdate,
                 onCheckedChange = { viewModel.onDontShowUpdateChanged(it) }
             )
+
+            // ─── Toggle: Notify on finish ───
+            SettingsToggleRow(
+                label = "Notify when download finishes",
+                checked = viewModel.settings.notifyOnFinish,
+                onCheckedChange = { viewModel.onNotifyOnFinishChanged(it) }
+            )
         }
 
         // ─── Version label ───

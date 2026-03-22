@@ -12,6 +12,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.pg_axis.ytcnv.ui.theme.YTCnvTheme
 import org.schabi.newpipe.extractor.NewPipe
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,7 +23,7 @@ import org.schabi.newpipe.extractor.localization.Localization
 class MainActivity : ComponentActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) {  }
+    ) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -41,11 +42,25 @@ class MainActivity : ComponentActivity() {
             ContentCountry.DEFAULT
         )
         enableEdgeToEdge()
+
+        val sharedUrl = extractSharedUrl(intent)
+
         setContent {
             YTCnvTheme {
-                AppNavigation()
+                AppNavigation(initialUrl = sharedUrl)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
+    
+    private fun extractSharedUrl(intent: Intent?): String? {
+        if (intent?.action != Intent.ACTION_SEND) return null
+        if (intent.type != "text/plain") return null
+        return intent.getStringExtra(Intent.EXTRA_TEXT)
     }
 }
 

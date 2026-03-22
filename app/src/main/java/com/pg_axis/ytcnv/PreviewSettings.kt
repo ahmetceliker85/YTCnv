@@ -13,4 +13,5 @@ class PreviewSettings : ISettings {
     override var id = ""
     override var dontShowUpdate = false
     override var alreadyShown = false
+    override var notifyOnFinish = true
 }

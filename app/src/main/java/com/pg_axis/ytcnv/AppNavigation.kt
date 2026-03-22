@@ -1,6 +1,7 @@
 package com.pg_axis.ytcnv
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -8,9 +9,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(initialUrl: String? = null) {
     val navController = rememberNavController()
     val mainViewModel: MainViewModel = viewModel()
+
+    LaunchedEffect(initialUrl) {
+        if (!initialUrl.isNullOrBlank()) {
+            mainViewModel.urlEntryText = initialUrl
+        }
+    }
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {

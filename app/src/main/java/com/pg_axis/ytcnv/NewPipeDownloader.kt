@@ -1,6 +1,7 @@
 package com.pg_axis.ytcnv
 
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.schabi.newpipe.extractor.downloader.Downloader
 import org.schabi.newpipe.extractor.downloader.Request
 import org.schabi.newpipe.extractor.downloader.Response
@@ -18,9 +19,12 @@ class NewPipeDownloader : Downloader() {
 
         when (request.httpMethod()) {
             "GET" -> requestBuilder.get()
-            "POST" -> requestBuilder.post(
-                okhttp3.RequestBody.create(null, request.dataToSend() ?: byteArrayOf())
-            )
+            "POST" -> {
+                val content = request.dataToSend() ?: byteArrayOf()
+                requestBuilder.post(
+                    content.toRequestBody(null, 0, content.size)
+                )
+            }
         }
 
         val response = client.newCall(requestBuilder.build()).execute()

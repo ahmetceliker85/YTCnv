@@ -35,6 +35,8 @@ class SettingsSave private constructor(context: Context) : ISettings {
 
     override var finalFolder by mutableStateOf(" - Downloads")
 
+    override var notifyOnFinish by mutableStateOf(true)
+
     // ─── Extra data ───
     override var searchHistory by mutableStateOf<List<String>>(emptyList())
 
@@ -46,26 +48,6 @@ class SettingsSave private constructor(context: Context) : ISettings {
     override var iHaveId = false
     override var id = ""
 
-    // ─── Setters (auto-save) ───
-    fun updateUse4K(value: Boolean) { use4K = value; saveSettings() }
-    fun updateQuickDwnld(value: Boolean) { quickDwnld = value; saveSettings() }
-    fun updateDontShowUpdate(value: Boolean) { dontShowUpdate = value; saveSettings() }
-    fun updateFileUri(value: String) { fileUri = value; saveSettings() }
-    fun updateMainFolder(value: String) { mainFolder = value; saveSettings() }
-    fun updateFinalFolder(value: String) { finalFolder = value; saveSettings() }
-    fun updateSearchHistory(value: List<String>) { searchHistory = value; saveExtraData() }
-    fun updateDownloadHistory(value: List<HistoryItem>) { downloadHistory = value; saveExtraData() }
-
-    fun addToDownloadHistory(item: HistoryItem) {
-        downloadHistory = listOf(item) + downloadHistory
-        saveExtraData()
-    }
-
-    fun removeFromDownloadHistory(urlOrId: String) {
-        downloadHistory = downloadHistory.filter { it.urlOrId != urlOrId }
-        saveExtraData()
-    }
-
     // ─── Save/Load ───
     fun saveSettings() {
         val settings = SettingsClass(
@@ -74,7 +56,8 @@ class SettingsSave private constructor(context: Context) : ISettings {
             dontShowUpdatePopup = dontShowUpdate,
             savedFileUri = fileUri,
             mainFolderName = mainFolder,
-            finalFolderName = finalFolder
+            finalFolderName = finalFolder,
+            notifyOnFinish = notifyOnFinish
         )
         settingsPath.writeText(gson.toJson(settings))
     }
@@ -96,6 +79,7 @@ class SettingsSave private constructor(context: Context) : ISettings {
                 fileUri = it.savedFileUri ?: ""
                 mainFolder = it.mainFolderName ?: "Internal storage"
                 finalFolder = it.finalFolderName ?: " - Downloads"
+                notifyOnFinish = it.notifyOnFinish
             }
         }
         if (extraDataPath.exists()) {
@@ -118,7 +102,8 @@ class SettingsSave private constructor(context: Context) : ISettings {
         val dontShowUpdatePopup: Boolean = false,
         val savedFileUri: String? = null,
         val mainFolderName: String? = null,
-        val finalFolderName: String? = null
+        val finalFolderName: String? = null,
+        val notifyOnFinish: Boolean = true
     )
 
     data class ExtraData(

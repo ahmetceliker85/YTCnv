@@ -25,4 +25,8 @@ class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewMode
         settings.finalFolder = ""
         (settings as? SettingsSave)?.saveSettings()
     }
+    fun onNotifyOnFinishChanged(value: Boolean) {
+        settings.notifyOnFinish = value
+        (settings as? SettingsSave)?.saveSettings()
+    }
 }
