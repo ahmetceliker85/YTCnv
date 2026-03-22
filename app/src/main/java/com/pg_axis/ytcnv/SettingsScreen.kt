@@ -2,7 +2,6 @@ package com.pg_axis.ytcnv
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,8 +27,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName
-    val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-        packageInfo.longVersionCode else packageInfo.versionCode.toLong()
+    val versionCode = packageInfo.longVersionCode
 
     // SAF folder picker launcher
     val folderPickerLauncher = rememberLauncherForActivityResult(

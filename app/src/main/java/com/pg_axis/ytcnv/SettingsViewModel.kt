@@ -1,8 +1,5 @@
 package com.pg_axis.ytcnv
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewModel) : ViewModel() {

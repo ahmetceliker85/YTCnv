@@ -85,10 +85,10 @@ class SettingsSave private constructor(context: Context) : ISettings {
         if (extraDataPath.exists()) {
             try {
                 gson.fromJson(extraDataPath.readText(), ExtraData::class.java)?.let {
-                    searchHistory = it.searchHistory ?: emptyList()
-                    downloadHistory = it.downloadHistory ?: emptyList()
+                    searchHistory = it.searchHistory
+                    downloadHistory = it.downloadHistory
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 searchHistory = emptyList()
                 downloadHistory = emptyList()
             }
