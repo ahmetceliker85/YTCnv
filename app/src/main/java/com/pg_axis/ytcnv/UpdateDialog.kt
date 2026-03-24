@@ -1,7 +1,8 @@
 package com.pg_axis.ytcnv
 
-import android.content.Intent
-import android.net.Uri
+import android.app.DownloadManager
+import android.content.Context
+import android.os.Environment
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -108,9 +109,18 @@ fun UpdateDialog(
                         onClick = {
                             val tagName = updateInfo.version
                             val apkUrl = "https://github.com/PGAxis/YTCnv/releases/download/v${tagName}/youtubeConverter-${tagName}.apk"
-                            context.startActivity(
-                                Intent(Intent.ACTION_VIEW, apkUrl.toUri())
-                            )
+                            val fileName = "youtubeConverter-$tagName.apk"
+
+                            val request = DownloadManager.Request(apkUrl.toUri())
+                                .setTitle("YTcnv $tagName")
+                                .setDescription("Downloading update...")
+                                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+                                .setMimeType("application/vnd.android.package-archive")
+
+                            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                            dm.enqueue(request)
+
                             onDismiss(dontShowAgain)
                         }
                     ) {
