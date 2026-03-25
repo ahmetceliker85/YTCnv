@@ -11,12 +11,21 @@ android {
         }
     }
 
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a")
+            isUniversalApk = true
+        }
+    }
+
     defaultConfig {
         applicationId = "com.pg_axis.ytcnv"
         minSdk = 29
         targetSdk = 36
-        versionCode = 31
-        versionName = "3.2.1"
+        versionCode = 32
+        versionName = "3.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
