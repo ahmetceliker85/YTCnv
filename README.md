@@ -51,4 +51,4 @@ The prebuilt AAR included in this repository was built from that fork with no mo
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+GNU GPL v3 License — see [LICENSE](LICENSE) for details.
