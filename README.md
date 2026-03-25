@@ -29,7 +29,7 @@ A simple, open-source YouTube downloader for Android. Download YouTube videos as
 This project uses a custom-built FFmpeg AAR for compatibility with devices using 16KB memory page sizes (e.g. newer Samsung devices). The prebuilt AAR is included in `app/libs/`, but if you need to build it yourself:
 
 1. Clone the fork: [JamaisMagic/ffmpeg-kit-16KB](https://github.com/JamaisMagic/ffmpeg-kit-16KB)
-2. Follow the build instructions in that repository for the `android` target
+2. Follow the build instructions in that repository for the `android` target, make sure to include libmp3lame and libx264
 3. Copy the resulting `ffmpeg-kit.aar` and the two `smart-exception` JARs into `app/libs/`
 
 The prebuilt AAR included in this repository was built from that fork with no modifications.
