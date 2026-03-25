@@ -1,0 +1,2 @@
+Pokus o zmenšení velikosti apk souboru kvůli požadavkům od IzzyOnDroid
+Přidání kontroly do souboru UpdateChecker.kt aby se nezobrazovaly sideloading aktualizace pokud je apliakce nainstalována z F-Droidu

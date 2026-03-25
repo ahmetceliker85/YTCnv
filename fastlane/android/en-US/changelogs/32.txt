@@ -1,0 +1,2 @@
+Tried for a smaller size of the apk due to IzzyOnDroid's guidelines
+Added check to UpdateChecker.kt to not show sideloading updates when installed from F-Droid
