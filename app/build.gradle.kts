@@ -11,18 +11,9 @@ android {
         }
     }
 
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a", "armeabi-v7a")
-            isUniversalApk = true
-        }
-    }
-
     defaultConfig {
         applicationId = "com.pg_axis.ytcnv"
-        minSdk = 29
+        minSdk = 30
         targetSdk = 36
         versionCode = 32
         versionName = "3.2.2"
