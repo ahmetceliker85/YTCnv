@@ -18,6 +18,14 @@ object FileSaver {
         }
     }
 
+    fun saveM4a(context: Context, fileName: String, inputFilePath: String, fileUri: String?) {
+        if (!fileUri.isNullOrBlank()) {
+            saveToChosenFolder(context, fileName, inputFilePath, "audio/mp4", fileUri)
+        } else {
+            saveM4aToDownloads(context, fileName, inputFilePath)
+        }
+    }
+
     fun saveVideo(context: Context, fileName: String, inputFilePath: String, fileUri: String?) {
         if (!fileUri.isNullOrBlank()) {
             saveToChosenFolder(context, fileName, inputFilePath, "video/mp4", fileUri)
@@ -47,6 +55,19 @@ object FileSaver {
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
             put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")
+        }
+        val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IllegalStateException("Could not create MediaStore entry")
+        context.contentResolver.openOutputStream(uri)?.use { out ->
+            File(inputFilePath).inputStream().use { it.copyTo(out) }
+        }
+    }
+
+    private fun saveM4aToDownloads(context: Context, fileName: String, inputFilePath: String) {
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp4")
             put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")
         }
         val uri = context.contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)

@@ -3,6 +3,7 @@ package com.pg_axis.ytcnv
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -181,12 +182,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             audioOptions = audioStreams.associateBy { it.averageBitrate.toDouble() }
 
             // Build video options
-            val use4K = settings.use4K
             val videoStreams = streamInfo.videoOnlyStreams
-                .filter { stream ->
-                    if (use4K) true
-                    else stream.height in 1..1080 &&
-                            stream.format?.name?.contains("mpeg-4", ignoreCase = true) == true
+                .filter {
+                    stream -> stream.height in 1..1080 && stream.format?.name?.contains("mpeg-4", ignoreCase = true) == true
                 }
                 .sortedByDescending { it.height }
                 .distinctBy { it.height }
@@ -304,9 +302,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             // Download thumbnail
             val thumbnailUrl = streamInfo.thumbnails.maxByOrNull { it.height }?.url
+            var hasThumbnail = false
             if (thumbnailUrl != null) {
                 val bytes = URL(thumbnailUrl).readBytes()
-                File(imagePath).writeBytes(bytes)
+                val ext = detectImageExtension(bytes)
+                val tempThumbnail = File(context.cacheDir, "tempThumbnail.$ext").absolutePath
+                File(tempThumbnail).writeBytes(bytes)
+
+                val ffmpegComd = "-y -i \"$tempThumbnail\" -frames:v 1 \"$imagePath\""
+                Log.d("FFmpegCommand", ffmpegComd)
+                val result = runFFmpeg(ffmpegComd)
+
+                hasThumbnail = result && File(imagePath).exists()
+
+                if (File(tempThumbnail).exists()) File(tempThumbnail).delete()
             }
 
             // Show title/author dialog and wait for result
@@ -338,7 +347,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (selectedFormat == 0) {
                 // ─── MP3 ───
                 val audioStream = if (isQuick) {
-                    streamInfo.audioStreams.maxByOrNull { it.averageBitrate }
+                    streamInfo.audioStreams
+                        .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true }
+                        .maxByOrNull { it.averageBitrate }
+                        ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }
                 } else {
                     val selectedBitrate = audioOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
                     if (selectedBitrate != null) {
@@ -358,14 +370,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     statusLabelText = AnnotatedString("Adding metadata")
                 }
 
-                val ffmpegResult = runFFmpeg(
-                    "-y -i \"$m4aPath\" -i \"$imagePath\" " +
-                            "-map 0:a -map 1:v -c:a libmp3lame -b:a 128k -c:v mjpeg " +
-                            "-disposition:v attached_pic " +
-                            "-metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" " +
-                            "-metadata title=\"$title\" -metadata artist=\"$author\" " +
-                            "-threads 1 \"$semiOutputAudio\""
-                )
+                //FileSaver.saveM4a(context, "$title.m4a", m4aPath, settings.fileUri.ifBlank { null })  YTmI9rP5YUw
+
+                val ffmpegCmd = buildString {
+                    append("-y -i \"$m4aPath\" ")
+                    if (hasThumbnail) {
+                        append("-i \"$imagePath\" ")
+                    }
+                    append("-map 0:a ")
+                    if (hasThumbnail) {
+                        append("-map 1:v ")
+                    }
+                    append("-c:a libmp3lame -b:a 128k -ac 2 -af anull ")
+                    if (hasThumbnail) {
+                        append("-c:v mjpeg -disposition:v attached_pic ")
+                        append("-metadata:s:v title=\"Album cover\" -metadata:s:v comment=\"Cover\" ")
+                    }
+                    append("-metadata title=\"$title\" -metadata artist=\"$author\" ")
+                    append("-threads 1 \"$semiOutputAudio\"")
+                }
+
+                Log.d("FFmpegCommand", ffmpegCmd)
+                val ffmpegResult = runFFmpeg(ffmpegCmd)
 
                 if (ffmpegResult) {
                     FileSaver.saveAudio(context, "$title.mp3", semiOutputAudio, settings.fileUri.ifBlank { null })
@@ -387,23 +413,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // ─── MP4 ───
                 val audioStream = streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
                 val videoStream = if (isQuick) {
-                    if (settings.use4K)
-                        streamInfo.videoOnlyStreams.maxByOrNull { it.height }
-                    else
-                        streamInfo.videoOnlyStreams
-                            .filter { it.height <= 1080 &&
-                                    it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
-                            .maxByOrNull { it.height }
+                    streamInfo.videoOnlyStreams
+                        .filter { it.height <= 1080 &&
+                                it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
+                        .maxByOrNull { it.height }
                 } else {
                     val selectedHeight = videoOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
                     if (selectedHeight != null) {
                         streamInfo.videoOnlyStreams
-                            .filter { it.format?.name?.contains("mpeg-4", ignoreCase = true) == true || settings.use4K }
+                            .filter { it.height <= 1080 &&
+                                    it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
                             .firstOrNull { it.height == selectedHeight }
                     } else null
-                } ?: streamInfo.videoOnlyStreams.maxByOrNull { it.height }!!
-
-                val isMoreThan1080p = videoStream.height > 1080
+                } ?: streamInfo.videoOnlyStreams
+                    .filter { it.height <= 1080 }
+                    .maxByOrNull { it.height }!!
 
                 // Download audio and video in parallel
                 withContext(Dispatchers.IO) {
@@ -423,15 +447,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     statusLabelText = AnnotatedString("Joining audio and video")
                 }
 
-                val ffmpegArgs = if (settings.use4K && isMoreThan1080p) {
-                    "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 " +
-                            "-c:a copy -map 0:v:0 -map 1:a:0 -shortest " +
-                            "-metadata title=\"$title\" -metadata artist=\"$author\" \"$semiOutput\""
-                } else {
-                    "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest " +
-                            "-metadata title=\"$title\" -metadata artist=\"$author\" \"$semiOutput\""
-                }
+                //FileSaver.saveM4a(context, "$title.m4a", m4aPath, settings.fileUri.ifBlank { null })
 
+                val ffmpegArgs = "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"$title\" -metadata artist=\"$author\" \"$semiOutput\""
+
+                Log.d("FFmpegCommand", ffmpegArgs)
                 val ffmpegResult = runFFmpeg(ffmpegArgs)
 
                 if (ffmpegResult) {
@@ -557,6 +577,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     bytes = input.read(buffer)
                 }
             }
+        }
+    }
+
+    fun detectImageExtension(bytes: ByteArray): String {
+        return when {
+            bytes.size >= 3 &&
+                    bytes[0] == 0xFF.toByte() &&
+                    bytes[1] == 0xD8.toByte() &&
+                    bytes[2] == 0xFF.toByte() -> "jpg"
+
+            bytes.size >= 4 &&
+                    bytes[0] == 0x89.toByte() &&
+                    bytes[1] == 0x50.toByte() &&  // P
+                    bytes[2] == 0x4E.toByte() &&  // N
+                    bytes[3] == 0x47.toByte() -> "png" // G
+
+            bytes.size >= 12 &&
+                    bytes[0] == 0x52.toByte() &&  // R
+                    bytes[1] == 0x49.toByte() &&  // I
+                    bytes[2] == 0x46.toByte() &&  // F
+                    bytes[3] == 0x46.toByte() &&  // F
+                    bytes[8] == 0x57.toByte() &&  // W
+                    bytes[9] == 0x45.toByte() &&  // E
+                    bytes[10] == 0x42.toByte() && // B
+                    bytes[11] == 0x50.toByte() -> "webp" // P
+
+            else -> "jpg" // fallback
         }
     }
 

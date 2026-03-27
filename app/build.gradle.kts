@@ -15,12 +15,16 @@ android {
         applicationId = "com.pg_axis.ytcnv"
         minSdk = 30
         targetSdk = 36
-        versionCode = 32
-        versionName = "3.2.2"
+        versionCode = 33
+        versionName = "3.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
     buildTypes {
         release {
             isMinifyEnabled = false

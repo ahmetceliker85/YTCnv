@@ -3,10 +3,6 @@ package com.pg_axis.ytcnv
 import androidx.lifecycle.ViewModel
 
 class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewModel) : ViewModel() {
-    fun onUse4KChanged(value: Boolean) {
-        settings.use4K = value
-        (settings as? SettingsSave)?.saveSettings()
-    }
     fun onQuickDwnldChanged(value: Boolean) {
         settings.quickDwnld = value
         (settings as? SettingsSave)?.saveSettings()

@@ -23,8 +23,6 @@ class SettingsSave private constructor(context: Context) : ISettings {
     private val gson = Gson()
 
     // ─── Settings ───
-    override var use4K by mutableStateOf(false)
-
     override var quickDwnld by mutableStateOf(true)
 
     override var dontShowUpdate by mutableStateOf(false)
@@ -51,7 +49,6 @@ class SettingsSave private constructor(context: Context) : ISettings {
     // ─── Save/Load ───
     fun saveSettings() {
         val settings = SettingsClass(
-            useUpTo4K = use4K,
             quickDownload = quickDwnld,
             dontShowUpdatePopup = dontShowUpdate,
             savedFileUri = fileUri,
@@ -73,7 +70,6 @@ class SettingsSave private constructor(context: Context) : ISettings {
     fun loadSettings() {
         if (settingsPath.exists()) {
             gson.fromJson(settingsPath.readText(), SettingsClass::class.java)?.let {
-                use4K = it.useUpTo4K
                 quickDwnld = it.quickDownload
                 dontShowUpdate = it.dontShowUpdatePopup
                 fileUri = it.savedFileUri ?: ""
@@ -97,7 +93,6 @@ class SettingsSave private constructor(context: Context) : ISettings {
 
     // ─── Data classes ───
     data class SettingsClass(
-        val useUpTo4K: Boolean = false,
         val quickDownload: Boolean = true,
         val dontShowUpdatePopup: Boolean = false,
         val savedFileUri: String? = null,
