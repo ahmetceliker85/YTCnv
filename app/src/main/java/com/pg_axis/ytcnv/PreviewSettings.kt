@@ -1,6 +1,7 @@
 package com.pg_axis.ytcnv
 
 class PreviewSettings : ISettings {
+    override var use4K = false
     override var quickDwnld = true
     override var downloadHistory = emptyList<SettingsSave.HistoryItem>()
     override var searchHistory = emptyList<String>()

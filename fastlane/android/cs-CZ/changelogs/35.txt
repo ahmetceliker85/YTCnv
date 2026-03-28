@@ -1,0 +1,3 @@
+Povoleno R8 pro ještě menší velikost apk souboru
+Znovu-přidání podpory pro stahování ve 4K
+Přidání progres baru do notifikací o stahování aby byl vidět progres stahování

@@ -115,6 +115,13 @@ fun SettingsScreen(
                 }
             }
 
+            // ─── Toggle: 4K ───
+            SettingsToggleRow(
+                label = "Enable up to 4K downloads",
+                checked = viewModel.settings.use4K,
+                onCheckedChange = { viewModel.onUse4KChanged(it) }
+            )
+
             // ─── Toggle: Quick download ───
             SettingsToggleRow(
                 label = "Enable quick download",

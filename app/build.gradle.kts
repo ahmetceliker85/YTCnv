@@ -15,8 +15,8 @@ android {
         applicationId = "com.pg_axis.ytcnv"
         minSdk = 30
         targetSdk = 36
-        versionCode = 34
-        versionName = "3.3.1"
+        versionCode = 35
+        versionName = "3.4.0"
 
         ndk {
             //noinspection ChromeOsAbiSupport
@@ -32,7 +32,8 @@ android {
     }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

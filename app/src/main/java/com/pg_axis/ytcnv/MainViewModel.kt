@@ -11,10 +11,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
+import com.pg_axis.ytcnv.ui.theme.TextSecondary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -23,6 +28,7 @@ import org.schabi.newpipe.extractor.ServiceList
 import org.schabi.newpipe.extractor.stream.AudioStream
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.VideoStream
+import org.schabi.newpipe.extractor.timeago.patterns.it
 import java.io.File
 import java.net.URL
 import kotlin.math.abs
@@ -182,9 +188,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             audioOptions = audioStreams.associateBy { it.averageBitrate.toDouble() }
 
             // Build video options
+            val use4K = settings.use4K
             val videoStreams = streamInfo.videoOnlyStreams
-                .filter {
-                    stream -> stream.height in 1..1080 && stream.format?.name?.contains("mpeg-4", ignoreCase = true) == true
+                .filter { stream ->
+                    if (use4K) true
+                    else stream.height in 1..1080 && stream.format?.name?.contains("mpeg-4", ignoreCase = true) == true
                 }
                 .sortedByDescending { it.height }
                 .distinctBy { it.height }
@@ -262,6 +270,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         try {
             // Start foreground service
+            DownloadNotificationService.setProgressType(false)
             withContext(Dispatchers.Main) {
                 context.startForegroundService(
                     Intent(context, DownloadNotificationService::class.java)
@@ -280,6 +289,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 stopService()
                 settings.isDownloadRunning = false
+                DownloadNotificationService.setProgressType(false)
                 return@withContext
             }
 
@@ -337,12 +347,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             author = StringUtils.cleanAuthor(confirmedAuthor)
 
             withContext(Dispatchers.Main) {
-                statusLabelText = AnnotatedString("Downloading $title")
+                statusLabelText = buildAnnotatedString {
+                    append("Downloading ")
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = TextSecondary)) {
+                        append(title)
+                    }
+                }
                 downloadIndicatorIsVisible = false
                 dwnldProgressIsVisible = true
+                DownloadNotificationService.setProgressType(true)
             }
 
             val selectedFormat = formatPickerSelectedIndex
+            var lastNotifiedPercent = -1
 
             if (selectedFormat == 0) {
                 // ─── MP3 ───
@@ -362,10 +379,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 downloadStream(audioStream.content, m4aPath) { progress ->
                     downloadProgress = progress
+                    val percent = (progress * 100).toInt()
+                    if (percent != lastNotifiedPercent) {
+                        lastNotifiedPercent = percent
+                        DownloadNotificationService.updateProgress(
+                            context,
+                            percent
+                        )
+                    }
                 }
 
                 withContext(Dispatchers.Main) {
                     dwnldProgressIsVisible = false
+                    DownloadNotificationService.setProgressType(false)
                     downloadIndicatorIsVisible = true
                     statusLabelText = AnnotatedString("Adding metadata")
                 }
@@ -413,21 +439,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // ─── MP4 ───
                 val audioStream = streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
                 val videoStream = if (isQuick) {
-                    streamInfo.videoOnlyStreams
-                        .filter { it.height <= 1080 &&
-                                it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
-                        .maxByOrNull { it.height }
+                    if (settings.use4K)
+                        streamInfo.videoOnlyStreams.maxByOrNull { it.height }
+                    else
+                        streamInfo.videoOnlyStreams
+                            .filter { it.height <= 1080 &&
+                                    it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
+                            .maxByOrNull { it.height }
                 } else {
                     val selectedHeight = videoOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
                     if (selectedHeight != null) {
                         streamInfo.videoOnlyStreams
-                            .filter { it.height <= 1080 &&
-                                    it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
+                            .filter { it.format?.name?.contains("mpeg-4", ignoreCase = true) == true || settings.use4K }
                             .firstOrNull { it.height == selectedHeight }
                     } else null
-                } ?: streamInfo.videoOnlyStreams
-                    .filter { it.height <= 1080 }
-                    .maxByOrNull { it.height }!!
+                } ?: streamInfo.videoOnlyStreams.maxByOrNull { it.height }!!
+
+                val isMoreThan1080p = videoStream.height > 1080
 
                 // Download audio and video in parallel
                 withContext(Dispatchers.IO) {
@@ -435,6 +463,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val videoJob = launch {
                         downloadStream(videoStream.content, mp4Path) { progress ->
                             downloadProgress = progress
+                            val percent = (progress * 100).toInt()
+                            if (percent != lastNotifiedPercent) {
+                                lastNotifiedPercent = percent
+                                DownloadNotificationService.updateProgress(
+                                    context,
+                                    percent
+                                )
+                            }
                         }
                     }
                     audioJob.join()
@@ -443,13 +479,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                 withContext(Dispatchers.Main) {
                     dwnldProgressIsVisible = false
+                    DownloadNotificationService.setProgressType(false)
                     downloadIndicatorIsVisible = true
                     statusLabelText = AnnotatedString("Joining audio and video")
                 }
 
                 //FileSaver.saveM4a(context, "$title.m4a", m4aPath, settings.fileUri.ifBlank { null })
 
-                val ffmpegArgs = "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest -metadata title=\"$title\" -metadata artist=\"$author\" \"$semiOutput\""
+                val ffmpegArgs = if (settings.use4K && isMoreThan1080p) {
+                    "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 " +
+                            "-c:a copy -map 0:v:0 -map 1:a:0 -shortest " +
+                            "-metadata title=\"$title\" -metadata artist=\"$author\" \"$semiOutput\""
+                } else {
+                    "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v copy -c:a copy -map 0:v:0 -map 1:a:0 -shortest " +
+                            "-metadata title=\"$title\" -metadata artist=\"$author\" \"$semiOutput\""
+                }
 
                 Log.d("FFmpegCommand", ffmpegArgs)
                 val ffmpegResult = runFFmpeg(ffmpegArgs)
@@ -475,6 +519,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             FFmpegKit.cancel()
             deleteFiles()
             stopService()
+            DownloadNotificationService.setProgressType(false)
             withContext(Dispatchers.Main) {
                 applyQuickDownloadState()
                 showPopup("Cancelled", "The download was cancelled.", 0)
@@ -483,6 +528,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             FFmpegKit.cancel()
             deleteFiles()
             stopService()
+            DownloadNotificationService.setProgressType(false)
             withContext(Dispatchers.Main) {
                 applyQuickDownloadState()
                 when {
@@ -496,6 +542,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } finally {
             deleteFiles()
             stopService()
+            DownloadNotificationService.setProgressType(false)
             settings.isDownloadRunning = false
         }
     }

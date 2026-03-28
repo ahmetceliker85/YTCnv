@@ -16,6 +16,7 @@ class DownloadNotificationService : Service() {
         const val FINISH_CHANNEL_ID = "ytcnv_finnish_channel"
         const val NOTIFICATION_ID = 1
         const val FINISH_NOTIFICATION_ID = 2
+        var progressIsRunning = false
 
         fun showFinishNotification(context: Context, fileName: String) {
             val manager = context.getSystemService(NotificationManager::class.java)
@@ -36,6 +37,24 @@ class DownloadNotificationService : Service() {
                 .build()
 
             manager.notify(FINISH_NOTIFICATION_ID, notification)
+        }
+
+        fun updateProgress(context: Context, progress: Int) {
+            val manager = context.getSystemService(NotificationManager::class.java)
+
+            val notification = Notification.Builder(context, CHANNEL_ID)
+                .setContentTitle("Downloading")
+                .setContentText("Download in progress...")
+                .setSmallIcon(R.drawable.icon)
+                .setOngoing(true)
+                .setProgress(100, if (progressIsRunning) progress else 0, !progressIsRunning)
+                .build()
+
+            manager.notify(NOTIFICATION_ID, notification)
+        }
+
+        fun setProgressType(running: Boolean) {
+            progressIsRunning = running
         }
     }
 
@@ -72,11 +91,12 @@ class DownloadNotificationService : Service() {
         )
 
         val notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("YTCnv")
+            .setContentTitle("Downloading")
             .setContentText("Download in progress...")
             .setSmallIcon(R.drawable.icon)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
+            .setProgress(100, 0, !progressIsRunning)
             .build()
 
         startForeground(NOTIFICATION_ID, notification)

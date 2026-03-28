@@ -1,0 +1,3 @@
+Enabled R8 for even smaller apk size
+Added back support for 4K downloads
+Added progress bar to the download notification to see the progress of the download
