@@ -1,6 +1,7 @@
 Jednoduchý open-source stahovač YouTube videí pro Android.
 
 Funkce:
+
 - Stahování jako MP3 nebo MP4
 - Vepsání metadat a album artu pro MP3 soubory
 - Mód pro rychlé stažení nebo manuální selekce kvality

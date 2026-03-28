@@ -1,6 +1,7 @@
 A simple, open-source YouTube downloader for Android.
 
 Features:
+
 - Download as MP3 or MP4
 - Embedded metadata and album art for MP3s
 - Quick download mode or manual quality selection

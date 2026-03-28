@@ -15,8 +15,13 @@ android {
         applicationId = "com.pg_axis.ytcnv"
         minSdk = 30
         targetSdk = 36
-        versionCode = 33
-        versionName = "3.3.0"
+        versionCode = 34
+        versionName = "3.3.1"
+
+        ndk {
+            //noinspection ChromeOsAbiSupport
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,6 +43,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
     buildFeatures {
         compose = true
     }
@@ -57,7 +67,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.newpipe.extractor)
     implementation(libs.coil.compose)
-    implementation("com.squareup.okhttp3:okhttp:5.3.2")
+    implementation(libs.okhttp)
     implementation(libs.androidx.documentfile)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
     testImplementation(libs.junit)
