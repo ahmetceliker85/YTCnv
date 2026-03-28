@@ -1,2 +1,3 @@
 Enabled legacy packaging to shrink down the apk even more
 Fixed (hopefully) the way full_description.txt is written to satisfy Markdown's requirements
+Added changelogs for both version 33 and 34
