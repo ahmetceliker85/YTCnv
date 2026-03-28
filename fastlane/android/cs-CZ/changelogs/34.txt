@@ -1,0 +1,2 @@
+Povolen "legacy packaging" pro ještě menší velikost výsledného apk souboru
+Opraveno (snad) to jak je full_description.txt napsán aby byli splněny Markdown požadavky

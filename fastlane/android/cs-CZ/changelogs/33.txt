@@ -1,0 +1,3 @@
+Ffmpeg-kit.aar je nyní malinká => finální velikost apk souboru je teď 35MB, ne 70MB
+Přídání obrázků do Fastlane složky
+Odebrání možnosti stahovat videa ve větším rozlišení než 1080p

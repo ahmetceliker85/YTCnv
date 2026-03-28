@@ -1,0 +1,3 @@
+The ffmpeg-kit.aar is now tiny => final apk has about 35MB, not 70MB
+Added images to the Fastlane folder
+Removed the ability to download videos in resolutions higher than 1080p

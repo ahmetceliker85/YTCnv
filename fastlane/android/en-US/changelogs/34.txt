@@ -1,0 +1,2 @@
+Enabled legacy packaging to shrink down the apk even more
+Fixed (hopefully) the way full_description.txt is written to satisfy Markdown's requirements
