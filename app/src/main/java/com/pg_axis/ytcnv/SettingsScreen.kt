@@ -130,11 +130,13 @@ fun SettingsScreen(
             )
 
             // ─── Toggle: Don't show updates ───
-            SettingsToggleRow(
-                label = "Don't remind me of new versions",
-                checked = viewModel.settings.dontShowUpdate,
-                onCheckedChange = { viewModel.onDontShowUpdateChanged(it) }
-            )
+            if (!BuildConfig.IS_FDROID) {
+                SettingsToggleRow(
+                    label = "Don't remind me of new versions",
+                    checked = viewModel.settings.dontShowUpdate,
+                    onCheckedChange = { viewModel.onDontShowUpdateChanged(it) }
+                )
+            }
 
             // ─── Toggle: Notify on finish ───
             SettingsToggleRow(
