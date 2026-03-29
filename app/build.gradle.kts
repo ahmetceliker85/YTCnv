@@ -11,12 +11,25 @@ android {
         }
     }
 
+    flavorDimensions += "distribution"
+
+    productFlavors {
+        create("fdroid") {
+            dimension = "distribution"
+            buildConfigField("boolean", "IS_FDROID", "true")
+        }
+        create("other") {
+            dimension = "distribution"
+            buildConfigField("boolean", "IS_FDROID", "false")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.pg_axis.ytcnv"
         minSdk = 30
         targetSdk = 36
-        versionCode = 36
-        versionName = "3.4.1"
+        versionCode = 37
+        versionName = "3.4.2"
 
         ndk {
             //noinspection ChromeOsAbiSupport
@@ -51,6 +64,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

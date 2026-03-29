@@ -1,7 +1,6 @@
 package com.pg_axis.ytcnv
 
 import android.content.Context
-import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -14,7 +13,7 @@ object UpdateChecker {
     suspend fun checkForUpdates(context: Context, settings: ISettings): UpdateInfo? =
         withContext(Dispatchers.IO) {
             try {
-                if (settings.dontShowUpdate || settings.alreadyShown) return@withContext null
+                if (settings.dontShowUpdate || settings.alreadyShown || BuildConfig.IS_FDROID) return@withContext null
                 settings.alreadyShown = true
 
                 val json = URL(GITHUB_API).openConnection().apply {
@@ -47,16 +46,6 @@ object UpdateChecker {
     private fun parseVersion(version: String): Triple<Int, Int, Int>? {
         val parts = version.split(".").mapNotNull { it.toIntOrNull() }
         return if (parts.size >= 3) Triple(parts[0], parts[1], parts[2]) else null
-    }
-
-    private fun isInstalledFromStore(context: Context): Boolean {
-        val installer = context.packageManager
-            .getInstallSourceInfo(context.packageName)
-            .installingPackageName
-
-        return installer == "org.fdroid.fdroid" ||
-                installer == "com.aurora.store" ||
-                installer == "org.gdroid.gdroid"
     }
 
     private operator fun Triple<Int, Int, Int>.compareTo(other: Triple<Int, Int, Int>): Int {
