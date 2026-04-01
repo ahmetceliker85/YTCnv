@@ -2,6 +2,23 @@
 
 A simple, open-source YouTube downloader for Android. Download YouTube videos as MP3 or MP4 directly to your device, with metadata and thumbnail embedding.
 
+<div align=center>
+
+<p align=center>
+  <a href="https://apt.izzysoft.de/packages/com.pg_axis.ytcnv"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="80" alt="Get it at IzzyOnDroid"/></a>
+</p>
+
+<p align=center>
+  <a href="https://apt.izzysoft.de/packages/com.pg_axis.ytcnv"><img src="https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.pg_axis.ytcnv&label=IzzyOnDroid"/></a>
+  <a href="https://apt.izzysoft.de/packages/com.pg_axis.ytcnv"><img src="https://img.shields.io/badge/dynamic/json?url=https://dlstats.izzyondroid.org/iod-stats-collector/stats/basic/yearly/rolling.json&query=$.['com.pg_axis.ytcnv']&label=IzzyOnDroid%20yearly%20downloads"/></a>
+</p>
+
+<p align=center>
+  <a href="https://shields.rbtlog.dev/com.pg_axis.ytcnv"><img src="https://shields.rbtlog.dev/simple/com.pg_axis.ytcnv"/></a>
+</p>
+
+</div>
+
 ## Features
 
 - Download YouTube videos as **MP3** or **MP4**
