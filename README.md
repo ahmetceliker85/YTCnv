@@ -47,7 +47,7 @@ This project uses a custom-built FFmpeg AAR for compatibility with devices using
 
 1. Clone the fork: [ffmpeg-kit-16KB-for-YTCnv](https://github.com/PGAxis/ffmpeg-kit-16KB-for-YTCnv)
 2. Follow the build instructions in that repository
-3. Copy the resulting `ffmpeg-kit.aar` and the two `smart-exception` JARs (found in that repository under /jars) into `app/libs/`
+3. Copy the resulting `ffmpeg-kit.aar` into `app/libs/`
 
 The prebuilt AAR included in this repository was built from that fork with no modifications.
 
