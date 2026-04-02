@@ -1,0 +1,1 @@
+Přidání smart-exception jako závislot místo používání .jar souboru

@@ -62,6 +62,7 @@ The prebuilt AAR included in this repository was built from that fork with no mo
 
 - [NewPipe Extractor](https://github.com/TeamNewPipe/NewPipeExtractor) — YouTube stream extraction
 - [FFmpegKit](https://github.com/arthenica/ffmpeg-kit) (custom build) — audio/video processing
+- [Smart exception](https://github.com/tanersener/smart-exception)
 - [Coil](https://github.com/coil-kt/coil) — image loading
 - [Gson](https://github.com/google/gson) — JSON serialization
 - [Jetpack Compose](https://developer.android.com/jetpack/compose) — UI

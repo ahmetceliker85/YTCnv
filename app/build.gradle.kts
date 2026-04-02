@@ -28,8 +28,8 @@ android {
         applicationId = "com.pg_axis.ytcnv"
         minSdk = 30
         targetSdk = 36
-        versionCode = 38
-        versionName = "3.5.0"
+        versionCode = 39
+        versionName = "3.5.1"
 
         ndk {
             //noinspection ChromeOsAbiSupport
@@ -84,7 +84,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.okhttp)
     implementation(libs.androidx.documentfile)
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+    implementation(libs.smart.exception)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,0 +1,1 @@
+Added smart-exception as a dependency rather than using it as a .jar file
