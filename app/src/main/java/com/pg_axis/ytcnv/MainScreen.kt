@@ -365,7 +365,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                 Card(
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = viewModel.popupBackground),
-                    modifier = Modifier.widthIn(min = 200.dp)
+                    modifier = Modifier.widthIn(min = 200.dp).padding(horizontal = 16.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(

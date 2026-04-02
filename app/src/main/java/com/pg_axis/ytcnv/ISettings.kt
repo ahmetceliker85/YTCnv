@@ -14,4 +14,5 @@ interface ISettings {
     var dontShowUpdate : Boolean
     var alreadyShown : Boolean
     var notifyOnFinish: Boolean
+    var notifyOnFail: Boolean
 }

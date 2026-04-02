@@ -26,9 +26,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.schabi.newpipe.extractor.ServiceList
 import org.schabi.newpipe.extractor.stream.AudioStream
+import org.schabi.newpipe.extractor.stream.AudioTrackType
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.VideoStream
-import org.schabi.newpipe.extractor.timeago.patterns.it
 import java.io.File
 import java.net.URL
 import kotlin.math.abs
@@ -174,13 +174,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             // Build audio options
             var audioStreams = streamInfo.audioStreams
-                .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true && it.averageBitrate > 0 }
+                .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true && it.averageBitrate > 0 && (it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null) }
                 .sortedByDescending { it.averageBitrate }
                 .distinctBy { it.averageBitrate }
 
             if (audioStreams.isEmpty()) {
                 audioStreams = streamInfo.audioStreams
-                    .filter { it.averageBitrate > 0 }
+                    .filter { it.averageBitrate > 0 && (it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null) }
                     .sortedByDescending { it.averageBitrate }
                     .distinctBy { it.averageBitrate }
             }
@@ -365,14 +365,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // ─── MP3 ───
                 val audioStream = if (isQuick) {
                     streamInfo.audioStreams
-                        .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true }
+                        .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true && (it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null) }
                         .maxByOrNull { it.averageBitrate }
                         ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }
                 } else {
                     val selectedBitrate = audioOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
                     if (selectedBitrate != null) {
                         streamInfo.audioStreams
-                            .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true }
+                            .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true && (it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null) }
                             .minByOrNull { abs(it.averageBitrate - selectedBitrate.toInt()) }
                     } else null
                 } ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
@@ -432,12 +432,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
                         showPopup("Failed", "The app failed to add metadata and save the file.", 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, "The app failed to add metadata and save the file.")
+                        }
                     }
                 }
 
             } else {
                 // ─── MP4 ───
-                val audioStream = streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
+                val audioStream = streamInfo.audioStreams.filter{ it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null }.maxByOrNull{ it.averageBitrate } ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
                 val videoStream = if (isQuick) {
                     if (settings.use4K)
                         streamInfo.videoOnlyStreams.maxByOrNull { it.height }
@@ -487,7 +490,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 //FileSaver.saveM4a(context, "$title.m4a", m4aPath, settings.fileUri.ifBlank { null })
 
                 val ffmpegArgs = if (settings.use4K && isMoreThan1080p) {
-                    "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v libx264 -pix_fmt yuv420p -preset faster -crf 23 " +
+                    "-y -i \"$mp4Path\" -i \"$m4aPath\" -c:v libx264 -pix_fmt yuv420p -preset superfast -crf 23 " +
                             "-c:a copy -map 0:v:0 -map 1:a:0 -shortest " +
                             "-metadata title=\"$title\" -metadata artist=\"$author\" \"$semiOutput\""
                 } else {
@@ -511,6 +514,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
                         showPopup("Failed", "The app failed to process and save the file.", 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, "The app failed to add metadata and save the file.")
+                        }
                     }
                 }
             }
@@ -532,11 +538,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.Main) {
                 applyQuickDownloadState()
                 when {
-                    e.message?.contains("403") == true || e.message?.contains("404") == true ->
+                    e.message?.contains("403") == true || e.message?.contains("404") == true -> {
                         showPopup("Video unavailable", "The video is private, age-restricted, or does not exist.", 2)
-                    e.message?.contains("ID or URL") == true ->
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, "The video is private, age-restricted, or does not exist.")
+                        }
+                    }
+                    e.message?.contains("ID or URL") == true -> {
                         showPopup("Invalid URL", "Please enter a valid YouTube URL", 2)
-                    else -> showPopup("Error", e.message ?: "Unknown error", 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, "Please enter a valid YouTube URL")
+                        }
+                    }
+                    e.message?.contains("Software caused connection abort") == true -> {
+                        showPopup("Network error", "The device disconnected from the internet", 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, "The device disconnected from the internet")
+                        }
+                    }
+                    else -> {
+                        showPopup("Error", e.message ?: "Unknown error", 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, "Unknown error")
+                        }
+                    }
                 }
             }
         } finally {

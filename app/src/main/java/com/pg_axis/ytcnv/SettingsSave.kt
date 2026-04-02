@@ -37,6 +37,8 @@ class SettingsSave private constructor(context: Context) : ISettings {
 
     override var notifyOnFinish by mutableStateOf(true)
 
+    override var notifyOnFail by mutableStateOf(true)
+
     // ─── Extra data ───
     override var searchHistory by mutableStateOf<List<String>>(emptyList())
 
@@ -57,7 +59,8 @@ class SettingsSave private constructor(context: Context) : ISettings {
             savedFileUri = fileUri,
             mainFolderName = mainFolder,
             finalFolderName = finalFolder,
-            notifyOnFinish = notifyOnFinish
+            notifyOnFinish = notifyOnFinish,
+            notifyOnFail = notifyOnFail
         )
         settingsPath.writeText(gson.toJson(settings))
     }
@@ -80,6 +83,7 @@ class SettingsSave private constructor(context: Context) : ISettings {
                 mainFolder = it.mainFolderName ?: "Internal storage"
                 finalFolder = it.finalFolderName ?: " - Downloads"
                 notifyOnFinish = it.notifyOnFinish
+                notifyOnFail = it.notifyOnFail
             }
         }
         if (extraDataPath.exists()) {
@@ -103,7 +107,8 @@ class SettingsSave private constructor(context: Context) : ISettings {
         val savedFileUri: String? = null,
         val mainFolderName: String? = null,
         val finalFolderName: String? = null,
-        val notifyOnFinish: Boolean = true
+        val notifyOnFinish: Boolean = true,
+        val notifyOnFail: Boolean = true
     )
 
     data class ExtraData(

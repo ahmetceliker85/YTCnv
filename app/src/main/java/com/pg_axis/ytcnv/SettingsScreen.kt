@@ -144,6 +144,13 @@ fun SettingsScreen(
                 checked = viewModel.settings.notifyOnFinish,
                 onCheckedChange = { viewModel.onNotifyOnFinishChanged(it) }
             )
+
+            // ─── Toggle: Notify on fail ───
+            SettingsToggleRow(
+                label = "Notify when download fails",
+                checked = viewModel.settings.notifyOnFail,
+                onCheckedChange = { viewModel.onNotifyOnFailChanged(it) }
+            )
         }
 
         // ─── Version label ───

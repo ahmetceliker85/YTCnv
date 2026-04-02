@@ -26,4 +26,9 @@ class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewMode
         settings.notifyOnFinish = value
         (settings as? SettingsSave)?.saveSettings()
     }
+
+    fun onNotifyOnFailChanged(value: Boolean) {
+        settings.notifyOnFail = value
+        (settings as? SettingsSave)?.saveSettings()
+    }
 }

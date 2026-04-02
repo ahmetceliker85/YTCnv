@@ -1,0 +1,3 @@
+Přepracování UI na stránce vyhledávání
+Přidání oznámení pro případy kdy stahování selže
+Přechod na vlastní fork ffmpeg-kit-16KB (původně od JamaisMagic)

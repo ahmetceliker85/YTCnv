@@ -14,15 +14,17 @@ class DownloadNotificationService : Service() {
     companion object {
         const val CHANNEL_ID = "ytcnv_download_channel"
         const val FINISH_CHANNEL_ID = "ytcnv_finnish_channel"
+        const val FAIL_CHANNEL_ID = "ytcnv_fail_channel"
         const val NOTIFICATION_ID = 1
         const val FINISH_NOTIFICATION_ID = 2
+        const val FAIL_NOTIFICATION_ID = 3
         var progressIsRunning = false
 
         fun showFinishNotification(context: Context, fileName: String) {
             val manager = context.getSystemService(NotificationManager::class.java)
 
             val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
             }
             val pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -39,15 +41,41 @@ class DownloadNotificationService : Service() {
             manager.notify(FINISH_NOTIFICATION_ID, notification)
         }
 
+        fun showFailedNotification(context: Context, errMsg: String) {
+            val manager = context.getSystemService(NotificationManager::class.java)
+
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = Notification.Builder(context, FAIL_CHANNEL_ID)
+                .setContentTitle("Download Failed")
+                .setContentText(errMsg)
+                .setSmallIcon(R.drawable.fail)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
+
+            manager.notify(FAIL_NOTIFICATION_ID, notification)
+        }
+
         fun updateProgress(context: Context, progress: Int) {
             val manager = context.getSystemService(NotificationManager::class.java)
+            var prog = progress
+
+            if (!progressIsRunning) {
+                prog = 0
+            }
 
             val notification = Notification.Builder(context, CHANNEL_ID)
                 .setContentTitle("Downloading")
                 .setContentText("Download in progress...")
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
-                .setProgress(100, if (progressIsRunning) progress else 0, !progressIsRunning)
+                .setProgress(100, prog, !progressIsRunning)
                 .build()
 
             manager.notify(NOTIFICATION_ID, notification)
@@ -77,6 +105,14 @@ class DownloadNotificationService : Service() {
                 "YTCnv Download Complete",
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply { description = "Notifies when a download finishes" }
+        )
+
+        manager.createNotificationChannel(
+            NotificationChannel(
+                FAIL_CHANNEL_ID,
+                "YTCnv Download Failed",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply { description = "Notifies when a download fails" }
         )
     }
 
