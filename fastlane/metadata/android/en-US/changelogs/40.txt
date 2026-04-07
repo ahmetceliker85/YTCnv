@@ -1,5 +1,5 @@
 Slight rebranding (or rather branding, since there was none).
 Slight UI update to the Search screen.
 Added support for YouTube Music links too.
-Fixed the issue where the "Selected folder" location was displaing just the final folder.
+Fixed the issue where the "Selected folder" location was displaying just the final folder.
 Changed the behavior of clicking on the search history items.
