@@ -1,5 +1,7 @@
 package com.pg_axis.ytcnv
 
+import android.provider.DocumentsContract
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 
 class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewModel) : ViewModel() {
@@ -18,8 +20,8 @@ class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewMode
     }
     fun onFolderPicked(uri: String, folderName: String) {
         settings.fileUri = uri
-        settings.mainFolder = folderName
-        settings.finalFolder = ""
+        settings.mainFolder = getMainFolder(uri)
+        settings.finalFolder = " - $folderName"
         (settings as? SettingsSave)?.saveSettings()
     }
     fun onNotifyOnFinishChanged(value: Boolean) {
@@ -30,5 +32,13 @@ class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewMode
     fun onNotifyOnFailChanged(value: Boolean) {
         settings.notifyOnFail = value
         (settings as? SettingsSave)?.saveSettings()
+    }
+
+    private fun getMainFolder(uri: String): String {
+        val docId = DocumentsContract.getTreeDocumentId(uri.toUri())
+        val parts = docId.split(':')
+
+        return if (parts[0].equals("primary", true)) "Internal storage"
+        else "SD card"
     }
 }

@@ -1,0 +1,5 @@
+Malý rebranding (nebo spíš branding, vzheldem k tomu, že před tím žádný nebyl).
+Malý UI update na obrazovce Vyhledávání.
+Přidání podpory pro linky z YouTube Music.
+Opravení chyby, kde lokace "Vybrané složky" byla zobrazena jen jako ta finální složka.
+Změna chování itemů z historie vyhledávání po kliknutí na ně.

@@ -29,10 +29,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.pg_axis.ytcnv.ui.theme.*
+
+@Preview
+@Composable
+fun SearchPreview() {
+    val viewModel = remember {
+        SearchViewModel(PreviewSettings())
+    }
+    YTCnvTheme {
+        SearchScreen({}, {}, viewModel)
+    }
+}
 
 @Composable
 fun SearchScreen(
@@ -215,53 +227,60 @@ fun SearchResultRow(
         )
         Spacer(modifier = Modifier.height(6.dp))
         // Thumbnail with duration overlay
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(8.dp))
-                .background(CardDark)
-        ) {
-            AsyncImage(
-                model = item.thumbnailUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            Text(
-                text = item.duration,
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(6.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        // Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(
-                onClick = onDownload,
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                modifier = Modifier.height(32.dp)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .aspectRatio(16f / 9f)
+                    .clip(RoundedCornerShape(8.dp))
             ) {
-                Text("Download", fontSize = 12.sp)
+                AsyncImage(
+                    model = item.thumbnailUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Text(
+                    text = item.duration,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(6.dp)
+                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                )
             }
             Spacer(modifier = Modifier.width(8.dp))
-            OutlinedButton(
-                onClick = onCopyUrl,
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                modifier = Modifier.height(32.dp)
+            // Buttons
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text("Copy URL", fontSize = 12.sp, color = CyanLight)
+                Button(
+                    onClick = onDownload,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text("Download", fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                OutlinedButton(
+                    onClick = onCopyUrl,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text("Copy URL", fontSize = 12.sp, color = CyanLight)
+                }
             }
         }
+
     }
-    HorizontalDivider(color = BorderColor, modifier = Modifier.padding(horizontal = 16.dp))
+    HorizontalDivider(color = BorderColor, thickness = 4.dp, modifier = Modifier.padding(horizontal = 16.dp))
 }

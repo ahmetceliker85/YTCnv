@@ -1,13 +1,11 @@
 package com.pg_axis.ytcnv
 
-import java.util.Locale
-
 object StringUtils {
 
     fun cleanUrl(url: String?): String {
         if (url.isNullOrBlank()) return ""
         var cleaned = url.trim()
-        listOf("https://", "http://", "www.", "m.", "youtube.com/", "youtu.be/", "watch?v=")
+        listOf("https://", "http://", "www.", "m.", "music.", "youtube.com/", "youtu.be/", "watch?v=")
             .forEach { cleaned = cleaned.replace(it, "", ignoreCase = true) }
         if (cleaned.length < 11) return ""
         return cleaned.substring(0, 11)

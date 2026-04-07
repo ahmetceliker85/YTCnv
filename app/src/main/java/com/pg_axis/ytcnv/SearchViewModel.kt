@@ -3,6 +3,8 @@ package com.pg_axis.ytcnv
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -12,22 +14,22 @@ import org.schabi.newpipe.extractor.stream.StreamInfoItem
 
 class SearchViewModel(val settings: ISettings) : ViewModel() {
 
-    var searchQuery by mutableStateOf("")
+    var searchQuery by mutableStateOf(TextFieldValue(""))
     var results by mutableStateOf<List<SearchResultItem>>(emptyList())
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
 
-    fun onQueryChanged(value: String) { searchQuery = value }
+    fun onQueryChanged(value: TextFieldValue) { searchQuery = value }
 
     fun onSearch() {
-        if (searchQuery.isBlank()) return
-        updateSearchHistory(searchQuery.trim())
+        if (searchQuery.text.isBlank()) return
+        updateSearchHistory(searchQuery.text.trim())
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
             errorMessage = null
             results = emptyList()
             try {
-                val extractor = ServiceList.YouTube.getSearchExtractor(searchQuery.trim())
+                val extractor = ServiceList.YouTube.getSearchExtractor(searchQuery.text.trim())
                 extractor.fetchPage()
                 results = extractor.initialPage.items
                     .filterIsInstance<StreamInfoItem>()
@@ -51,8 +53,10 @@ class SearchViewModel(val settings: ISettings) : ViewModel() {
     }
 
     fun onHistoryItemTapped(query: String) {
-        searchQuery = query
-        onSearch()
+        searchQuery = TextFieldValue(
+            text = query,
+            selection = TextRange(query.length)
+        )
     }
 
     fun onRemoveHistoryItem(query: String) {

@@ -147,7 +147,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         if (cleanedUrl.isBlank()) {
             withContext(Dispatchers.Main) {
-                showPopup("No URL", "Please enter a YouTube URL", 2)
+                showPopup("No URL", "The URL parser could not find a YouTube ID in that URL. Please enter a YouTube URL", 2)
                 applyQuickDownloadState()
             }
             settings.isDownloadRunning = false
@@ -251,7 +251,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (cleanedUrl.isBlank()) {
             withContext(Dispatchers.Main) {
                 applyQuickDownloadState()
-                showPopup("No URL", "Please enter a YouTube URL", 2)
+                showPopup("No URL", "The URL parser could not find a YouTube ID in that URL. Please enter a YouTube URL", 2)
             }
             settings.isDownloadRunning = false
             return@withContext

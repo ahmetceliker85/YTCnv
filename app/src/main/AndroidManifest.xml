@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-    package="com.pg_axis.ytcnv" android:versionCode="39" android:versionName="3.5.1">
+    package="com.pg_axis.ytcnv" android:versionCode="40" android:versionName="3.6.0">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:ignore="ForegroundServicesPolicy" />
@@ -12,7 +12,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="YouTube Convert"
+        android:label="YouTube Conv.axs"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.YTCnv">
