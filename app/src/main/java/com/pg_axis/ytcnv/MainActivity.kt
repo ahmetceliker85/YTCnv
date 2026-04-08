@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun GreetingPreview() {
+fun YTCnvPreview() {
     YTCnvTheme {
         MainScreen(viewModel = MainViewModel(Application()), {}, {})
     }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -126,10 +127,10 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                     color = TextPrimary,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = onOpenSearch) {
+                IconButton(onClick = onOpenSearch, shape = CutCornerShape(0.dp)) {
                     Icon(painter = painterResource(id = R.drawable.magglass), contentDescription = "Search", tint = CyanLight)
                 }
-                IconButton(onClick = onOpenSettings) {
+                IconButton(onClick = onOpenSettings, shape = CutCornerShape(0.dp)) {
                     Icon(painter = painterResource(id = R.drawable.settings), contentDescription = "Settings", tint = CyanLight)
                 }
             }

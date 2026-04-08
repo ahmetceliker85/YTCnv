@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,11 +36,40 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.pg_axis.ytcnv.ui.theme.*
 
-@Preview
 @Composable
+@Preview(showBackground = true, showSystemUi = true)
 fun SearchPreview() {
     val viewModel = remember {
-        SearchViewModel(PreviewSettings())
+        SearchViewModel(PreviewSettings()).apply {
+            results = listOf(
+                SearchResultItem(
+                    title = "How to Build Android Apps with Jetpack Compose",
+                    videoId = "abc123",
+                    uploader = "Android Developers",
+                    duration = "15:42",
+                    thumbnailUrl = "https://picsum.photos/seed/1/320/180",
+                    url = "https://youtube.com/watch?v=abc123"
+                ),
+                SearchResultItem(
+                    title = "Kotlin Coroutines Deep Dive - Full Course",
+                    videoId = "def456",
+                    uploader = "Tech Academy",
+                    duration = "1:23:15",
+                    thumbnailUrl = "https://picsum.photos/seed/2/320/180",
+                    url = "https://youtube.com/watch?v=def456"
+                ),
+                SearchResultItem(
+                    title = "Material Design 3 Tutorial",
+                    videoId = "ghi789",
+                    uploader = "UI/UX Masters",
+                    duration = "0:00",
+                    thumbnailUrl = "https://picsum.photos/seed/3/320/180",
+                    url = "https://youtube.com/watch?v=ghi789"
+                )
+            )
+            isLoading = false
+            errorMessage = null
+        }
     }
     YTCnvTheme {
         SearchScreen({}, {}, viewModel)
@@ -79,7 +109,7 @@ fun SearchScreen(
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBack) {
+            IconButton(onClick = onBack, shape = CutCornerShape(0.dp)) {
                 Icon(
                     painter = painterResource(id = R.drawable.back),
                     contentDescription = "Back",
@@ -207,26 +237,7 @@ fun SearchResultRow(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        // Title
-        Text(
-            text = item.title,
-            color = TextPrimary,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        // Uploader
-        Text(
-            text = item.uploader,
-            color = TextSecondary,
-            fontSize = 12.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        // Thumbnail with duration overlay
+        // Thumbnail with duration overlay and buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -280,7 +291,25 @@ fun SearchResultRow(
                 }
             }
         }
-
+        Spacer(modifier = Modifier.height(6.dp))
+        // Title
+        Text(
+            text = item.title,
+            color = TextPrimary,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        // Uploader
+        Text(
+            text = item.uploader,
+            color = TextSecondary,
+            fontSize = 12.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
     HorizontalDivider(color = BorderColor, thickness = 4.dp, modifier = Modifier.padding(horizontal = 16.dp))
 }
