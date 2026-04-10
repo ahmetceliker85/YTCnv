@@ -1,0 +1,1 @@
+Aktualizován ffmpeg-kit.aar aby se povedlo RB na F-Droidu
