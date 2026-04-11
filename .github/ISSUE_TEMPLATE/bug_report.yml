@@ -1,0 +1,32 @@
+name: Bug Report
+description: Report a bug in YouTube Convert
+labels: ["Bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: e.g. 3.7.3
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: dropdown
+    id: android
+    attributes:
+      label: Android version
+      options:
+        - "11"
+        - "12"
+        - "13"
+        - "14"
+        - "15"
+        - "16"
