@@ -1,5 +1,6 @@
 package com.pg_axis.ytcnv
 
+import android.app.Application
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -40,8 +41,9 @@ fun AppNavigation(initialUrl: String? = null) {
             )
         }
         composable("settings") {
+            val context = androidx.compose.ui.platform.LocalContext.current
             val settingsViewModel = remember {
-                SettingsViewModel(mainViewModel.settings, mainViewModel)
+                SettingsViewModel(mainViewModel.settings, mainViewModel, context.applicationContext as Application)
             }
             SettingsScreen(
                 onBack = { navController.popBackStack() },

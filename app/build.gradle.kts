@@ -32,8 +32,8 @@ android {
         applicationId = "com.pg_axis.ytcnv"
         minSdk = 30
         targetSdk = 36
-        versionCode = 43
-        versionName = "3.7.2"
+        versionCode = 44
+        versionName = "3.8.0"
 
         ndk {
             //noinspection ChromeOsAbiSupport
@@ -90,6 +90,7 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
     implementation(libs.smart.exception)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

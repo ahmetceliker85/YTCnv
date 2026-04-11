@@ -140,14 +140,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             statusLabelIsVisible = false
             downloadIndicatorIsVisible = true
             statusLabelIsVisible = true
-            statusLabelText = AnnotatedString("Retrieving video metadata")
+            statusLabelText = AnnotatedString(context.getString(R.string.sl_retrieving_metadata))
         }
 
         cleanedUrl = StringUtils.cleanUrl(urlEntryText)
 
         if (cleanedUrl.isBlank()) {
             withContext(Dispatchers.Main) {
-                showPopup("No URL", "The URL parser could not find a YouTube ID in that URL. Please enter a YouTube URL", 2)
+                showPopup(context.getString(R.string.pt_no_url), context.getString(R.string.pm_no_url), 2)
                 applyQuickDownloadState()
             }
             settings.isDownloadRunning = false
@@ -216,9 +216,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.Main) {
                 applyQuickDownloadState()
                 when {
-                    e.message?.contains("403") == true || e.message?.contains("404") == true ->
-                        showPopup("Video unavailable", "The video is private, age-restricted, or does not exist.", 2)
-                    else -> showPopup("Error", e.message ?: "Unknown error", 2)
+                    e.message?.contains("403") == true || e.message?.contains("404") == true -> {
+                        showPopup(context.getString(R.string.pt_unavailable), context.getString(R.string.pm_unavailable), 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_unavailable))
+                        }
+                    }
+                    e.message?.contains("ID or URL") == true -> {
+                        showPopup(context.getString(R.string.pt_invalid_url), context.getString(R.string.pm_invalid_url), 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_invalid_url))
+                        }
+                    }
+                    e.message?.contains("Software caused connection abort") == true -> {
+                        showPopup(context.getString(R.string.pt_network_error), context.getString(R.string.pm_network_error), 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_network_error))
+                        }
+                    }
+                    else -> {
+                        showPopup(context.getString(R.string.pt_error), e.message ?: context.getString(R.string.pm_error), 2)
+                        if (settings.notifyOnFail) {
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_error))
+                        }
+                    }
                 }
             }
         } finally {
@@ -243,7 +264,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             cancelButtonIsVisible = true
             downloadIndicatorIsVisible = true
             statusLabelIsVisible = true
-            statusLabelText = AnnotatedString("Retrieving video metadata")
+            statusLabelText = AnnotatedString(context.getString(R.string.sl_retrieving_metadata))
         }
 
         if (isQuick) cleanedUrl = StringUtils.cleanUrl(urlEntryText)
@@ -251,7 +272,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (cleanedUrl.isBlank()) {
             withContext(Dispatchers.Main) {
                 applyQuickDownloadState()
-                showPopup("No URL", "The URL parser could not find a YouTube ID in that URL. Please enter a YouTube URL", 2)
+                showPopup(context.getString(R.string.pt_no_url), context.getString(R.string.pm_no_url), 2)
             }
             settings.isDownloadRunning = false
             return@withContext
@@ -285,7 +306,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (streamInfo.duration <= 0) {
                 withContext(Dispatchers.Main) {
                     applyQuickDownloadState()
-                    showPopup("Live stream", "Live streams can't be downloaded.")
+                    showPopup(context.getString(R.string.pt_live), context.getString(R.string.pm_live))
                 }
                 stopService()
                 settings.isDownloadRunning = false
@@ -348,7 +369,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             withContext(Dispatchers.Main) {
                 statusLabelText = buildAnnotatedString {
-                    append("Downloading ")
+                    append(context.getString(R.string.sl_download))
+                    append(" ")
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = TextSecondary)) {
                         append(title)
                     }
@@ -393,7 +415,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     dwnldProgressIsVisible = false
                     DownloadNotificationService.setProgressType(false)
                     downloadIndicatorIsVisible = true
-                    statusLabelText = AnnotatedString("Adding metadata")
+                    statusLabelText = AnnotatedString(context.getString(R.string.sl_add_metadata))
                 }
 
                 //FileSaver.saveM4a(context, "$title.m4a", m4aPath, settings.fileUri.ifBlank { null })  YTmI9rP5YUw
@@ -426,14 +448,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
-                        showPopup("Finished", "The download has completed successfully.", 1)
+                        showPopup(context.getString(R.string.pt_finished), context.getString(R.string.pm_finished), 1)
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
-                        showPopup("Failed", "The app failed to add metadata and save the file.", 2)
+                        showPopup(context.getString(R.string.pt_failed), context.getString(R.string.pm_failed), 2)
                         if (settings.notifyOnFail) {
-                            DownloadNotificationService.showFailedNotification(context, "The app failed to add metadata and save the file.")
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_failed))
                         }
                     }
                 }
@@ -484,7 +506,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     dwnldProgressIsVisible = false
                     DownloadNotificationService.setProgressType(false)
                     downloadIndicatorIsVisible = true
-                    statusLabelText = AnnotatedString("Joining audio and video")
+                    statusLabelText = AnnotatedString(context.getString(R.string.sl_joining_a_and_v))
                 }
 
                 //FileSaver.saveM4a(context, "$title.m4a", m4aPath, settings.fileUri.ifBlank { null })
@@ -508,14 +530,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
-                        showPopup("Finished", "The download has completed successfully.", 1)
+                        showPopup(context.getString(R.string.pt_finished), context.getString(R.string.pm_finished), 1)
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
-                        showPopup("Failed", "The app failed to process and save the file.", 2)
+                        showPopup(context.getString(R.string.pt_failed), context.getString(R.string.pm_failed), 2)
                         if (settings.notifyOnFail) {
-                            DownloadNotificationService.showFailedNotification(context, "The app failed to add metadata and save the file.")
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_failed))
                         }
                     }
                 }
@@ -528,7 +550,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             DownloadNotificationService.setProgressType(false)
             withContext(Dispatchers.Main) {
                 applyQuickDownloadState()
-                showPopup("Cancelled", "The download was cancelled.", 0)
+                showPopup(context.getString(R.string.pt_canceled), context.getString(R.string.pm_canceled), 0)
             }
         } catch (e: Exception) {
             FFmpegKit.cancel()
@@ -539,27 +561,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 applyQuickDownloadState()
                 when {
                     e.message?.contains("403") == true || e.message?.contains("404") == true -> {
-                        showPopup("Video unavailable", "The video is private, age-restricted, or does not exist.", 2)
+                        showPopup(context.getString(R.string.pt_unavailable), context.getString(R.string.pm_unavailable), 2)
                         if (settings.notifyOnFail) {
-                            DownloadNotificationService.showFailedNotification(context, "The video is private, age-restricted, or does not exist.")
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_unavailable))
                         }
                     }
                     e.message?.contains("ID or URL") == true -> {
-                        showPopup("Invalid URL", "Please enter a valid YouTube URL", 2)
+                        showPopup(context.getString(R.string.pt_invalid_url), context.getString(R.string.pm_invalid_url), 2)
                         if (settings.notifyOnFail) {
-                            DownloadNotificationService.showFailedNotification(context, "Please enter a valid YouTube URL")
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_invalid_url))
                         }
                     }
                     e.message?.contains("Software caused connection abort") == true -> {
-                        showPopup("Network error", "The device disconnected from the internet", 2)
+                        showPopup(context.getString(R.string.pt_network_error), context.getString(R.string.pm_network_error), 2)
                         if (settings.notifyOnFail) {
-                            DownloadNotificationService.showFailedNotification(context, "The device disconnected from the internet")
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_network_error))
                         }
                     }
                     else -> {
-                        showPopup("Error", e.message ?: "Unknown error", 2)
+                        showPopup(context.getString(R.string.pt_error), e.message ?: context.getString(R.string.pm_error), 2)
                         if (settings.notifyOnFail) {
-                            DownloadNotificationService.showFailedNotification(context, "Unknown error")
+                            DownloadNotificationService.showFailedNotification(context, context.getString(R.string.pm_error))
                         }
                     }
                 }

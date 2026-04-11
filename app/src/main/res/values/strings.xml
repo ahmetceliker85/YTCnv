@@ -1,3 +1,72 @@
 <resources>
     <string name="app_name">YTCnv</string>
+
+    <!-- Main Screen -->
+    <string name="title">YouTube Converter</string>
+    <string name="URLIDPrompt">YouTube URL or ID</string>
+    <string name="format">Format</string>
+    <string name="quality">Quality</string>
+    <string name="choose_quality">Choose qulaity</string>
+    <string name="download">Download</string>
+    <string name="cancel">Cancel</string>
+    <string name="load">Load metadata</string>
+    <string name="download_history">DOWNLOAD HISTORY</string>
+    <string name="empty_history">History is empty</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="download_dest">Change download destination</string>
+    <string name="internal_storage">Internal storage</string>
+    <string name="sd_card">SD card</string>
+    <string name="d_settings">Download Settings</string>
+    <string name="up_to_4k">Enable 2K and higher (video)</string>
+    <string name="quick_download">Enable quick download</string>
+    <string name="n_settings">Notifications</string>
+    <string name="n_download_finished">Notify when download finishes</string>
+    <string name="n_download_failed">Notify when download fails</string>
+    <string name="l_settings">Language Settings</string>
+    <string name="language">Language</string>
+    <string name="u_settings">Updates</string>
+    <string name="d_reminder">Don\'t remind me of new versions</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Search</string>
+    <string name="search_prompt">Search YouTube…</string>
+    <string name="search_big_prompt">Search for a YouTube video</string>
+    <string name="copy_url">Copy URL</string>
+
+    <!-- Pop-up titles -->
+    <string name="pt_no_url">No URL</string>
+    <string name="pt_unavailable">Video unavailable</string>
+    <string name="pt_error">Error</string>
+    <string name="pt_live">Live stream</string>
+    <string name="pt_finished">Finished</string>
+    <string name="pt_failed">Failed</string>
+    <string name="pt_canceled">Canceled</string>
+    <string name="pt_invalid_url">Invalid URL</string>
+    <string name="pt_network_error">Network error</string>
+
+    <!-- Pop-up messages -->
+    <string name="pm_no_url">The URL parser could not find a YouTube ID in that URL. Please enter a YouTube URL</string>
+    <string name="pm_unavailable">The video is private, age-restricted, or does not exist</string>
+    <string name="pm_error">Unknown error</string>
+    <string name="pm_live">Live streams can\'t be downloaded</string>
+    <string name="pm_finished">The download has completed successfully</string>
+    <string name="pm_failed">The app failed to add metadata and save the file</string>
+    <string name="pm_canceled">The download was canceled</string>
+    <string name="pm_invalid_url">Please enter a valid YouTube URL</string>
+    <string name="pm_network_error">The device disconnected from the internet</string>
+
+    <!-- Status label messages -->
+    <string name="sl_retrieving_metadata">Retrieving video metadata</string>
+    <string name="sl_download">Downloading</string>
+    <string name="sl_add_metadata">Adding metadata</string>
+    <string name="sl_joining_a_and_v">Joining audio and video</string>
+
+    <!-- Notification messages -->
+    <string name="not_finished">Download Finished</string>
+    <string name="not_downloaded">Downloaded</string>
+    <string name="not_failed">Download Failed</string>
+    <string name="not_downloading">Downloading</string>
+    <string name="not_progress">Download in progress…</string>
 </resources>

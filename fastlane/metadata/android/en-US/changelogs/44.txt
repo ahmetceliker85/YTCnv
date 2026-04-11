@@ -1,0 +1,2 @@
+Added Czech translations
+Added setting for language switching

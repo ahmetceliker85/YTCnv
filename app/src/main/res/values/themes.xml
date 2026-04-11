@@ -6,7 +6,7 @@
         <item name="postSplashScreenTheme">@style/Theme.YTCnv</item>
     </style>
 
-    <style name="Theme.YTCnv" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.YTCnv" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">#0D1117</item>
         <item name="android:statusBarColor">#0D1117</item>
         <item name="android:navigationBarColor">#0D1117</item>

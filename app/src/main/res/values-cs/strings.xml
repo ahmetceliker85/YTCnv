@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">YTCnv</string>
+
+    <!-- Main Screen -->
+    <string name="title">YouTube Converter</string>
+    <string name="URLIDPrompt">YouTube URL nebo ID</string>
+    <string name="format">Formát</string>
+    <string name="quality">Kvalita</string>
+    <string name="choose_quality">Vyber kvalitu</string>
+    <string name="download">Stáhnout</string>
+    <string name="cancel">Přerušit</string>
+    <string name="load">Načíst metadata</string>
+    <string name="download_history">HISTORIE STAHOVÁNÍ</string>
+    <string name="empty_history">Historie je prázdná</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Nastavení</string>
+    <string name="download_dest">Změnit destinaci stahování</string>
+    <string name="internal_storage">Paměť zařízení</string>
+    <string name="sd_card">SD karta</string>
+    <string name="d_settings">Nastavení Stahování</string>
+    <string name="up_to_4k">Povolit 2K a výš (video)</string>
+    <string name="quick_download">Povolit rychlé stáhnutí</string>
+    <string name="n_settings">Upozornění</string>
+    <string name="n_download_finished">Upozornit když stahování úspěšně skončí</string>
+    <string name="n_download_failed">Upozornit když se stahování nepovede</string>
+    <string name="l_settings">Nastavení Jazyka</string>
+    <string name="language">Language</string>
+    <string name="u_settings">Aktualizace</string>
+    <string name="d_reminder">Neupozorňovat na nové verze</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Vyhledávání</string>
+    <string name="search_prompt">Prohledej YouTube</string>
+    <string name="search_big_prompt">Vyhledej si YouTube video</string>
+    <string name="copy_url">Zkopírovat URL</string>
+
+    <!-- Pop-up titles -->
+    <string name="pt_no_url">Chybí URL</string>
+    <string name="pt_unavailable">Video nedostupné</string>
+    <string name="pt_error">Chyba</string>
+    <string name="pt_live">Živé vysílání</string>
+    <string name="pt_finished">Hotovo</string>
+    <string name="pt_failed">Selhání</string>
+    <string name="pt_canceled">Přerušení</string>
+    <string name="pt_invalid_url">Neplatná URL</string>
+    <string name="pt_network_error">Chyba sítě</string>
+
+    <!-- Pop-up messages -->
+    <string name="pm_no_url">Analyzátor URL adresy nenašel YouTube ID. Zadejte prosím platnou YouTube URL adresu.</string>
+    <string name="pm_unavailable">Video je soukromé, věkově omezeno nebo neexistuje</string>
+    <string name="pm_error">Neznámá chyba</string>
+    <string name="pm_live">Živá vysílání nemohou být stažena</string>
+    <string name="pm_finished">Stažení proběhlo v pořádku</string>
+    <string name="pm_failed">Aplikaci se nepovedlo přidat metadata a uložit soubor</string>
+    <string name="pm_canceled">Stahování bylo přerušeno</string>
+    <string name="pm_invalid_url">Prosím zadejte platnou YouTube URL adresu</string>
+    <string name="pm_network_error">Zařízení se odpojilo od internetu</string>
+
+    <!-- Status label messages -->
+    <string name="sl_retrieving_metadata">Načítání metadat videa</string>
+    <string name="sl_download">Stahování</string>
+    <string name="sl_add_metadata">Přidávání metadat</string>
+    <string name="sl_joining_a_and_v">Spojování zvuku a videa</string>
+
+    <!-- Notification messages -->
+    <string name="not_finished">Stažení Dokončeno</string>
+    <string name="not_downloaded">Staženo</string>
+    <string name="not_failed">Stažení Selhalo</string>
+    <string name="not_downloading">Stahování</string>
+    <string name="not_progress">Probíhá stahování…</string>
+</resources>

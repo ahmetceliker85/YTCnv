@@ -31,8 +31,8 @@ class DownloadNotificationService : Service() {
             )
 
             val notification = Notification.Builder(context, FINISH_CHANNEL_ID)
-                .setContentTitle("Download Finished")
-                .setContentText("Downloaded $fileName")
+                .setContentTitle(context.getString(R.string.not_finished))
+                .setContentText("${context.getString(R.string.not_downloaded)} $fileName")
                 .setSmallIcon(R.drawable.finish)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -52,7 +52,7 @@ class DownloadNotificationService : Service() {
             )
 
             val notification = Notification.Builder(context, FAIL_CHANNEL_ID)
-                .setContentTitle("Download Failed")
+                .setContentTitle(context.getString(R.string.not_failed))
                 .setContentText(errMsg)
                 .setSmallIcon(R.drawable.fail)
                 .setContentIntent(pendingIntent)
@@ -71,8 +71,8 @@ class DownloadNotificationService : Service() {
             }
 
             val notification = Notification.Builder(context, CHANNEL_ID)
-                .setContentTitle("Downloading")
-                .setContentText("Download in progress...")
+                .setContentTitle(context.getString(R.string.not_downloading))
+                .setContentText(context.getString(R.string.not_progress))
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
                 .setProgress(100, prog, !progressIsRunning)
@@ -127,8 +127,8 @@ class DownloadNotificationService : Service() {
         )
 
         val notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("Downloading")
-            .setContentText("Download in progress...")
+            .setContentTitle(getString(R.string.not_downloading))
+            .setContentText(getString(R.string.not_progress))
             .setSmallIcon(R.drawable.icon)
             .setOngoing(true)
             .setContentIntent(pendingIntent)

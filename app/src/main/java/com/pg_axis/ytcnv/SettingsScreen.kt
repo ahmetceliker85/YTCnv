@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CutCornerShape
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,7 +32,7 @@ import com.pg_axis.ytcnv.ui.theme.*
 @Preview(showBackground = true, showSystemUi = true)
 fun SettingsPreview() {
     val mainModel = remember { MainViewModel(Application()) }
-    val viewModel = remember { SettingsViewModel(PreviewSettings(), mainModel) }
+    val viewModel = remember { SettingsViewModel(PreviewSettings(), mainModel, Application()) }
     YTCnvTheme {
         SettingsScreen({}, viewModel)
     }
@@ -87,7 +89,7 @@ fun SettingsScreen(
                 )
             }
             Text(
-                text = "Settings",
+                text = stringResource(R.string.settings_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary
@@ -123,7 +125,7 @@ fun SettingsScreen(
                             contentColor = BackgroundDark
                         )
                     ) {
-                        Text("Change download destination")
+                        Text(stringResource(R.string.download_dest))
                     }
                     Text(
                         text = viewModel.settings.mainFolder + viewModel.settings.finalFolder,
@@ -134,45 +136,56 @@ fun SettingsScreen(
             }
 
             // ─── Download Settings Group ───
-            SettingsGroup(title = "Download Settings") {
+            SettingsGroup(title = stringResource(R.string.d_settings)) {
                 // ─── Toggle: 4K ───
                 SettingsToggleRow(
-                    label = "Enable up to 4K downloads",
+                    label = stringResource(R.string.up_to_4k),
                     checked = viewModel.settings.use4K,
                     onCheckedChange = { viewModel.onUse4KChanged(it) }
                 )
 
                 // ─── Toggle: Quick download ───
                 SettingsToggleRow(
-                    label = "Enable quick download",
+                    label = stringResource(R.string.quick_download),
                     checked = viewModel.settings.quickDwnld,
                     onCheckedChange = { viewModel.onQuickDwnldChanged(it) }
                 )
             }
 
             // ─── Notifications Group ───
-            SettingsGroup(title = "Notifications", initiallyExpanded = false) {
+            SettingsGroup(title = stringResource(R.string.n_settings), initiallyExpanded = false) {
                 // ─── Toggle: Notify on finish ───
                 SettingsToggleRow(
-                    label = "Notify when download finishes",
+                    label = stringResource(R.string.n_download_finished),
                     checked = viewModel.settings.notifyOnFinish,
                     onCheckedChange = { viewModel.onNotifyOnFinishChanged(it) }
                 )
 
                 // ─── Toggle: Notify on fail ───
                 SettingsToggleRow(
-                    label = "Notify when download fails",
+                    label = stringResource(R.string.n_download_failed),
                     checked = viewModel.settings.notifyOnFail,
                     onCheckedChange = { viewModel.onNotifyOnFailChanged(it) }
                 )
             }
 
+            // ─── Notifications Group ───
+            SettingsGroup(title = stringResource(R.string.l_settings), initiallyExpanded = false) {
+                // ─── Dropdown: Change language ───
+                SettingsDropdownRow(
+                    label = stringResource(R.string.language),
+                    options = viewModel.langOptions,
+                    selected = viewModel.selectedLang,
+                    onSelectChange = { viewModel.onLanguageChange(it) }
+                )
+            }
+
             // ─── Updates Group ───
             if (!BuildConfig.IS_FDROID) {
-                SettingsGroup(title = "Updates", initiallyExpanded = false) {
+                SettingsGroup(title = stringResource(R.string.u_settings), initiallyExpanded = false) {
                     // ─── Toggle: Don't show updates ───
                     SettingsToggleRow(
-                        label = "Don't remind me of new versions",
+                        label = stringResource(R.string.d_reminder),
                         checked = viewModel.settings.dontShowUpdate,
                         onCheckedChange = { viewModel.onDontShowUpdateChanged(it) }
                     )
@@ -271,5 +284,74 @@ fun SettingsToggleRow(
                 uncheckedTrackColor = SurfaceVariantDark
             )
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsDropdownRow(
+    label: String,
+    options: Map<String, String>,
+    selected: String,
+    onSelectChange: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            color = TextPrimary,
+            modifier = Modifier.weight(1f)
+        )
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            Row(
+                modifier = Modifier
+                    .menuAnchor()
+                    .wrapContentWidth()
+                    .border(
+                        width = 2.dp,
+                        color = if (expanded) CyanPrimary else SurfaceVariantDark,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = options.entries.find { it.key == selected }?.value ?: selected,
+                    color = TextPrimary
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Icon(
+                    painter = painterResource(if (expanded) R.drawable.expand_less else R.drawable.expand_more),
+                    contentDescription = null,
+                    tint = if (expanded) CyanPrimary else TextSecondary,
+                    modifier = Modifier.height(15.dp)
+                )
+            }
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { (backendValue, displayLabel) ->
+                    DropdownMenuItem(
+                        text = { Text(displayLabel, color = TextPrimary) },
+                        onClick = {
+                            onSelectChange(backendValue)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }

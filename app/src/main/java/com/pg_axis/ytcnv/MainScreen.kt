@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -121,7 +122,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Youtube Converter",
+                    text = stringResource(R.string.title),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = TextPrimary,
@@ -137,7 +138,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
 
             // ─── URL Input ───
             Column {
-                Text("YouTube URL or ID:", fontWeight = FontWeight.Bold, color = TextPrimary)
+                Text(text = stringResource(R.string.URLIDPrompt), fontWeight = FontWeight.Bold, color = TextPrimary)
                 OutlinedTextField(
                     value = viewModel.urlEntryText,
                     onValueChange = { viewModel.onUrlChanged(it) },
@@ -166,7 +167,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                             value = formats.getOrElse(viewModel.formatPickerSelectedIndex) { "Choose format" },
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Format") },
+                            label = { Text(text = stringResource(R.string.format)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded) },
                             modifier = Modifier
                                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
@@ -197,10 +198,10 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                             modifier = Modifier.weight(2f)
                         ) {
                             OutlinedTextField(
-                                value = viewModel.qualityPickerItemsSource.getOrNull(viewModel.qualityPickerSelectedIndex)?.displayName ?: "Choose quality",
+                                value = viewModel.qualityPickerItemsSource.getOrNull(viewModel.qualityPickerSelectedIndex)?.displayName ?: stringResource(R.string.choose_quality),
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Quality") },
+                                label = { Text(text = stringResource(R.string.quality)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = qualityExpanded) },
                                 modifier = Modifier
                                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
@@ -238,13 +239,13 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                             containerColor = SurfaceVariantDark,
                             contentColor = CyanLight
                         )
-                    ) { Text("Load metadata") }
+                    ) { Text(text = stringResource(R.string.load)) }
                 }
                 if (viewModel.downloadButtonIsVisible) {
                     Button(
                         onClick = { viewModel.onDownloadClicked() },
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text("Download") }
+                    ) { Text(text = stringResource(R.string.download)) }
                 }
                 if (viewModel.cancelButtonIsVisible) {
                     Button(
@@ -254,7 +255,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                             containerColor = SurfaceVariantDark,
                             contentColor = CyanLight
                         )
-                    ) { Text("Cancel") }
+                    ) { Text(text = stringResource(R.string.cancel)) }
                 }
             }
 
@@ -297,7 +298,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
             ) {
                 Column(modifier = Modifier.fillMaxHeight().padding(15.dp)) {
                     Text(
-                        text = "DOWNLOAD HISTORY",
+                        text = stringResource(R.string.download_history),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         fontSize = 15.sp,
@@ -312,7 +313,7 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "History is empty",
+                                text = stringResource(R.string.empty_history),
                                 color = TextSecondary,
                                 modifier = Modifier
                                     .fillMaxWidth()

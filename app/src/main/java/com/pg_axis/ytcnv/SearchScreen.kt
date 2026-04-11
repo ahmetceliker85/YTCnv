@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -102,11 +103,12 @@ fun SearchScreen(
                 androidx.compose.foundation.interaction.MutableInteractionSource()
             }) { focusManager.clearFocus() }
     ) {
-        // ─── Search bar ───
+        // ─── Header ───
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .height(60.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack, shape = CutCornerShape(0.dp)) {
@@ -116,10 +118,25 @@ fun SearchScreen(
                     tint = CyanLight
                 )
             }
+            Text(
+                text = stringResource(R.string.search_title),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+        }
+        // ─── Search bar ───
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .height(IntrinsicSize.Max),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             OutlinedTextField(
                 value = viewModel.searchQuery,
                 onValueChange = { viewModel.onQueryChanged(it) },
-                placeholder = { Text("Search YouTube...", color = TextSecondary) },
+                placeholder = { Text(stringResource(R.string.search_prompt), color = TextSecondary) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = {
@@ -130,6 +147,23 @@ fun SearchScreen(
                     .weight(1f)
                     .onFocusChanged { isSearchFocused = it.isFocused }
             )
+            Spacer(modifier = Modifier.width(5.dp))
+            Box {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(CyanPrimary)
+                        .clickable { viewModel.onSearch() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.magglass),
+                        contentDescription = "Source",
+                        tint = BackgroundDark
+                    )
+                }
+            }
         }
 
         // ─── Search history panel ───
@@ -198,7 +232,7 @@ fun SearchScreen(
                 }
                 viewModel.results.isEmpty() -> {
                     Text(
-                        text = "Search for a YouTube video",
+                        text = stringResource(R.string.search_big_prompt),
                         color = TextSecondary,
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -273,13 +307,14 @@ fun SearchResultRow(
                     .padding(8.dp)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
                     onClick = onDownload,
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                     modifier = Modifier.height(32.dp)
                 ) {
-                    Text("Download", fontSize = 12.sp)
+                    Text(stringResource(R.string.download), fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 OutlinedButton(
@@ -287,7 +322,7 @@ fun SearchResultRow(
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                     modifier = Modifier.height(32.dp)
                 ) {
-                    Text("Copy URL", fontSize = 12.sp, color = CyanLight)
+                    Text(stringResource(R.string.copy_url), fontSize = 12.sp, color = CyanLight)
                 }
             }
         }
