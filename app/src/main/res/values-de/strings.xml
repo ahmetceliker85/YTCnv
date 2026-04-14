@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">YouTube Conv.axs</string>
+
+    <!-- Main Screen -->
+    <string name="title">YouTube Converter</string>
+    <string name="URLIDPrompt">YouTube URL oder ID</string>
+    <string name="format">Format</string>
+    <string name="quality">Qualität</string>
+    <string name="choose_quality">Qualität wählen</string>
+    <string name="download">Herunterladen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="load">Metadaten laden</string>
+    <string name="download_history">DOWNLOADVERLAUF</string>
+    <string name="empty_history">Verlauf ist leer</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="download_dest">Download-Ziel ändern</string>
+    <string name="internal_storage">Interner Speicher</string>
+    <string name="sd_card">SD-Karte</string>
+    <string name="d_settings">Download-Einstellungen</string>
+    <string name="up_to_4k">2K und höher aktivieren (Video)</string>
+    <string name="quick_download">Schnelldownload aktivieren</string>
+    <string name="n_settings">Benachrichtigungen</string>
+    <string name="n_download_finished">Benachrichtigen wenn Download abgeschlossen</string>
+    <string name="n_download_failed">Benachrichtigen wenn Download fehlschlägt</string>
+    <string name="l_settings">Spracheinstellungen</string>
+    <string name="language">Sprache</string>
+    <string name="u_settings">Aktualisierungen</string>
+    <string name="d_reminder">Nicht an neue Versionen erinnern</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Suche</string>
+    <string name="search_prompt">YouTube durchsuchen…</string>
+    <string name="search_big_prompt">Nach einem YouTube-Video suchen</string>
+    <string name="copy_url">URL kopieren</string>
+
+    <!-- Pop-up titles -->
+    <string name="pt_no_url">Keine URL</string>
+    <string name="pt_unavailable">Video nicht verfügbar</string>
+    <string name="pt_error">Fehler</string>
+    <string name="pt_live">Livestream</string>
+    <string name="pt_finished">Fertig</string>
+    <string name="pt_failed">Fehlgeschlagen</string>
+    <string name="pt_canceled">Abgebrochen</string>
+    <string name="pt_invalid_url">Ungültige URL</string>
+    <string name="pt_network_error">Netzwerkfehler</string>
+
+    <!-- Pop-up messages -->
+    <string name="pm_no_url">Der URL-Parser konnte keine YouTube-ID in dieser URL finden. Bitte gib eine gültige YouTube-URL ein.</string>
+    <string name="pm_unavailable">Das Video ist privat, altersbeschränkt oder existiert nicht</string>
+    <string name="pm_error">Unbekannter Fehler</string>
+    <string name="pm_live">Livestreams können nicht heruntergeladen werden</string>
+    <string name="pm_finished">Der Download wurde erfolgreich abgeschlossen</string>
+    <string name="pm_failed">Die App konnte die Metadaten nicht hinzufügen und die Datei nicht speichern</string>
+    <string name="pm_canceled">Der Download wurde abgebrochen</string>
+    <string name="pm_invalid_url">Bitte gib eine gültige YouTube-URL ein</string>
+    <string name="pm_network_error">Das Gerät hat die Internetverbindung verloren</string>
+
+    <!-- Status label messages -->
+    <string name="sl_retrieving_metadata">Video-Metadaten werden abgerufen</string>
+    <string name="sl_download">Herunterladen</string>
+    <string name="sl_add_metadata">Metadaten werden hinzugefügt</string>
+    <string name="sl_joining_a_and_v">Audio und Video werden zusammengeführt</string>
+
+    <!-- Notification messages -->
+    <string name="not_finished">Download abgeschlossen</string>
+    <string name="not_downloaded">Heruntergeladen</string>
+    <string name="not_failed">Download fehlgeschlagen</string>
+    <string name="not_downloading">Herunterladen</string>
+    <string name="not_progress">Download läuft…</string>
+</resources>

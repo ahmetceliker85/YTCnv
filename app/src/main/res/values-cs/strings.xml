@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">YTCnv</string>
+    <string name="app_name">YouTube Conv.axs</string>
 
     <!-- Main Screen -->
     <string name="title">YouTube Converter</string>
@@ -25,7 +25,7 @@
     <string name="n_download_finished">Upozornit když stahování úspěšně skončí</string>
     <string name="n_download_failed">Upozornit když se stahování nepovede</string>
     <string name="l_settings">Nastavení Jazyka</string>
-    <string name="language">Language</string>
+    <string name="language">Jazyk</string>
     <string name="u_settings">Aktualizace</string>
     <string name="d_reminder">Neupozorňovat na nové verze</string>
 

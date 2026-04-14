@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">YTCnv</string>
+    <string name="app_name">YouTube Conv.axs</string>
 
     <!-- Main Screen -->
     <string name="title">YouTube Converter</string>
     <string name="URLIDPrompt">YouTube URL or ID</string>
     <string name="format">Format</string>
     <string name="quality">Quality</string>
-    <string name="choose_quality">Choose qulaity</string>
+    <string name="choose_quality">Choose quality</string>
     <string name="download">Download</string>
     <string name="cancel">Cancel</string>
     <string name="load">Load metadata</string>
