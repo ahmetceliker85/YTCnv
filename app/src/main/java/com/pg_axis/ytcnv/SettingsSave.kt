@@ -29,6 +29,8 @@ class SettingsSave private constructor(context: Context) : ISettings {
 
     override var dontShowUpdate by mutableStateOf(false)
 
+    override var termsAccepted by mutableStateOf(false)
+
     override var fileUri by mutableStateOf("")
 
     override var mainFolder by mutableStateOf("Internal storage")
@@ -56,6 +58,7 @@ class SettingsSave private constructor(context: Context) : ISettings {
             use4kDownload = use4K,
             quickDownload = quickDwnld,
             dontShowUpdatePopup = dontShowUpdate,
+            termsAccepted = termsAccepted,
             savedFileUri = fileUri,
             mainFolderName = mainFolder,
             finalFolderName = finalFolder,
@@ -79,6 +82,7 @@ class SettingsSave private constructor(context: Context) : ISettings {
                 use4K = it.use4kDownload
                 quickDwnld = it.quickDownload
                 dontShowUpdate = it.dontShowUpdatePopup
+                termsAccepted = it.termsAccepted
                 fileUri = it.savedFileUri ?: ""
                 mainFolder = it.mainFolderName ?: "Internal storage"
                 finalFolder = it.finalFolderName ?: " - Downloads"
@@ -104,6 +108,7 @@ class SettingsSave private constructor(context: Context) : ISettings {
         val use4kDownload: Boolean = false,
         val quickDownload: Boolean = true,
         val dontShowUpdatePopup: Boolean = false,
+        val termsAccepted: Boolean = false,
         val savedFileUri: String? = null,
         val mainFolderName: String? = null,
         val finalFolderName: String? = null,

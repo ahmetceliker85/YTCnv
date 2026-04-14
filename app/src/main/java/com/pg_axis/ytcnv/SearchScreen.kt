@@ -154,12 +154,15 @@ fun SearchScreen(
                         .size(56.dp)
                         .clip(RoundedCornerShape(5.dp))
                         .background(CyanPrimary)
-                        .clickable { viewModel.onSearch() },
+                        .clickable {
+                            focusManager.clearFocus()
+                            viewModel.onSearch()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.magglass),
-                        contentDescription = "Source",
+                        contentDescription = "Search",
                         tint = BackgroundDark
                     )
                 }

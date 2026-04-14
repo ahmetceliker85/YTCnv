@@ -91,6 +91,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var pendingOnConfirm: ((String, String) -> Unit)? = null
     var updateInfo by mutableStateOf<UpdateInfo?>(null)
 
+    var showTermsDialog by mutableStateOf(!settings.termsAccepted)
+
     // ─── Actions ───
     suspend fun checkForUpdates(context: Context) {
         val info = UpdateChecker.checkForUpdates(context, settings)
@@ -105,6 +107,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         updateInfo = null
         settings.dontShowUpdate = dontShowAgain
         (settings as? SettingsSave)?.saveSettings()
+    }
+
+    fun onTermsAccepted() {
+        settings.termsAccepted = true
+        (settings as? SettingsSave)?.saveSettings()
+        showTermsDialog = false
+    }
+
+    fun onTermsDeclined() {
+        showTermsDialog = false
     }
 
     fun onUrlChanged(value: String) { urlEntryText = value }

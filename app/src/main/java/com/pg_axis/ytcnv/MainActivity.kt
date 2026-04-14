@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             YTCnvTheme {
-                AppNavigation(initialUrl = sharedUrl)
+                AppNavigation(initialUrl = sharedUrl, onFinish = { finish() })
             }
         }
     }
@@ -69,6 +69,6 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun YTCnvPreview() {
     YTCnvTheme {
-        MainScreen(viewModel = MainViewModel(Application()), {}, {})
+        MainScreen(viewModel = MainViewModel(Application()), {}, {}, {})
     }
 }

@@ -72,13 +72,13 @@ import com.pg_axis.ytcnv.ui.theme.YTCnvTheme
 @Composable
 fun MainScreenPreview() {
     YTCnvTheme {
-        MainScreen(viewModel = MainViewModel(Application()), {}, {})
+        MainScreen(viewModel = MainViewModel(Application()), {}, {}, {})
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSettings: () -> Unit) {
+fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSettings: () -> Unit, onTermsDeclined: () -> Unit) {
     val settings = viewModel.settings
     val context = LocalContext.current
 
@@ -100,11 +100,21 @@ fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSetting
             )
         }
 
-        viewModel.updateInfo?.let { info ->
-            UpdateDialog(
-                updateInfo = info,
-                onDismiss = { dontShowAgain -> viewModel.onUpdateDialogDismissed(dontShowAgain) }
+        if (viewModel.showTermsDialog) {
+            TermsDialog(
+                onAccept = { viewModel.onTermsAccepted() },
+                onDecline = {
+                    viewModel.onTermsDeclined()
+                    onTermsDeclined()
+                }
             )
+        } else {
+            viewModel.updateInfo?.let { info ->
+                UpdateDialog(
+                    updateInfo = info,
+                    onDismiss = { dontShowAgain -> viewModel.onUpdateDialogDismissed(dontShowAgain) }
+                )
+            }
         }
 
         // Main content

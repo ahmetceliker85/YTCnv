@@ -12,6 +12,7 @@ class PreviewSettings : ISettings {
     override var iHaveId = false
     override var id = ""
     override var dontShowUpdate = false
+    override var termsAccepted = true
     override var alreadyShown = false
     override var notifyOnFinish = true
     override var notifyOnFail = true
