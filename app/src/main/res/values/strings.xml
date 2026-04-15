@@ -2,95 +2,96 @@
     <string name="app_name">YouTube Conv.axs</string>
 
     <!-- Main Screen -->
-    <string name="title">YouTube Converter</string>
-    <string name="URLIDPrompt">YouTube URL or ID</string>
-    <string name="format">Format</string>
-    <string name="quality">Quality</string>
-    <string name="choose_quality">Choose quality</string>
-    <string name="download">Download</string>
-    <string name="cancel">Cancel</string>
-    <string name="load">Load metadata</string>
-    <string name="download_history">DOWNLOAD HISTORY</string>
-    <string name="empty_history">History is empty</string>
+    <string name="title">YouTube Dönüştürücü</string>
+    <string name="URLIDPrompt">YouTube URL\'si veya Kimliği</string>
+    <string name="format">Biçim</string>
+    <string name="quality">Kalite</string>
+    <string name="choose_quality">Kaliteyi seçin</string>
+    <string name="download">İndir</string>
+    <string name="cancel">İptal</string>
+    <string name="load">Meta verileri yükle</string>
+    <string name="download_history">İndirme Geçmişi</string>
+    <string name="empty_history">Geçmiş boş</string>
 
     <!-- Settings Screen -->
-    <string name="settings_title">Settings</string>
-    <string name="download_dest">Change download destination</string>
-    <string name="internal_storage">Internal storage</string>
-    <string name="sd_card">SD card</string>
-    <string name="d_settings">Download Settings</string>
-    <string name="up_to_4k">Enable 2K and higher (video)</string>
-    <string name="quick_download">Enable quick download</string>
-    <string name="n_settings">Notifications</string>
-    <string name="n_download_finished">Notify when download finishes</string>
-    <string name="n_download_failed">Notify when download fails</string>
-    <string name="l_settings">Language Settings</string>
-    <string name="language">Language</string>
-    <string name="u_settings">Updates</string>
-    <string name="d_reminder">Don\'t remind me of new versions</string>
+    <string name="settings_title">Ayarlar</string>
+    <string name="download_dest">İndirme konumunu değiştir</string>
+    <string name="internal_storage">Dahili depolama</string>
+    <string name="sd_card">SD kart</string>
+    <string name="d_settings">İndirme Ayarları</string>
+    <string name="up_to_4k">2K ve üzeri çözünürlükleri etkinleştir (video)</string>
+    <string name="quick_download">Hızlı indirmeyi etkinleştir</string>
+    <string name="n_settings">Bildirimler</string>
+    <string name="n_download_finished">İndirme tamamlandığında bildirim gönder</string>
+    <string name="n_download_failed">İndirme başarısız olduğunda bildirim gönder</string>
+    <string name="l_settings">Dil Ayarları</string>
+    <string name="language">Dil</string>
+    <string name="u_settings">Güncellemeler</string>
+    <string name="d_reminder">Yeni sürümleri bana hatırlatma</string>
 
     <!-- Search Screen -->
-    <string name="search_title">Search</string>
-    <string name="search_prompt">Search YouTube…</string>
-    <string name="search_big_prompt">Search for a YouTube video</string>
-    <string name="copy_url">Copy URL</string>
+    <string name="search_title">Ara</string>
+    <string name="search_prompt">YouTube\'da ara…</string>
+    <string name="search_big_prompt">Bir YouTube videosu ara</string>
+    <string name="copy_url">URL\'yi kopyala</string>
 
     <!-- Pop-up titles -->
-    <string name="pt_no_url">No URL</string>
-    <string name="pt_unavailable">Video unavailable</string>
-    <string name="pt_error">Error</string>
-    <string name="pt_live">Live stream</string>
-    <string name="pt_finished">Finished</string>
-    <string name="pt_failed">Failed</string>
-    <string name="pt_canceled">Canceled</string>
-    <string name="pt_invalid_url">Invalid URL</string>
-    <string name="pt_network_error">Network error</string>
+    <string name="pt_no_url">URL yok</string>
+    <string name="pt_unavailable">Video kullanılamıyor</string>
+    <string name="pt_error">Hata</string>
+    <string name="pt_live">Canlı yayın</string>
+    <string name="pt_finished">Tamamlandı</string>
+    <string name="pt_failed">Başarısız oldu</string>
+    <string name="pt_canceled">İptal edildi</string>
+    <string name="pt_invalid_url">Geçersiz URL</string>
+    <string name="pt_network_error">Ağ hatası</string>
 
     <!-- Pop-up messages -->
-    <string name="pm_no_url">The URL parser could not find a YouTube ID in that URL. Please enter a YouTube URL</string>
-    <string name="pm_unavailable">The video is private, age-restricted, or does not exist</string>
-    <string name="pm_error">Unknown error</string>
-    <string name="pm_live">Live streams can\'t be downloaded</string>
-    <string name="pm_finished">The download has completed successfully</string>
-    <string name="pm_failed">The app failed to add metadata and save the file</string>
-    <string name="pm_canceled">The download was canceled</string>
-    <string name="pm_invalid_url">Please enter a valid YouTube URL</string>
-    <string name="pm_network_error">The device disconnected from the internet</string>
+    <string name="pm_no_url">URL ayrıştırıcı, bu bağlantıda bir YouTube kimliği bulamadı. Lütfen bir YouTube URL\'si girin</string>
+    <string name="pm_unavailable">Video gizli, yaş kısıtlamalı veya mevcut değil</string>
+    <string name="pm_error">Bilinmeyen hata</string>
+    <string name="pm_live">Canlı yayınlar indirilemez</string>
+    <string name="pm_finished">İndirme başarıyla tamamlandı</string>
+    <string name="pm_failed">Uygulama meta verileri ekleyemedi ve dosyayı kaydedemedi</string>
+    <string name="pm_canceled">İndirme iptal edildi</string>
+    <string name="pm_invalid_url">Lütfen geçerli bir YouTube URL\'si girin</string>
+    <string name="pm_network_error">Cihazın internet bağlantısı kesildi</string>
 
     <!-- Status label messages -->
-    <string name="sl_retrieving_metadata">Retrieving video metadata</string>
-    <string name="sl_download">Downloading</string>
-    <string name="sl_add_metadata">Adding metadata</string>
-    <string name="sl_joining_a_and_v">Joining audio and video</string>
+    <string name="sl_retrieving_metadata">Video meta verileri alınıyor</string>
+    <string name="sl_download">İndiriliyor</string>
+    <string name="sl_add_metadata">Meta veriler ekleniyor</string>
+    <string name="sl_joining_a_and_v">Ses ve video birleştiriliyor</string>
 
     <!-- Notification messages -->
-    <string name="not_finished">Download Finished</string>
-    <string name="not_downloaded">Downloaded</string>
-    <string name="not_failed">Download Failed</string>
-    <string name="not_downloading">Downloading</string>
-    <string name="not_progress">Download in progress…</string>
+    <string name="not_finished">İndirme Tamamlandı</string>
+    <string name="not_downloaded">İndirildi</string>
+    <string name="not_failed">İndirme Başarısız</string>
+    <string name="not_downloading">İndiriliyor</string>
+    <string name="not_progress">İndirme devam ediyor…</string>
 
     <!-- Terms Dialog -->
-    <string name="terms_title">Terms and Conditions</string>
-    <string name="terms_subtitle">Please read and accept to continue</string>
+    <string name="terms_title">Şartlar ve Koşullar</string>
+    <string name="terms_subtitle">Devam etmek için lütfen okuyup kabul edin</string>
     <string name="terms_content">
-By using this application, you acknowledge and agree to the following terms:\n\n
-1. PERMITTED USE\n
-This application is intended for personal, non-commercial use only. You may use this application to download content solely for private purposes within your household.\n\n
-2. COPYRIGHT AND INTELLECTUAL PROPERTY\n
-You are solely responsible for ensuring that any content you download complies with applicable copyright laws and the terms of service of the respective content platforms. Commercial use, redistribution, or monetization of downloaded content is strictly prohibited unless you have obtained explicit permission from the copyright holder or content creator.\n\n
-3. LIMITATION OF LIABILITY\n
-The developer of this application assumes no responsibility or liability for:\n
-• Any misuse of downloaded content\n
-• Copyright infringement or other legal violations resulting from your use of this application\n
-• Any damages, claims, or legal actions arising from the commercial use or monetization of downloaded content\n
-• Compliance with applicable laws in your jurisdiction\n\n
-4. USER RESPONSIBILITY\n
-You acknowledge that you are solely responsible for your use of this application and any content you download. It is your obligation to respect intellectual property rights and comply with all applicable laws.\n\n
-5. NO WARRANTY\n
-This application is provided "as is" without warranty of any kind, either express or implied, including but not limited to warranties of merchantability or fitness for a particular purpose.\n\n
-By clicking "Accept", you confirm that you have read, understood, and agree to be bound by these terms and conditions.
+Bu uygulamayı kullanarak aşağıdaki şartları kabul etmiş sayılırsınız:\n\n
+1. İZİN VERİLEN KULLANIM\n
+Bu uygulama yalnızca kişisel, ticari olmayan kullanım içindir. Uygulamayı yalnızca eviniz içinde özel amaçlarla içerik indirmek için kullanabilirsiniz.\n\n
+2. TELİF HAKKI VE FİKRİ MÜLKİYET\n
+İndirdiğiniz herhangi bir içeriğin yürürlükteki telif hakkı yasalarına ve ilgili içerik platformlarının hizmet şartlarına uygun olmasını sağlamak tamamen sizin sorumluluğunuzdadır. İndirilen içeriklerin ticari kullanımı, yeniden dağıtımı veya para kazanma amacıyla kullanılması; telif hakkı sahibi veya içerik oluşturucusundan açık izin alınmadıkça kesinlikle yasaktır.\n\n
+3. SORUMLULUĞUN SINIRLANDIRILMASI\n
+Bu uygulamanın geliştiricisi aşağıdakiler için hiçbir sorumluluk veya yükümlülük kabul etmez:\n
+• İndirilen içeriğin herhangi bir kötüye kullanımı\n
+• Bu uygulamanın kullanımından kaynaklanan telif hakkı ihlali veya diğer yasal ihlaller\n
+• İndirilen içeriklerin ticari kullanımı veya gelir elde etme amacıyla kullanımından kaynaklanan herhangi bir zarar, talep veya yasal işlem\n
+• Bulunduğunuz yargı bölgesindeki geçerli yasalara uyum\n\n
+4. KULLANICI SORUMLULUĞU\n
+Bu uygulamayı kullanmanızdan ve indirdiğiniz tüm içeriklerden yalnızca sizin sorumlu olduğunuzu kabul edersiniz. Fikri mülkiyet haklarına saygı göstermek ve tüm geçerli yasalara uymak sizin yükümlülüğünüzdür.\n\n
+5. GARANTİ YOK\n
+Bu uygulama, satılabilirlik veya belirli bir amaca uygunluk garantileri dahil ancak bunlarla sınırlı olmamak üzere, açık veya zımni hiçbir garanti olmaksızın “olduğu gibi” sunulmaktadır.\n\n
+“Kabul Et” seçeneğine tıklayarak, bu şartlar ve koşulları okuduğunuzu, anladığınızı ve bunlara bağlı olmayı kabul ettiğinizi onaylamış olursunuz.\n\n
+Türkçe çeviri: Ahmet Çeliker tarafından sağlanmıştır.
     </string>
-    <string name="terms_accept">Accept</string>
-    <string name="terms_decline">Decline</string>
+    <string name="terms_accept">Kabul Et</string>
+    <string name="terms_decline">Reddet</string>
 </resources>
