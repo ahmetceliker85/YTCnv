@@ -73,5 +73,5 @@ GNU GPL v3 License — see [LICENSE](LICENSE) for details.
 
 ## Contact
 
-- Issues: https://github.com/PGAxis/YTCnv/issues
+- Issues: [Issue page](https://github.com/PGAxis/YTCnv/issues)
 - Email: pgaxis.dev@gmail.com
