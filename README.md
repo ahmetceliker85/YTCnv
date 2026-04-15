@@ -70,3 +70,8 @@ The prebuilt AAR included in this repository was built from that fork with no mo
 ## License
 
 GNU GPL v3 License — see [LICENSE](LICENSE) for details.
+
+## Contact
+
+- Issues: https://github.com/PGAxis/YTCnv/issues
+- Email: pgaxis.dev@gmail.com
