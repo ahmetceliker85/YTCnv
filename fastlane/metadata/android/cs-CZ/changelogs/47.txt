@@ -1,0 +1,3 @@
+Přidání progresu do notifikace stahování
+Přidán opakování po změně WiFi
+Zrychlení stahování

@@ -72,7 +72,7 @@ class DownloadNotificationService : Service() {
 
             val notification = Notification.Builder(context, CHANNEL_ID)
                 .setContentTitle(context.getString(R.string.not_downloading))
-                .setContentText(context.getString(R.string.not_progress))
+                .setContentText("${context.getString(R.string.not_progress)} | $prog%")
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
                 .setProgress(100, prog, !progressIsRunning)

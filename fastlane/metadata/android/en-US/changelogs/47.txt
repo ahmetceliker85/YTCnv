@@ -1,0 +1,3 @@
+Added progress to the download notification
+Added retry after WiFi change
+Increased download speeds

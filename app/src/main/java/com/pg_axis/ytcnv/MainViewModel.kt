@@ -22,6 +22,8 @@ import com.arthenica.ffmpegkit.ReturnCode
 import com.pg_axis.ytcnv.ui.theme.TextSecondary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.schabi.newpipe.extractor.ServiceList
@@ -30,7 +32,12 @@ import org.schabi.newpipe.extractor.stream.AudioTrackType
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.VideoStream
 import java.io.File
+import java.io.IOException
+import java.io.RandomAccessFile
+import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.atomic.AtomicLong
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.math.abs
 
 data class QualityOption(
@@ -397,31 +404,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             if (selectedFormat == 0) {
                 // ─── MP3 ───
-                val audioStream = if (isQuick) {
-                    streamInfo.audioStreams
-                        .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true && (it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null) }
-                        .maxByOrNull { it.averageBitrate }
-                        ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }
-                } else {
-                    val selectedBitrate = audioOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
-                    if (selectedBitrate != null) {
+                fun getAudioStream(): AudioStream {
+                    val audioStream = if (isQuick) {
                         streamInfo.audioStreams
                             .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true && (it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null) }
-                            .minByOrNull { abs(it.averageBitrate - selectedBitrate.toInt()) }
-                    } else null
-                } ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
+                            .maxByOrNull { it.averageBitrate }
+                            ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }
+                    } else {
+                        val selectedBitrate = audioOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
+                        if (selectedBitrate != null) {
+                            streamInfo.audioStreams
+                                .filter { it.format?.name?.contains("m4a", ignoreCase = true) == true && (it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null) }
+                                .minByOrNull { abs(it.averageBitrate - selectedBitrate.toInt()) }
+                        } else null
+                    } ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
 
-                downloadStream(audioStream.content, m4aPath) { progress ->
-                    downloadProgress = progress
-                    val percent = (progress * 100).toInt()
-                    if (percent != lastNotifiedPercent) {
-                        lastNotifiedPercent = percent
-                        DownloadNotificationService.updateProgress(
-                            context,
-                            percent
-                        )
-                    }
+                    return audioStream
                 }
+
+                val audioStream = getAudioStream()
+
+                downloadStream(audioStream.content, m4aPath,
+                    onProgress = { progress ->
+                        downloadProgress = progress
+                        val percent = (progress * 100).toInt()
+                        if (percent != lastNotifiedPercent) {
+                            lastNotifiedPercent = percent
+                            DownloadNotificationService.updateProgress(
+                                context,
+                                percent
+                            )
+                        }
+                    },
+                    urlRefresher = {
+                        getAudioStream().content
+                    }
+                )
 
                 withContext(Dispatchers.Main) {
                     dwnldProgressIsVisible = false
@@ -461,6 +479,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
                         showPopup(context.getString(R.string.pt_finished), context.getString(R.string.pm_finished), 1)
+                        urlEntryText = ""
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -474,41 +493,56 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             } else {
                 // ─── MP4 ───
-                val audioStream = streamInfo.audioStreams.filter{ it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null }.maxByOrNull{ it.averageBitrate } ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
-                val videoStream = if (isQuick) {
-                    if (settings.use4K)
-                        streamInfo.videoOnlyStreams.maxByOrNull { it.height }
-                    else
-                        streamInfo.videoOnlyStreams
-                            .filter { it.height <= 1080 &&
-                                    it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
-                            .maxByOrNull { it.height }
-                } else {
-                    val selectedHeight = videoOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
-                    if (selectedHeight != null) {
-                        streamInfo.videoOnlyStreams
-                            .filter { it.format?.name?.contains("mpeg-4", ignoreCase = true) == true || settings.use4K }
-                            .firstOrNull { it.height == selectedHeight }
-                    } else null
-                } ?: streamInfo.videoOnlyStreams.maxByOrNull { it.height }!!
+                fun getAudioStream(): AudioStream {
+                    return streamInfo.audioStreams.filter{ it.audioTrackType == AudioTrackType.ORIGINAL || it.audioTrackType == null }.maxByOrNull{ it.averageBitrate } ?: streamInfo.audioStreams.maxByOrNull { it.averageBitrate }!!
+                }
+
+                fun getVideoStream(): VideoStream {
+                    val videoStream = if (isQuick) {
+                        if (settings.use4K)
+                            streamInfo.videoOnlyStreams.maxByOrNull { it.height }
+                        else
+                            streamInfo.videoOnlyStreams
+                                .filter { it.height <= 1080 &&
+                                        it.format?.name?.contains("mpeg-4", ignoreCase = true) == true }
+                                .maxByOrNull { it.height }
+                    } else {
+                        val selectedHeight = videoOptions.entries.elementAtOrNull(qualityPickerSelectedIndex)?.key
+                        if (selectedHeight != null) {
+                            streamInfo.videoOnlyStreams
+                                .filter { it.format?.name?.contains("mpeg-4", ignoreCase = true) == true || settings.use4K }
+                                .firstOrNull { it.height == selectedHeight }
+                        } else null
+                    } ?: streamInfo.videoOnlyStreams.maxByOrNull { it.height }!!
+
+                    return videoStream
+                }
+
+                val audioStream = getAudioStream()
+                val videoStream = getVideoStream()
 
                 val isMoreThan1080p = videoStream.height > 1080
 
                 // Download audio and video in parallel
                 withContext(Dispatchers.IO) {
-                    val audioJob = launch { downloadStream(audioStream.content, m4aPath) {} }
+                    val audioJob = launch { downloadStream(audioStream.content, m4aPath, onProgress = {}, urlRefresher = { getAudioStream().content }) }
                     val videoJob = launch {
-                        downloadStream(videoStream.content, mp4Path) { progress ->
-                            downloadProgress = progress
-                            val percent = (progress * 100).toInt()
-                            if (percent != lastNotifiedPercent) {
-                                lastNotifiedPercent = percent
-                                DownloadNotificationService.updateProgress(
-                                    context,
-                                    percent
-                                )
+                        downloadStream(videoStream.content, mp4Path,
+                            onProgress = { progress ->
+                                downloadProgress = progress
+                                val percent = (progress * 100).toInt()
+                                if (percent != lastNotifiedPercent) {
+                                    lastNotifiedPercent = percent
+                                    DownloadNotificationService.updateProgress(
+                                        context,
+                                        percent
+                                    )
+                                }
+                            },
+                            urlRefresher = {
+                                getVideoStream().content
                             }
-                        }
+                        )
                     }
                     audioJob.join()
                     videoJob.join()
@@ -543,6 +577,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     withContext(Dispatchers.Main) {
                         applyQuickDownloadState()
                         showPopup(context.getString(R.string.pt_finished), context.getString(R.string.pm_finished), 1)
+                        urlEntryText = ""
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -659,30 +694,82 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         context.stopService(Intent(context, DownloadNotificationService::class.java))
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     private suspend fun downloadStream(
         url: String,
         outputPath: String,
-        onProgress: (Float) -> Unit
+        onProgress: (Float) -> Unit,
+        urlRefresher: (suspend () -> String)? = null
     ) = withContext(Dispatchers.IO) {
-        val connection = URL(url).openConnection() as java.net.HttpURLConnection
-        connection.connect()
-        val totalBytes = connection.contentLengthLong
-        var downloadedBytes = 0L
-        val buffer = ByteArray(8192)
-        File(outputPath).outputStream().use { out ->
-            connection.inputStream.use { input ->
-                var bytes = input.read(buffer)
-                while (bytes >= 0) {
-                    out.write(buffer, 0, bytes)
-                    downloadedBytes += bytes
-                    if (totalBytes > 0) {
-                        withContext(Dispatchers.Main) {
-                            onProgress(downloadedBytes.toFloat() / totalBytes.toFloat())
+        val chunkCount = 4
+        val maxRetries = 6
+
+        fun fetchTotalBytes(streamUrl: String): Long {
+            val conn = URL(streamUrl).openConnection() as HttpURLConnection
+            conn.setRequestProperty("Range", "bytes=0-0")
+            conn.connect()
+            val contentRange = conn.getHeaderField("Content-Range")
+            conn.disconnect()
+            return contentRange?.substringAfterLast('/')?.trim()?.toLongOrNull()
+                ?: conn.contentLengthLong
+        }
+
+        suspend fun downloadChunk(
+            streamUrl: String,
+            file: RandomAccessFile,
+            start: Long,
+            end: Long,
+            downloaded: AtomicLong,
+            totalBytes: Long
+        ) {
+            var retries = 0
+            var currentUrl = streamUrl
+            while (true) {
+                try {
+                    val conn = URL(currentUrl).openConnection() as HttpURLConnection
+                    conn.setRequestProperty("Range", "bytes=$start-$end")
+                    conn.connect()
+                    val buffer = ByteArray(32768)
+                    var position = start
+                    conn.inputStream.use { input ->
+                        var bytes = input.read(buffer)
+                        while (bytes >= 0) {
+                            synchronized(file) {
+                                file.seek(position)
+                                file.write(buffer, 0, bytes)
+                            }
+                            position += bytes
+                            val total = downloaded.addAndGet(bytes.toLong())
+                            withContext(Dispatchers.Main) {
+                                onProgress(total.toFloat() / totalBytes.toFloat())
+                            }
+                            bytes = input.read(buffer)
                         }
                     }
-                    bytes = input.read(buffer)
+                    return
+                } catch (e: IOException) {
+                    if (++retries > maxRetries) throw e
+                    delay(1000L * retries)
+                    currentUrl = urlRefresher?.invoke() ?: streamUrl
                 }
             }
+        }
+
+        val totalBytes = fetchTotalBytes(url)
+        val chunkSize = totalBytes / chunkCount
+        val file = RandomAccessFile(outputPath, "rw").also { it.setLength(totalBytes) }
+        val downloaded = AtomicLong(0)
+
+        try {
+            (0 until chunkCount).map { i ->
+                val start = i * chunkSize
+                val end = if (i == chunkCount - 1) totalBytes - 1 else start + chunkSize - 1
+                launch {
+                    downloadChunk(url, file, start, end, downloaded, totalBytes)
+                }
+            }.joinAll()
+        } finally {
+            file.close()
         }
     }
 
