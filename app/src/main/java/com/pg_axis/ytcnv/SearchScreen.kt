@@ -1,5 +1,6 @@
 package com.pg_axis.ytcnv
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -35,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.pg_axis.ytcnv.settings.PreviewSettings
 import com.pg_axis.ytcnv.ui.theme.*
 
 @Composable
@@ -58,14 +61,6 @@ fun SearchPreview() {
                     duration = "1:23:15",
                     thumbnailUrl = "https://picsum.photos/seed/2/320/180",
                     url = "https://youtube.com/watch?v=def456"
-                ),
-                SearchResultItem(
-                    title = "Material Design 3 Tutorial",
-                    videoId = "ghi789",
-                    uploader = "UI/UX Masters",
-                    duration = "0:00",
-                    thumbnailUrl = "https://picsum.photos/seed/3/320/180",
-                    url = "https://youtube.com/watch?v=ghi789"
                 )
             )
             isLoading = false
@@ -73,14 +68,16 @@ fun SearchPreview() {
         }
     }
     YTCnvTheme {
-        SearchScreen({}, {}, viewModel)
+        SearchScreen({}, {}, {}, viewModel)
     }
 }
 
+@SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun SearchScreen(
     onBack: () -> Unit,
     onResultSelected: (String) -> Unit,
+    onPreviewVideo: (String) -> Unit,
     viewModel: SearchViewModel
 ) {
     val focusManager = LocalFocusManager.current
@@ -143,6 +140,11 @@ fun SearchScreen(
                     focusManager.clearFocus()
                     viewModel.onSearch()
                 }),
+                shape = RoundedCornerShape(50.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = CyanPrimary,
+                    unfocusedBorderColor = AquaAccent
+                ),
                 modifier = Modifier
                     .weight(1f)
                     .onFocusChanged { isSearchFocused = it.isFocused }
@@ -152,7 +154,7 @@ fun SearchScreen(
                 Box(
                     modifier = Modifier
                         .size(56.dp)
-                        .clip(RoundedCornerShape(5.dp))
+                        .clip(CircleShape)
                         .background(CyanPrimary)
                         .clickable {
                             focusManager.clearFocus()
@@ -241,20 +243,51 @@ fun SearchScreen(
                     )
                 }
                 else -> {
-                    LazyColumn {
-                        items(viewModel.results) { item ->
-                            SearchResultRow(
-                                item = item,
-                                onDownload = {
-                                    onResultSelected("https://www.youtube.com/watch?v=${item.videoId}")
-                                    onBack()
-                                },
-                                onCopyUrl = {
-                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    val clip = ClipData.newPlainText("YouTube URL", "https://www.youtube.com/watch?v=${item.videoId}")
-                                    clipboard.setPrimaryClip(clip)
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyColumn {
+                            items(viewModel.results) { item ->
+                                SearchResultRow(
+                                    item = item,
+                                    onDownload = {
+                                        onResultSelected("https://www.youtube.com/watch?v=${item.videoId}")
+                                        onBack()
+                                    },
+                                    onCopyUrl = {
+                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                        val clip = ClipData.newPlainText("YouTube URL", "https://www.youtube.com/watch?v=${item.videoId}")
+                                        clipboard.setPrimaryClip(clip)
+                                    },
+                                    onPreview = { onPreviewVideo(item.videoId) }
+                                )
+                            }
+
+                            item {
+                                if (!viewModel.endReached) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.Bottom
+                                    ) {
+                                        if (viewModel.isLoadingMore) {
+                                            CircularProgressIndicator(
+                                                color = CyanPrimary
+                                            )
+                                        }
+                                        else {
+                                            OutlinedButton(
+                                                onClick = { viewModel.onLoadMore() },
+                                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                            ) {
+                                                Text(text = "Load more", color = CyanLight, fontSize = 12.sp)
+                                            }
+                                        }
+                                    }
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -267,7 +300,8 @@ fun SearchScreen(
 fun SearchResultRow(
     item: SearchResultItem,
     onDownload: () -> Unit,
-    onCopyUrl: () -> Unit
+    onCopyUrl: () -> Unit,
+    onPreview: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -284,6 +318,7 @@ fun SearchResultRow(
                     .weight(1f)
                     .aspectRatio(16f / 9f)
                     .clip(RoundedCornerShape(8.dp))
+                    .clickable { onPreview() }
             ) {
                 AsyncImage(
                     model = item.thumbnailUrl,

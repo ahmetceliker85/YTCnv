@@ -69,6 +69,19 @@
     <string name="not_failed">Download Failed</string>
     <string name="not_downloading">Downloading</string>
     <string name="not_progress">Download in progress…</string>
+    <string name="remaining">remaining</string>
+
+    <!-- Title Author Dialog -->
+    <string name="tad_edit_metadata">Edit metadata</string>
+    <string name="tad_title">Title</string>
+    <string name="tad_author">Author</string>
+
+    <!-- Update Dialog -->
+    <string name="ud_update_available">Update available</string>
+    <string name="ud_new_v_1">A new version</string>
+    <string name="ud_new_v_2">is available.</string>
+    <string name="ud_no_remind">Don\'t remind me again</string>
+    <string name="ud_later">Later</string>
 
     <!-- Terms Dialog -->
     <string name="terms_title">Terms and Conditions</string>

@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.AndroidViewModel
+import com.pg_axis.ytcnv.settings.ISettings
+import com.pg_axis.ytcnv.settings.SettingsSave
 import java.util.Locale
 
 class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewModel, application: Application) : AndroidViewModel(application) {
@@ -14,7 +16,7 @@ class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewMode
 
     val langOptions = mapOf("en" to "English", "cs" to "Čeština", "de" to "Deutch")
     var selectedLang = AppCompatDelegate.getApplicationLocales().toLanguageTags()
-        .ifEmpty { Locale.getDefault().language.ifEmpty { langOptions.keys.first() } }
+        .ifEmpty { Locale.getDefault().language.ifEmpty { langOptions.keys.first() } }!!
 
 
     fun onUse4KChanged(value: Boolean) {

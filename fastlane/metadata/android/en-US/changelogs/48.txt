@@ -1,0 +1,2 @@
+Added Preview screen (accessible by tapping a thumbnail on Search screen)
+Added ETA to the download notification

@@ -69,6 +69,19 @@
     <string name="not_failed">Stažení Selhalo</string>
     <string name="not_downloading">Stahování</string>
     <string name="not_progress">Probíhá stahování…</string>
+    <string name="remaining">zbývá</string>
+
+    <!-- Title Author Dialog -->
+    <string name="tad_edit_metadata">Upravit metadata</string>
+    <string name="tad_title">Název</string>
+    <string name="tad_author">Autor</string>
+
+    <!-- Update Dialog -->
+    <string name="ud_update_available">Aktualizace k dispozici</string>
+    <string name="ud_new_v_1">Nová verze</string>
+    <string name="ud_new_v_2">je k dispozici.</string>
+    <string name="ud_no_remind">Neupozorňovat znovu</string>
+    <string name="ud_later">Později</string>
 
     <!-- Terms Dialog -->
     <string name="terms_title">Podmínky použití</string>

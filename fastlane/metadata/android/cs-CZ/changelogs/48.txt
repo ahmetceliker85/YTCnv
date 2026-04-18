@@ -1,0 +1,2 @@
+Přidána obrazovka Náhledu (přístupná klepnutím na miniaturu na obrazovce vyhledávání)
+Do oznámení o stahování přidán ETA

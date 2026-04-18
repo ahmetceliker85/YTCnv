@@ -19,7 +19,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
+import com.pg_axis.ytcnv.dialogs.*
+import com.pg_axis.ytcnv.settings.*
+import com.pg_axis.ytcnv.ui.theme.PopupDefault
+import com.pg_axis.ytcnv.ui.theme.PopupError
+import com.pg_axis.ytcnv.ui.theme.PopupSuccess
 import com.pg_axis.ytcnv.ui.theme.TextSecondary
+import com.pg_axis.ytcnv.utils.DownloadNotificationService
+import com.pg_axis.ytcnv.utils.FileSaver
+import com.pg_axis.ytcnv.utils.StringUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -376,7 +384,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     showTitleAuthorDialog = true
                     pendingOnConfirm = { t, a ->
                         showTitleAuthorDialog = false
-                        cont.resume(Pair(t, a)) {}
+                        @Suppress("DEPRECATION")
+                        cont.resume(Pair(t, a)) { }
                     }
                     cont.invokeOnCancellation {
                         showTitleAuthorDialog = false
@@ -397,6 +406,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 downloadIndicatorIsVisible = false
                 dwnldProgressIsVisible = true
                 DownloadNotificationService.setProgressType(true)
+                DownloadNotificationService.startTimer()
             }
 
             val selectedFormat = formatPickerSelectedIndex
@@ -444,6 +454,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.Main) {
                     dwnldProgressIsVisible = false
                     DownloadNotificationService.setProgressType(false)
+                    DownloadNotificationService.updateProgress(context, 0)
                     downloadIndicatorIsVisible = true
                     statusLabelText = AnnotatedString(context.getString(R.string.sl_add_metadata))
                 }
@@ -551,6 +562,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.Main) {
                     dwnldProgressIsVisible = false
                     DownloadNotificationService.setProgressType(false)
+                    DownloadNotificationService.updateProgress(context, 0)
                     downloadIndicatorIsVisible = true
                     statusLabelText = AnnotatedString(context.getString(R.string.sl_joining_a_and_v))
                 }
@@ -680,9 +692,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun showPopup(title: String, message: String, type: Int = 0, buttonText: String = "OK") {
         popupBackground = when (type) {
-            1 -> Color(0xFF1B5E20)  // success green
-            2 -> Color(0xFF7F0000)  // error red
-            else -> Color(0xFF1E3A4A) // default
+            1 -> PopupSuccess  // success green
+            2 -> PopupError  // error red
+            else -> PopupDefault // default
         }
         popupTitle = title
         popupMessage = message
@@ -760,7 +772,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val file = RandomAccessFile(outputPath, "rw").also { it.setLength(totalBytes) }
         val downloaded = AtomicLong(0)
 
-        try {
+        file.use { file ->
             (0 until chunkCount).map { i ->
                 val start = i * chunkSize
                 val end = if (i == chunkCount - 1) totalBytes - 1 else start + chunkSize - 1
@@ -768,8 +780,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     downloadChunk(url, file, start, end, downloaded, totalBytes)
                 }
             }.joinAll()
-        } finally {
-            file.close()
         }
     }
 
@@ -803,6 +813,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun runFFmpeg(command: String): Boolean =
         kotlinx.coroutines.suspendCancellableCoroutine { cont ->
             val session = FFmpegKit.executeAsync(command) { session ->
+                @Suppress("DEPRECATION")
                 cont.resume(ReturnCode.isSuccess(session.returnCode)) {}
             }
             cont.invokeOnCancellation { session.cancel() }

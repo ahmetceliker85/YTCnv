@@ -57,6 +57,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pg_axis.ytcnv.dialogs.TermsDialog
+import com.pg_axis.ytcnv.dialogs.TitleAuthorDialog
+import com.pg_axis.ytcnv.dialogs.UpdateDialog
+import com.pg_axis.ytcnv.settings.*
 import com.pg_axis.ytcnv.ui.theme.BackgroundDark
 import com.pg_axis.ytcnv.ui.theme.BorderColor
 import com.pg_axis.ytcnv.ui.theme.CardDark
@@ -76,6 +80,7 @@ fun MainScreenPreview() {
     }
 }
 
+@SuppressLint("SourceLockedOrientationActivity")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: MainViewModel, onOpenSearch: () -> Unit, onOpenSettings: () -> Unit, onTermsDeclined: () -> Unit) {

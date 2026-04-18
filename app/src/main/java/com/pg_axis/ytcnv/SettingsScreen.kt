@@ -1,5 +1,6 @@
 package com.pg_axis.ytcnv
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pg_axis.ytcnv.settings.PreviewSettings
 import com.pg_axis.ytcnv.ui.theme.*
 
 @Composable
@@ -38,6 +40,7 @@ fun SettingsPreview() {
     }
 }
 
+@SuppressLint("SourceLockedOrientationActivity")
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
@@ -314,7 +317,7 @@ fun SettingsDropdownRow(
         ) {
             Row(
                 modifier = Modifier
-                    .menuAnchor()
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
                     .wrapContentWidth()
                     .border(
                         width = 2.dp,
