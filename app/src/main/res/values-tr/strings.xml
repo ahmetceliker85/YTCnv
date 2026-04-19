@@ -1,0 +1,116 @@
+<resources>
+    <!-- Manifest strings -->
+    <string name="app_name">YouTube Conv.axs</string>
+    <string name="open_overlay">Üst üste bindirme</string>
+    <string name="share_quick_download">Hızlı indirme</string>
+    <string name="share_loading_quality">Kalite seçenekleri yükleniyor…</string>
+    <string name="share_downloading_bg">Arka planda indiriliyor…</string>
+
+    <!-- Main Screen -->
+    <string name="title">YouTube Dönüştürücü</string>
+    <string name="URLIDPrompt">YouTube URL\'si veya Kimliği</string>
+    <string name="format">Biçim</string>
+    <string name="quality">Kalite</string>
+    <string name="choose_quality">Kaliteyi seçin</string>
+    <string name="download">İndir</string>
+    <string name="cancel">İptal</string>
+    <string name="load">Meta verileri yükle</string>
+    <string name="download_history">İndirme Geçmişi</string>
+    <string name="empty_history">Geçmiş boş</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="download_dest">İndirme konumunu değiştir</string>
+    <string name="internal_storage">Dahili depolama</string>
+    <string name="sd_card">SD kart</string>
+    <string name="d_settings">İndirme Ayarları</string>
+    <string name="up_to_4k">2K ve üzeri çözünürlükleri etkinleştir (video)</string>
+    <string name="quick_download">Hızlı indirmeyi etkinleştir</string>
+    <string name="n_settings">Bildirimler</string>
+    <string name="n_download_finished">İndirme tamamlandığında bildirim gönder</string>
+    <string name="n_download_failed">İndirme başarısız olduğunda bildirim gönder</string>
+    <string name="l_settings">Dil Ayarları</string>
+    <string name="language">Dil</string>
+    <string name="u_settings">Güncellemeler</string>
+    <string name="d_reminder">Yeni sürümleri bana hatırlatma</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Ara</string>
+    <string name="search_prompt">YouTube\'da ara…</string>
+    <string name="search_big_prompt">Bir YouTube videosu ara</string>
+    <string name="copy_url">URL\'yi kopyala</string>
+
+    <!-- Pop-up titles -->
+    <string name="pt_no_url">URL yok</string>
+    <string name="pt_unavailable">Video kullanılamıyor</string>
+    <string name="pt_error">Hata</string>
+    <string name="pt_live">Canlı yayın</string>
+    <string name="pt_finished">Tamamlandı</string>
+    <string name="pt_failed">Başarısız oldu</string>
+    <string name="pt_canceled">İptal edildi</string>
+    <string name="pt_invalid_url">Geçersiz URL</string>
+    <string name="pt_network_error">Ağ hatası</string>
+
+    <!-- Pop-up messages -->
+    <string name="pm_no_url">URL ayrıştırıcı, bu bağlantıda bir YouTube kimliği bulamadı. Lütfen bir YouTube URL\'si girin</string>
+    <string name="pm_unavailable">Video gizli, yaş kısıtlamalı veya mevcut değil</string>
+    <string name="pm_error">Bilinmeyen hata</string>
+    <string name="pm_live">Canlı yayınlar indirilemez</string>
+    <string name="pm_finished">İndirme başarıyla tamamlandı</string>
+    <string name="pm_failed">Uygulama meta verileri ekleyemedi ve dosyayı kaydedemedi</string>
+    <string name="pm_canceled">İndirme iptal edildi</string>
+    <string name="pm_invalid_url">Lütfen geçerli bir YouTube URL\'si girin</string>
+    <string name="pm_network_error">Cihazın internet bağlantısı kesildi</string>
+
+    <!-- Status label messages -->
+    <string name="sl_retrieving_metadata">Video meta verileri alınıyor</string>
+    <string name="sl_download">İndiriliyor</string>
+    <string name="sl_add_metadata">Meta veriler ekleniyor</string>
+    <string name="sl_joining_a_and_v">Ses ve video birleştiriliyor</string>
+
+    <!-- Notification messages -->
+    <string name="not_finished">İndirme Tamamlandı</string>
+    <string name="not_downloaded">İndirildi</string>
+    <string name="not_failed">İndirme Başarısız</string>
+    <string name="not_downloading">İndiriliyor</string>
+    <string name="not_progress">İndirme devam ediyor…</string>
+    <string name="remaining">kalan</string>
+    <string name="finalizing">Tamamlanıyor</string>
+
+    <!-- Title Author Dialog -->
+    <string name="tad_edit_metadata">Meta veriyi düzenle</string>
+    <string name="tad_title">Başlık</string>
+    <string name="tad_author">Yazar</string>
+
+    <!-- Update Dialog -->
+    <string name="ud_update_available">Güncelleme mevcut</string>
+    <string name="ud_new_v_1">Yeni bir sürüm</string>
+    <string name="ud_new_v_2">mevcuttur.</string>
+    <string name="ud_no_remind">Bir daha hatırlatma</string>
+    <string name="ud_later">Daha sonra</string>
+
+    <!-- Terms Dialog -->
+    <string name="terms_title">Şartlar ve Koşullar</string>
+    <string name="terms_subtitle">Devam etmek için lütfen okuyup kabul edin</string>
+    <string name="terms_content">
+Bu uygulamayı kullanarak aşağıdaki şartları kabul etmiş sayılırsınız:\n\n
+1. İZİN VERİLEN KULLANIM\n
+Bu uygulama yalnızca kişisel, ticari olmayan kullanım içindir. Uygulamayı yalnızca eviniz içinde özel amaçlarla içerik indirmek için kullanabilirsiniz.\n\n
+2. TELİF HAKKI VE FİKRİ MÜLKİYET\n
+İndirdiğiniz herhangi bir içeriğin yürürlükteki telif hakkı yasalarına ve ilgili içerik platformlarının hizmet şartlarına uygun olmasını sağlamak tamamen sizin sorumluluğunuzdadır. İndirilen içeriklerin ticari kullanımı, yeniden dağıtımı veya para kazanma amacıyla kullanılması; telif hakkı sahibi veya içerik oluşturucusundan açık izin alınmadıkça kesinlikle yasaktır.\n\n
+3. SORUMLULUĞUN SINIRLANDIRILMASI\n
+Bu uygulamanın geliştiricisi aşağıdakiler için hiçbir sorumluluk veya yükümlülük kabul etmez:\n
+• İndirilen içeriğin herhangi bir kötüye kullanımı\n
+• Bu uygulamanın kullanımından kaynaklanan telif hakkı ihlali veya diğer yasal ihlaller\n
+• İndirilen içeriklerin ticari kullanımı veya gelir elde etme amacıyla kullanımından kaynaklanan herhangi bir zarar, talep veya yasal işlem\n
+• Bulunduğunuz yargı bölgesindeki geçerli yasalara uyum\n\n
+4. KULLANICI SORUMLULUĞU\n
+Bu uygulamayı kullanmanızdan ve indirdiğiniz tüm içeriklerden yalnızca sizin sorumlu olduğunuzu kabul edersiniz. Fikri mülkiyet haklarına saygı göstermek ve tüm geçerli yasalara uymak sizin yükümlülüğünüzdür.\n\n
+5. GARANTİ YOK\n
+Bu uygulama, satılabilirlik veya belirli bir amaca uygunluk garantileri dahil ancak bunlarla sınırlı olmamak üzere, açık veya zımni hiçbir garanti olmaksızın “olduğu gibi” sunulmaktadır.\n\n
+“Kabul Et” seçeneğine tıklayarak, bu şartlar ve koşulları okuduğunuzu, anladığınızı ve bunlara bağlı olmayı kabul ettiğinizi onaylamış olursunuz.\n\n
+Türkçe çeviri: Ahmet Çeliker tarafından sağlanmıştır.
+    </string>
+    <string name="terms_accept">Kabul Et</string>
+    <string name="terms_decline">Reddet</string>
+</resources>
