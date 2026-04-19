@@ -14,7 +14,7 @@ import java.util.Locale
 class SettingsViewModel(val settings: ISettings, val mainViewModel: MainViewModel, application: Application) : AndroidViewModel(application) {
     private val context = getApplication<Application>()
 
-    val langOptions = mapOf("en" to "English", "cs" to "Čeština", "de" to "Deutch")
+    val langOptions = mapOf("en" to "English", "cs" to "Čeština", "de" to "Deutch", "tr" to "Türkçe")
     var selectedLang = AppCompatDelegate.getApplicationLocales().toLanguageTags()
         .ifEmpty { Locale.getDefault().language.ifEmpty { langOptions.keys.first() } }!!
 

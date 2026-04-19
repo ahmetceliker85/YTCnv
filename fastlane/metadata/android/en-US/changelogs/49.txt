@@ -1,0 +1,4 @@
+Added an "Overlay mode" when sharing URL
+- Quicker download without leaving the original app
+Fixed Preview screen
+Added Turkish translations

@@ -1,0 +1,4 @@
+Přidání "reřimu Překrytí" při sdílení URL adresy
+- Rychlejší stažení bez opuštění originální aplikace
+Opravena obrazovka Náhledu
+Přidání tureckých překladů
