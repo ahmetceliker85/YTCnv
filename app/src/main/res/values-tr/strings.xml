@@ -1,5 +1,10 @@
 <resources>
+    <!-- Manifest strings -->
     <string name="app_name">YouTube Conv.axs</string>
+    <string name="open_overlay">Üst üste bindirme</string>
+    <string name="share_quick_download">Hızlı indirme</string>
+    <string name="share_loading_quality">Kalite seçenekleri yükleniyor…</string>
+    <string name="share_downloading_bg">Arka planda indiriliyor…</string>
 
     <!-- Main Screen -->
     <string name="title">YouTube Dönüştürücü</string>
@@ -69,6 +74,20 @@
     <string name="not_failed">İndirme Başarısız</string>
     <string name="not_downloading">İndiriliyor</string>
     <string name="not_progress">İndirme devam ediyor…</string>
+    <string name="remaining">kalan</string>
+    <string name="finalizing">Tamamlanıyor</string>
+
+    <!-- Title Author Dialog -->
+    <string name="tad_edit_metadata">Meta veriyi düzenle</string>
+    <string name="tad_title">Başlık</string>
+    <string name="tad_author">Yazar</string>
+
+    <!-- Update Dialog -->
+    <string name="ud_update_available">Güncelleme mevcut</string>
+    <string name="ud_new_v_1">Yeni bir sürüm</string>
+    <string name="ud_new_v_2">mevcuttur.</string>
+    <string name="ud_no_remind">Bir daha hatırlatma</string>
+    <string name="ud_later">Daha sonra</string>
 
     <!-- Terms Dialog -->
     <string name="terms_title">Şartlar ve Koşullar</string>
