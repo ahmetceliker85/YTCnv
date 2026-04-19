@@ -18,7 +18,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.ReturnCode
 import com.pg_axis.ytcnv.dialogs.*
 import com.pg_axis.ytcnv.settings.*
 import com.pg_axis.ytcnv.ui.theme.PopupDefault
@@ -26,12 +25,11 @@ import com.pg_axis.ytcnv.ui.theme.PopupError
 import com.pg_axis.ytcnv.ui.theme.PopupSuccess
 import com.pg_axis.ytcnv.ui.theme.TextSecondary
 import com.pg_axis.ytcnv.utils.DownloadNotificationService
+import com.pg_axis.ytcnv.utils.DownloadUtils
 import com.pg_axis.ytcnv.utils.FileSaver
 import com.pg_axis.ytcnv.utils.StringUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.schabi.newpipe.extractor.ServiceList
@@ -40,12 +38,7 @@ import org.schabi.newpipe.extractor.stream.AudioTrackType
 import org.schabi.newpipe.extractor.stream.StreamInfo
 import org.schabi.newpipe.extractor.stream.VideoStream
 import java.io.File
-import java.io.IOException
-import java.io.RandomAccessFile
-import java.net.HttpURLConnection
 import java.net.URL
-import java.util.concurrent.atomic.AtomicLong
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.math.abs
 
 data class QualityOption(
@@ -411,6 +404,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             val selectedFormat = formatPickerSelectedIndex
             var lastNotifiedPercent = -1
+            var lastNotifiedTime = 0L
 
             if (selectedFormat == 0) {
                 // ─── MP3 ───
@@ -438,8 +432,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     onProgress = { progress ->
                         downloadProgress = progress
                         val percent = (progress * 100).toInt()
-                        if (percent != lastNotifiedPercent) {
+                        val now = System.currentTimeMillis()
+                        if (percent != lastNotifiedPercent && now - lastNotifiedTime >= 500) {
                             lastNotifiedPercent = percent
+                            lastNotifiedTime = now
                             DownloadNotificationService.updateProgress(
                                 context,
                                 percent
@@ -454,7 +450,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.Main) {
                     dwnldProgressIsVisible = false
                     DownloadNotificationService.setProgressType(false)
-                    DownloadNotificationService.updateProgress(context, 0)
+                    DownloadNotificationService.updateProgress(context, 0, finale = true)
                     downloadIndicatorIsVisible = true
                     statusLabelText = AnnotatedString(context.getString(R.string.sl_add_metadata))
                 }
@@ -542,8 +538,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             onProgress = { progress ->
                                 downloadProgress = progress
                                 val percent = (progress * 100).toInt()
-                                if (percent != lastNotifiedPercent) {
+                                val now = System.currentTimeMillis()
+                                if (percent != lastNotifiedPercent && now - lastNotifiedTime >= 500) {
                                     lastNotifiedPercent = percent
+                                    lastNotifiedTime = now
                                     DownloadNotificationService.updateProgress(
                                         context,
                                         percent
@@ -562,7 +560,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 withContext(Dispatchers.Main) {
                     dwnldProgressIsVisible = false
                     DownloadNotificationService.setProgressType(false)
-                    DownloadNotificationService.updateProgress(context, 0)
+                    DownloadNotificationService.updateProgress(context, 0, finale = true)
                     downloadIndicatorIsVisible = true
                     statusLabelText = AnnotatedString(context.getString(R.string.sl_joining_a_and_v))
                 }
@@ -706,116 +704,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         context.stopService(Intent(context, DownloadNotificationService::class.java))
     }
 
-    @OptIn(ExperimentalAtomicApi::class)
     private suspend fun downloadStream(
         url: String,
         outputPath: String,
         onProgress: (Float) -> Unit,
         urlRefresher: (suspend () -> String)? = null
-    ) = withContext(Dispatchers.IO) {
-        val chunkCount = 4
-        val maxRetries = 6
+    ) = DownloadUtils.downloadStream(url, outputPath, onProgress, urlRefresher)
 
-        fun fetchTotalBytes(streamUrl: String): Long {
-            val conn = URL(streamUrl).openConnection() as HttpURLConnection
-            conn.setRequestProperty("Range", "bytes=0-0")
-            conn.connect()
-            val contentRange = conn.getHeaderField("Content-Range")
-            conn.disconnect()
-            return contentRange?.substringAfterLast('/')?.trim()?.toLongOrNull()
-                ?: conn.contentLengthLong
-        }
-
-        suspend fun downloadChunk(
-            streamUrl: String,
-            file: RandomAccessFile,
-            start: Long,
-            end: Long,
-            downloaded: AtomicLong,
-            totalBytes: Long
-        ) {
-            var retries = 0
-            var currentUrl = streamUrl
-            while (true) {
-                try {
-                    val conn = URL(currentUrl).openConnection() as HttpURLConnection
-                    conn.setRequestProperty("Range", "bytes=$start-$end")
-                    conn.connect()
-                    val buffer = ByteArray(32768)
-                    var position = start
-                    conn.inputStream.use { input ->
-                        var bytes = input.read(buffer)
-                        while (bytes >= 0) {
-                            synchronized(file) {
-                                file.seek(position)
-                                file.write(buffer, 0, bytes)
-                            }
-                            position += bytes
-                            val total = downloaded.addAndGet(bytes.toLong())
-                            withContext(Dispatchers.Main) {
-                                onProgress(total.toFloat() / totalBytes.toFloat())
-                            }
-                            bytes = input.read(buffer)
-                        }
-                    }
-                    return
-                } catch (e: IOException) {
-                    if (++retries > maxRetries) throw e
-                    delay(1000L * retries)
-                    currentUrl = urlRefresher?.invoke() ?: streamUrl
-                }
-            }
-        }
-
-        val totalBytes = fetchTotalBytes(url)
-        val chunkSize = totalBytes / chunkCount
-        val file = RandomAccessFile(outputPath, "rw").also { it.setLength(totalBytes) }
-        val downloaded = AtomicLong(0)
-
-        file.use { file ->
-            (0 until chunkCount).map { i ->
-                val start = i * chunkSize
-                val end = if (i == chunkCount - 1) totalBytes - 1 else start + chunkSize - 1
-                launch {
-                    downloadChunk(url, file, start, end, downloaded, totalBytes)
-                }
-            }.joinAll()
-        }
-    }
-
-    fun detectImageExtension(bytes: ByteArray): String {
-        return when {
-            bytes.size >= 3 &&
-                    bytes[0] == 0xFF.toByte() &&
-                    bytes[1] == 0xD8.toByte() &&
-                    bytes[2] == 0xFF.toByte() -> "jpg"
-
-            bytes.size >= 4 &&
-                    bytes[0] == 0x89.toByte() &&
-                    bytes[1] == 0x50.toByte() &&  // P
-                    bytes[2] == 0x4E.toByte() &&  // N
-                    bytes[3] == 0x47.toByte() -> "png" // G
-
-            bytes.size >= 12 &&
-                    bytes[0] == 0x52.toByte() &&  // R
-                    bytes[1] == 0x49.toByte() &&  // I
-                    bytes[2] == 0x46.toByte() &&  // F
-                    bytes[3] == 0x46.toByte() &&  // F
-                    bytes[8] == 0x57.toByte() &&  // W
-                    bytes[9] == 0x45.toByte() &&  // E
-                    bytes[10] == 0x42.toByte() && // B
-                    bytes[11] == 0x50.toByte() -> "webp" // P
-
-            else -> "jpg" // fallback
-        }
-    }
+    private fun detectImageExtension(bytes: ByteArray): String =
+        DownloadUtils.detectImageExtension(bytes)
 
     private suspend fun runFFmpeg(command: String): Boolean =
-        kotlinx.coroutines.suspendCancellableCoroutine { cont ->
-            val session = FFmpegKit.executeAsync(command) { session ->
-                @Suppress("DEPRECATION")
-                cont.resume(ReturnCode.isSuccess(session.returnCode)) {}
-            }
-            cont.invokeOnCancellation { session.cancel() }
-        }
+        DownloadUtils.runFFmpeg(command)
 }

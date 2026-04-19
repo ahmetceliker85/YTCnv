@@ -1,5 +1,10 @@
 <resources>
+    <!-- Manifest strings -->
     <string name="app_name">YouTube Conv.axs</string>
+    <string name="open_overlay">Overlay</string>
+    <string name="share_quick_download">Schneller Download</string>
+    <string name="share_loading_quality">Qualitätsoptionen werden geladen…</string>
+    <string name="share_downloading_bg">Download läuft im Hintergrund…</string>
 
     <!-- Main Screen -->
     <string name="title">YouTube Converter</string>
@@ -70,6 +75,7 @@
     <string name="not_downloading">Herunterladen</string>
     <string name="not_progress">Download läuft…</string>
     <string name="remaining">verbleibend</string>
+    <string name="finalizing">Wird abgeschlossen</string>
 
     <!-- Title Author Dialog -->
     <string name="tad_edit_metadata">Metadaten bearbeiten</string>

@@ -1,5 +1,10 @@
 <resources>
+    <!-- Manifest strings -->
     <string name="app_name">YouTube Conv.axs</string>
+    <string name="open_overlay">Překrytí</string>
+    <string name="share_quick_download">Rychlé stažení</string>
+    <string name="share_loading_quality">Načítání možností kvality…</string>
+    <string name="share_downloading_bg">Stahování na pozadí…</string>
 
     <!-- Main Screen -->
     <string name="title">YouTube Converter</string>
@@ -70,6 +75,7 @@
     <string name="not_downloading">Stahování</string>
     <string name="not_progress">Probíhá stahování…</string>
     <string name="remaining">zbývá</string>
+    <string name="finalizing">Dokončování</string>
 
     <!-- Title Author Dialog -->
     <string name="tad_edit_metadata">Upravit metadata</string>

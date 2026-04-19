@@ -29,6 +29,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -51,6 +54,16 @@ fun PreviewScreen(
     val activity = LocalActivity.current
     val coroutineScope = rememberCoroutineScope()
 
+    // --- UI state ---
+    var isPlaying by remember { mutableStateOf(true) }
+    var currentPosition by remember { mutableLongStateOf(0L) }
+    var duration by remember { mutableLongStateOf(0L) }
+    var controlsVisible by remember { mutableStateOf(true) }
+    var skipIndicator by remember { mutableStateOf<Int?>(null) }
+    var isSeeking by remember { mutableStateOf(false) }
+    var seekingProgress by remember { mutableFloatStateOf(0f) }
+    // ----------------
+
     val exoPlayer = remember {
         ExoPlayer.Builder(activity!!).build().apply { playWhenReady = true }
     }
@@ -61,10 +74,25 @@ fun PreviewScreen(
         }
     }
 
+    val windowInsetsController = remember {
+        activity?.let { WindowCompat.getInsetsController(it.window, it.window.decorView) }
+    }
+
+    LaunchedEffect(controlsVisible) {
+        if (controlsVisible) {
+            windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
+        } else {
+            windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
+            windowInsetsController?.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
     DisposableEffect(Unit) {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
         onDispose {
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         }
     }
 
@@ -86,18 +114,6 @@ fun PreviewScreen(
         }
     }
 
-    // --- UI state ---
-    var isPlaying by remember { mutableStateOf(true) }
-    var currentPosition by remember { mutableLongStateOf(0L) }
-    var duration by remember { mutableLongStateOf(0L) }
-    var controlsVisible by remember { mutableStateOf(true) }
-    // null = hidden, -10 = rewind indicator, +10 = forward indicator
-    var skipIndicator by remember { mutableStateOf<Int?>(null) }
-    // Seek bar drag state
-    var isSeeking by remember { mutableStateOf(false) }
-    var seekingProgress by remember { mutableFloatStateOf(0f) }
-
-    // Poll playback position every 500ms
     LaunchedEffect(exoPlayer) {
         while (true) {
             currentPosition = exoPlayer.currentPosition
@@ -122,6 +138,14 @@ fun PreviewScreen(
         hideJob = coroutineScope.launch {
             delay(3_000)
             controlsVisible = false
+        }
+    }
+    fun toggleControls() {
+        if (controlsVisible) {
+            hideJob?.cancel()
+            controlsVisible = false
+        } else {
+            showControls()
         }
     }
 
@@ -173,7 +197,7 @@ fun PreviewScreen(
                     .fillMaxHeight()
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onTap = { showControls() },
+                            onTap = { toggleControls() },
                             onDoubleTap = {
                                 exoPlayer.seekTo(
                                     (exoPlayer.currentPosition - 10_000).coerceAtLeast(0)
@@ -190,7 +214,7 @@ fun PreviewScreen(
                     .fillMaxHeight()
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onTap = { showControls() },
+                            onTap = { toggleControls() },
                             onDoubleTap = {
                                 exoPlayer.seekTo(
                                     (exoPlayer.currentPosition + 10_000).coerceAtMost(duration)

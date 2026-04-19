@@ -65,7 +65,7 @@ class DownloadNotificationService : Service() {
             manager.notify(FAIL_NOTIFICATION_ID, notification)
         }
 
-        fun updateProgress(context: Context, progress: Int) {
+        fun updateProgress(context: Context, progress: Int, finale: Boolean = false) {
             val manager = context.getSystemService(NotificationManager::class.java)
 
             val etaText = if (progressIsRunning && progress > 0) {
@@ -82,7 +82,7 @@ class DownloadNotificationService : Service() {
 
             val builder = Notification.Builder(context, CHANNEL_ID)
                 .setContentTitle(context.getString(R.string.not_downloading))
-                .setContentText("${context.getString(R.string.not_progress)} | $progress%")
+                .setContentText(if (!finale) "${context.getString(R.string.not_progress)} | $progress%" else context.getString(R.string.finalizing))
                 .setSmallIcon(R.drawable.icon)
                 .setOngoing(true)
                 .setProgress(100, progress, !progressIsRunning)
